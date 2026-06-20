@@ -11,3 +11,4 @@ backend/db/data
 frontend/node_modules
 frontend/dist
 _pull.tgz
+tsconfig.tsbuildinfo

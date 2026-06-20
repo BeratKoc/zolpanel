@@ -1,0 +1,182 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import AuthGate from '@/components/AuthGate';
+
+interface NavItemDef {
+  id: string;
+  label: string;
+  icon: string;
+  href: string;
+}
+
+const NAV_ITEMS: NavItemDef[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: '▦', href: '/dashboard' },
+  { id: 'domains', label: 'Domains', icon: '⬡', href: '/domains' },
+  { id: 'processes', label: 'Processes', icon: '⚙', href: '/processes' },
+  { id: 'logs', label: 'Logs', icon: '≡', href: '/logs' },
+  { id: 'settings', label: 'Settings', icon: '◎', href: '/settings' },
+];
+
+export default function PanelLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState('');
+
+  useEffect(() => {
+    setUser(localStorage.getItem('username') || '');
+  }, []);
+
+  function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    router.push('/login');
+  }
+
+  const activeItem = NAV_ITEMS.find(n => pathname === n.href || pathname.startsWith(n.href + '/'));
+
+  return (
+    <AuthGate>
+      <div style={{ display: 'flex', height: '100vh', background: 'var(--bg-base)', overflow: 'hidden' }}>
+        {/* Sidebar */}
+        <aside style={{
+          width: 'var(--sidebar-width)',
+          background: 'var(--bg-surface)',
+          borderRight: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          flexShrink: 0,
+        }}>
+          {/* Logo */}
+          <div style={{
+            padding: '18px 16px 14px',
+            borderBottom: '1px solid var(--border)',
+          }}>
+            <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.01em' }}>
+              Zolpanel
+            </p>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px', fontFamily: 'var(--font-mono)' }}>
+              {user}
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <nav style={{ padding: '10px 8px', flex: 1 }}>
+            {NAV_ITEMS.map(item => (
+              <NavItem
+                key={item.id}
+                item={item}
+                active={activeItem?.id === item.id}
+              />
+            ))}
+          </nav>
+
+          {/* Bottom */}
+          <div style={{
+            padding: '12px 16px',
+            borderTop: '1px solid var(--border)',
+            fontSize: '11px',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-mono)',
+          }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: 'var(--green)',
+                animation: 'pulse 2s infinite',
+                display: 'inline-block',
+              }} />
+              online
+            </span>
+          </div>
+        </aside>
+
+        {/* Main */}
+        <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          {/* Topbar */}
+          <div style={{
+            height: 'var(--topbar-height)',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 24px',
+            flexShrink: 0,
+          }}>
+            <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
+              {activeItem?.label}
+            </span>
+            <button
+              onClick={handleLogout}
+              style={{
+                marginLeft: 'auto',
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                color: 'var(--text-muted)',
+                fontSize: '12px',
+                padding: '5px 12px',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-hover)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+            >
+              Çıkış
+            </button>
+          </div>
+
+          {/* Page content */}
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            {children}
+          </div>
+        </main>
+      </div>
+    </AuthGate>
+  );
+}
+
+function NavItem({ item, active }: { item: NavItemDef; active: boolean }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <Link
+      href={item.href}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        width: '100%',
+        padding: '8px 10px',
+        borderRadius: 'var(--radius)',
+        marginBottom: '2px',
+        background: active ? 'var(--bg-hover)' : hovered ? 'var(--bg-elevated)' : 'transparent',
+        border: 'none',
+        color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+        fontSize: '13px',
+        cursor: 'pointer',
+        textAlign: 'left',
+        transition: 'all 0.1s',
+        fontFamily: 'var(--font-sans)',
+        textDecoration: 'none',
+      }}
+    >
+      <span style={{
+        fontSize: '15px',
+        opacity: active ? 1 : 0.6,
+        lineHeight: 1,
+      }}>
+        {item.icon}
+      </span>
+      {item.label}
+    </Link>
+  );
+}
