@@ -177,7 +177,7 @@ export default function Dashboard() {
         <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
           {t('dashboard.system')}
         </p>
-        <div className="grid-cards">
+        <div className="grid-5">
           <MetricCard label="CPU" value={`${metrics?.cpu?.load ?? '–'}%`} sub={`${metrics?.cpu?.cores ?? '?'} ${t('dashboard.cores')}`}
             color={metrics?.cpu?.load > 80 ? 'var(--red)' : metrics?.cpu?.load > 50 ? 'var(--yellow)' : 'var(--text-primary)'} />
           <MetricCard label={t('dashboard.ramTotal')} value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
@@ -197,7 +197,7 @@ export default function Dashboard() {
         <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
           {t('dashboard.domains')}
         </p>
-        <div className="grid-cards">
+        <div className="grid-4">
           <MetricCard label={t('dashboard.total')} value={stats?.total ?? 0} />
           <MetricCard label={t('dashboard.activeLabel')} value={stats?.active ?? 0} color="var(--green)" />
           <MetricCard label={t('dashboard.offline')} value={stats?.offline ?? 0} color={stats?.offline > 0 ? 'var(--red)' : 'var(--text-primary)'} />

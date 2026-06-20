@@ -113,7 +113,8 @@ input::placeholder, textarea::placeholder {
 .sidebar-backdrop { display: none; }
 .page { padding: 24px; overflow-y: auto; height: 100%; }
 .proc-row { display: grid; grid-template-columns: 7px 1fr 80px 80px 70px 70px 80px 120px; gap: 12px; align-items: center; }
-.grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .domain-card { display: flex; align-items: center; gap: 12px; }
 .route-row { display: flex; gap: 6px; align-items: center; }
 .log-shell { display: flex; flex-direction: column; height: 100%; }
@@ -149,12 +150,14 @@ input::placeholder, textarea::placeholder {
   .filters > * { flex: 1 1 auto; }
   .log-row { flex-direction: column; gap: 2px; align-items: stretch; }
   .cols-2 { grid-template-columns: 1fr; }
+  .grid-5, .grid-4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 }
-@media (max-width: 480px) { .page { padding: 12px; } }
 
 .login-card { width: 360px; max-width: calc(100vw - 32px); }
 .info-row { display: flex; justify-content: space-between; gap: 12px; }
 @media (max-width: 480px) {
+  .page { padding: 12px; }
+  .grid-5, .grid-4 { grid-template-columns: 1fr 1fr; }
   .info-row { flex-direction: column; gap: 2px; }
   .toast-wrap { left: 12px; right: 12px !important; }
   .toast-wrap > div { max-width: none !important; }

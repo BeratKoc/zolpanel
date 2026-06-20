@@ -125,7 +125,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
             >
               ☰
             </button>
-            <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
+            <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {activeItem ? t(`nav.${activeItem.id}`) : ''}
             </span>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>

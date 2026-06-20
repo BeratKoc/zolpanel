@@ -150,7 +150,7 @@ export default function Settings() {
 
         {/* Oturum */}
         <Section title={t('settings.session')}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="info-row" style={{ alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{username}</p>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{t('settings.loggedIn')}</p>
