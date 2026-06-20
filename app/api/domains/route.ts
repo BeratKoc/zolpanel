@@ -54,7 +54,8 @@ export async function POST(req: Request) {
     try {
       if (await isCaddyRunning()) {
         await addDomainToConfig(doc);
-        setTimeout(() => db.domains.update({ _id: saved._id }, { $set: { sslStatus: 'active' } }, {}), 10000);
+        // sslStatus 'pending' kalır; sslTracker gerçek sertifika durumunu (Caddy
+        // public CA sertifikası aldığında) ~60sn içinde 'active' yapar.
       } else addLog(input.domain, 'warn', 'Caddy çalışmıyor');
     } catch (e: any) {
       addLog(input.domain, 'error', 'Caddy config hatası: ' + e.message);
