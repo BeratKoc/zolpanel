@@ -55,7 +55,7 @@ export default function Domains() {
   }
 
   return (
-    <div style={{ padding: '24px', overflowY: 'auto', height: '100%', animation: 'fadeIn 0.2s ease' }}>
+    <div className="page" style={{ animation: 'fadeIn 0.2s ease' }}>
       <ToastContainer />
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>

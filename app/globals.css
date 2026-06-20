@@ -114,6 +114,8 @@ input::placeholder, textarea::placeholder {
 .page { padding: 24px; overflow-y: auto; height: 100%; }
 .proc-row { display: grid; grid-template-columns: 7px 1fr 80px 80px 70px 70px 80px 120px; gap: 12px; align-items: center; }
 .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.domain-card { display: flex; align-items: center; gap: 12px; }
+.route-row { display: flex; gap: 6px; align-items: center; }
 
 @media (max-width: 767px) {
   .sidebar {
@@ -136,5 +138,8 @@ input::placeholder, textarea::placeholder {
   .proc-row > * { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 3px 0; min-width: 0; }
   .proc-row > [data-label]::before { content: attr(data-label); color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
   .proc-header { display: none; }
+  .domain-card { flex-wrap: wrap; align-items: flex-start; }
+  .route-row { flex-wrap: wrap; }
+  .route-row > * { flex: 1 1 auto; }
 }
 @media (max-width: 480px) { .page { padding: 12px; } }

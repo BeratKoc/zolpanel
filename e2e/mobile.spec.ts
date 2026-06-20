@@ -49,3 +49,26 @@ test('mobil: processes gerçek satırlarla kart olarak render + taşma yok', asy
   await expect(page.locator('.proc-row').first()).toBeVisible();
   await expectNoOverflow(page);
 });
+
+test('mobil: domains taşma yok + ekle modal sığar', async ({ page }) => {
+  await login(page);
+  await page.goto('/domains');
+  await expectNoOverflow(page);
+  await page.getByText(/Domain Ekle|Add Domain/).first().click();
+  await expectNoOverflow(page);
+  await page.getByText(/Gelişmiş|Advanced/).first().click();   // advanced → route editor visible
+  await expectNoOverflow(page);
+});
+
+test('mobil: domain kartı taşmıyor (mock liste)', async ({ page }) => {
+  await page.route('**/api/domains', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    await route.fulfill({ json: [
+      { _id:'a1', domain:'cok-uzun-ornek-alan-adi.example.com', type:'proxy', port:3070, rootPath:null, routes:null, aliases:['www.cok-uzun-ornek-alan-adi.example.com'], appType:'next.js', notes:'', status:'active', sslStatus:'active', createdAt:'2026-01-01T00:00:00Z', updatedAt:'2026-01-01T00:00:00Z' },
+    ] });
+  });
+  await login(page);
+  await page.goto('/domains');
+  await expect(page.locator('.domain-card').first()).toBeVisible();
+  await expectNoOverflow(page);
+});

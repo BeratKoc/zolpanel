@@ -12,16 +12,15 @@ export function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
 }) {
   const t = useTranslations();
   return (
-    <div style={{
-      background: 'var(--bg-surface)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius-lg)',
-      padding: '12px 16px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      transition: 'border-color 0.15s',
-    }}
+    <div
+      className="domain-card"
+      style={{
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '12px 16px',
+        transition: 'border-color 0.15s',
+      }}
       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-light)'}
       onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
     >

@@ -169,7 +169,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
           <FormField label={t('domains.routes')} hint={t('domains.routesHint')}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {form.routes.map((r, i) => (
-                <div key={i} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <div key={i} className="route-row">
                   <input
                     placeholder="/api/*"
                     value={r.path}
