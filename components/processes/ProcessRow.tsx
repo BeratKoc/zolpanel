@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { FileText, Pause, Play, RotateCw, Trash2 } from 'lucide-react';
 import { Badge, StatusDot } from '@/components/ui';
 import { formatBytes, formatUptime, ProcBtn } from '@/components/processes/shared';
 
@@ -72,35 +73,40 @@ export function ProcessRow({ p, statusColor, actionLoading, onShowLogs, onAction
         <ProcBtn
           onClick={() => onShowLogs(p.name)}
           title={t('processes.logs')}
+          aria-label={t('processes.logs')}
           loading={actionLoading === p.name + 'logs'}
-        >📋</ProcBtn>
+        ><FileText size={14} strokeWidth={1.75} color="currentColor" /></ProcBtn>
 
         {p.status === 'online' ? (
           <ProcBtn
             onClick={() => onAction(p.name, 'stop')}
             title={t('processes.stop')}
+            aria-label={t('processes.stop')}
             loading={actionLoading === p.name + 'stop'}
-          >⏸</ProcBtn>
+          ><Pause size={14} strokeWidth={1.75} color="currentColor" /></ProcBtn>
         ) : (
           <ProcBtn
             onClick={() => onAction(p.name, 'restart')}
             title={t('processes.start')}
+            aria-label={t('processes.start')}
             loading={actionLoading === p.name + 'restart'}
-          >▶</ProcBtn>
+          ><Play size={14} strokeWidth={1.75} color="currentColor" /></ProcBtn>
         )}
 
         <ProcBtn
           onClick={() => onAction(p.name, 'restart')}
           title={t('processes.restart')}
+          aria-label={t('processes.restart')}
           loading={actionLoading === p.name + 'restart'}
-        >↺</ProcBtn>
+        ><RotateCw size={14} strokeWidth={1.75} color="currentColor" /></ProcBtn>
 
         <ProcBtn
           onClick={() => onAction(p.name, 'delete')}
           title={t('common.delete')}
+          aria-label={t('common.delete')}
           danger
           loading={actionLoading === p.name + 'delete'}
-        >🗑</ProcBtn>
+        ><Trash2 size={14} strokeWidth={1.75} color="currentColor" /></ProcBtn>
       </div>
     </div>
   );

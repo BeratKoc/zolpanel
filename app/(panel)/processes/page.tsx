@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { Cpu, RotateCw, ServerOff } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, Spinner, EmptyState, useToast } from '@/components/ui';
 import { ProcessRow } from '@/components/processes/ProcessRow';
@@ -69,7 +70,7 @@ export default function Processes() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Btn variant="default" onClick={load}>↻ {t('processes.refresh')}</Btn>
+          <Btn variant="default" onClick={load}><RotateCw size={14} strokeWidth={1.75} style={{ marginRight: '6px' }} />{t('processes.refresh')}</Btn>
           {data.available && (
             <Btn variant="primary" onClick={() => setShowStart(true)}>{t('processes.startProcess')}</Btn>
           )}
@@ -82,13 +83,13 @@ export default function Processes() {
         </div>
       ) : !data.available ? (
         <EmptyState
-          icon="⚙️"
+          icon={<Cpu size={32} strokeWidth={1.5} />}
           title={t('processes.pm2NotInstalled')}
           subtitle={t('processes.pm2InstallHint', { cmd: 'npm install -g pm2' })}
         />
       ) : data.processes.length === 0 ? (
         <EmptyState
-          icon="⚡"
+          icon={<ServerOff size={32} strokeWidth={1.5} />}
           title={t('processes.noProcesses')}
           subtitle={t('processes.noProcessesSubtitle')}
           action={<Btn variant="primary" onClick={() => setShowStart(true)}>{t('processes.startProcess')}</Btn>}

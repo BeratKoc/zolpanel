@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { RotateCw } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, Modal, Spinner } from '@/components/ui';
 
@@ -40,7 +41,7 @@ export function LogModal({ name, onClose }: { name: string; onClose: () => void 
             {t('processes.lines', { n })}
           </Btn>
         ))}
-        <Btn size="sm" variant="ghost" onClick={load}>↻</Btn>
+        <Btn size="sm" variant="ghost" onClick={load}><RotateCw size={12} strokeWidth={1.75} /></Btn>
       </div>
 
       <div style={{

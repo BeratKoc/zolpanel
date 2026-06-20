@@ -17,20 +17,25 @@ export function formatUptime(ms?: number): string {
   return Math.floor(s / 86400) + 'd';
 }
 
-export function ProcBtn({ children, onClick, title, danger, loading }: {
+export function ProcBtn({ children, onClick, title, danger, loading, 'aria-label': ariaLabel, className }: {
   children: React.ReactNode;
   onClick: () => void;
   title: string;
   danger?: boolean;
   loading?: boolean;
+  'aria-label'?: string;
+  className?: string;
 }) {
+  const combinedClass = ['icon-btn', className].filter(Boolean).join(' ');
   return (
     <button
       onClick={onClick}
       title={title}
+      aria-label={ariaLabel ?? title}
+      className={combinedClass}
       disabled={loading}
       style={{
-        width: '26px', height: '26px',
+        width: '44px', height: '44px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: 'transparent',
         border: '1px solid var(--border)',
