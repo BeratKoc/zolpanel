@@ -26,6 +26,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const t = useTranslations();
   const [user, setUser] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     setUser(localStorage.getItem('username') || '');
@@ -41,16 +42,17 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
   return (
     <AuthGate>
-      <div style={{ display: 'flex', height: '100vh', background: 'var(--bg-base)', overflow: 'hidden' }}>
+      <div className="app-shell" style={{ background: 'var(--bg-base)' }}>
         {/* Sidebar */}
-        <aside style={{
-          width: 'var(--sidebar-width)',
-          background: 'var(--bg-surface)',
-          borderRight: '1px solid var(--border)',
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-        }}>
+        <aside
+          className={'sidebar' + (drawerOpen ? ' open' : '')}
+          style={{
+            background: 'var(--bg-surface)',
+            borderRight: '1px solid var(--border)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {/* Logo */}
           <div style={{
             padding: '18px 16px 14px',
@@ -72,6 +74,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
                 item={item}
                 label={t(`nav.${item.id}`)}
                 active={activeItem?.id === item.id}
+                onNavigate={() => setDrawerOpen(false)}
               />
             ))}
           </nav>
@@ -100,6 +103,9 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
           </div>
         </aside>
 
+        {/* Backdrop (mobile only) */}
+        {drawerOpen && <div className="sidebar-backdrop" onClick={() => setDrawerOpen(false)} />}
+
         {/* Main */}
         <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Topbar */}
@@ -111,6 +117,14 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
             padding: '0 24px',
             flexShrink: 0,
           }}>
+            <button
+              className="hamburger"
+              aria-label="☰"
+              onClick={() => setDrawerOpen(true)}
+              style={{ marginRight: 12 }}
+            >
+              ☰
+            </button>
             <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
               {activeItem ? t(`nav.${activeItem.id}`) : ''}
             </span>
@@ -147,12 +161,23 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   );
 }
 
-function NavItem({ item, label, active }: { item: NavItemDef; label: string; active: boolean }) {
+function NavItem({
+  item,
+  label,
+  active,
+  onNavigate,
+}: {
+  item: NavItemDef;
+  label: string;
+  active: boolean;
+  onNavigate: () => void;
+}) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <Link
       href={item.href}
+      onClick={onNavigate}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
