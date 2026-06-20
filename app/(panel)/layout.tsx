@@ -4,21 +4,22 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { LayoutDashboard, Globe, Cpu, ScrollText, Settings as SettingsIcon, Menu, type LucideIcon } from 'lucide-react';
 import AuthGate from '@/components/AuthGate';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface NavItemDef {
   id: string;
-  icon: string;
+  icon: LucideIcon;
   href: string;
 }
 
 const NAV_ITEMS: NavItemDef[] = [
-  { id: 'dashboard', icon: '▦', href: '/dashboard' },
-  { id: 'domains', icon: '⬡', href: '/domains' },
-  { id: 'processes', icon: '⚙', href: '/processes' },
-  { id: 'logs', icon: '≡', href: '/logs' },
-  { id: 'settings', icon: '◎', href: '/settings' },
+  { id: 'dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { id: 'domains', icon: Globe, href: '/domains' },
+  { id: 'processes', icon: Cpu, href: '/processes' },
+  { id: 'logs', icon: ScrollText, href: '/logs' },
+  { id: 'settings', icon: SettingsIcon, href: '/settings' },
 ];
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
@@ -119,11 +120,11 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
           }}>
             <button
               className="hamburger"
-              aria-label="☰"
+              aria-label="menu"
               onClick={() => setDrawerOpen(true)}
               style={{ marginRight: 12 }}
             >
-              ☰
+              <Menu size={18} strokeWidth={1.75} />
             </button>
             <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {activeItem ? t(`nav.${activeItem.id}`) : ''}
@@ -200,11 +201,12 @@ function NavItem({
       }}
     >
       <span style={{
-        fontSize: '15px',
         opacity: active ? 1 : 0.6,
         lineHeight: 1,
+        display: 'inline-flex',
+        alignItems: 'center',
       }}>
-        {item.icon}
+        <item.icon size={18} strokeWidth={1.75} />
       </span>
       {label}
     </Link>

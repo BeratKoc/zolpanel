@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type React from 'react';
+import { X } from 'lucide-react';
 
 // Button
 type BtnVariant = 'default' | 'primary' | 'danger' | 'ghost';
@@ -15,9 +16,10 @@ interface BtnProps {
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
   style?: React.CSSProperties;
+  'aria-label'?: string;
 }
 
-export function Btn({ children, variant = 'default', size = 'md', onClick, disabled, type = 'button', style }: BtnProps) {
+export function Btn({ children, variant = 'default', size = 'md', onClick, disabled, type = 'button', style, 'aria-label': ariaLabel }: BtnProps) {
   const styles: Record<BtnVariant, React.CSSProperties> = {
     default: {
       background: 'var(--bg-elevated)',
@@ -52,6 +54,7 @@ export function Btn({ children, variant = 'default', size = 'md', onClick, disab
       type={type}
       disabled={disabled}
       onClick={onClick}
+      aria-label={ariaLabel}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -200,7 +203,7 @@ export function Modal({ title, onClose, children, width = 480 }: ModalProps) {
           borderBottom: '1px solid var(--border)',
         }}>
           <span style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-primary)' }}>{title}</span>
-          <Btn variant="ghost" size="sm" onClick={onClose} style={{ padding: '4px 6px' }}>✕</Btn>
+          <Btn variant="ghost" size="sm" onClick={onClose} style={{ padding: '4px 6px' }} aria-label="kapat"><X size={16} strokeWidth={1.75} /></Btn>
         </div>
         <div style={{ padding: '20px' }}>
           {children}
