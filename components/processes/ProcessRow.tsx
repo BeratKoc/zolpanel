@@ -14,15 +14,12 @@ export function ProcessRow({ p, statusColor, actionLoading, onShowLogs, onAction
   const t = useTranslations();
   return (
     <div
+      className="proc-row"
       style={{
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius)',
         padding: '10px 16px',
-        display: 'grid',
-        gridTemplateColumns: '7px 1fr 80px 80px 70px 70px 80px 120px',
-        gap: '12px',
-        alignItems: 'center',
         transition: 'border-color 0.15s',
       }}
       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-light)'}
@@ -39,23 +36,35 @@ export function ProcessRow({ p, statusColor, actionLoading, onShowLogs, onAction
 
       <Badge color={statusColor[p.status] || 'default'}>{p.status}</Badge>
 
-      <span style={{
-        fontSize: '13px',
-        fontFamily: 'var(--font-mono)',
-        color: p.cpu > 50 ? 'var(--yellow)' : 'var(--text-secondary)',
-      }}>
+      <span
+        data-label={t('processes.colCpu')}
+        style={{
+          fontSize: '13px',
+          fontFamily: 'var(--font-mono)',
+          color: p.cpu > 50 ? 'var(--yellow)' : 'var(--text-secondary)',
+        }}
+      >
         {p.cpu}%
       </span>
 
-      <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+      <span
+        data-label={t('processes.colMem')}
+        style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}
+      >
         {formatBytes(p.memory)}
       </span>
 
-      <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: p.restarts > 5 ? 'var(--red)' : 'var(--text-secondary)' }}>
+      <span
+        data-label={t('processes.colRestarts')}
+        style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: p.restarts > 5 ? 'var(--red)' : 'var(--text-secondary)' }}
+      >
         {p.restarts}
       </span>
 
-      <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+      <span
+        data-label={t('processes.colUptime')}
+        style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}
+      >
         {formatUptime(p.uptime)}
       </span>
 

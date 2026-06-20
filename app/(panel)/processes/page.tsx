@@ -58,7 +58,7 @@ export default function Processes() {
   };
 
   return (
-    <div style={{ padding: '24px', overflowY: 'auto', height: '100%', animation: 'fadeIn 0.2s ease' }}>
+    <div className="page" style={{ animation: 'fadeIn 0.2s ease' }}>
       <ToastContainer />
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -96,7 +96,7 @@ export default function Processes() {
       ) : (
         <div>
           {/* Header */}
-          <div style={{
+          <div className="proc-header" style={{
             display: 'grid',
             gridTemplateColumns: '7px 1fr 80px 80px 70px 70px 80px 120px',
             gap: '12px',

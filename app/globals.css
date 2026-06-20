@@ -112,6 +112,7 @@ input::placeholder, textarea::placeholder {
 .hamburger { display: none; }
 .sidebar-backdrop { display: none; }
 .page { padding: 24px; overflow-y: auto; height: 100%; }
+.proc-row { display: grid; grid-template-columns: 7px 1fr 80px 80px 70px 70px 80px 120px; gap: 12px; align-items: center; }
 
 @media (max-width: 767px) {
   .sidebar {
@@ -130,5 +131,9 @@ input::placeholder, textarea::placeholder {
     color: var(--text-secondary); font-size: 16px;
   }
   .page { padding: 16px; }
+  .proc-row { display: block; }
+  .proc-row > * { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 3px 0; min-width: 0; }
+  .proc-row > [data-label]::before { content: attr(data-label); color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
+  .proc-header { display: none; }
 }
 @media (max-width: 480px) { .page { padding: 12px; } }

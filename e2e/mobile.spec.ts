@@ -18,3 +18,9 @@ test('mobil: dashboard yatay taşma yok', async ({ page }) => {
   await login(page);
   await expectNoOverflow(page);
 });
+
+test('mobil: processes yatay taşma yok', async ({ page }) => {
+  await login(page);
+  await page.goto('/processes');
+  await expectNoOverflow(page);
+});
