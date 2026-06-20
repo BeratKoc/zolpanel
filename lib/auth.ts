@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { db, UserDoc } from './server/db';
+import { db, initDb, UserDoc } from './server/db';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '8h';
@@ -23,6 +23,7 @@ function getUser(username: string): Promise<UserDoc | null> {
 
 // Route handler'larda kullanılır. Başarılıysa payload döner, değilse null.
 export async function requireAuth(req: Request): Promise<TokenPayload | null> {
+  await initDb(); // bu bundle'ın db instance'ı yüklü olsun (Next route'ları ayrı bundle'lar)
   const header = req.headers.get('authorization');
   const token = header && header.split(' ')[1];
   if (!token) return null;

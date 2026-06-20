@@ -47,26 +47,36 @@ export interface MemorySnapshotDoc {
   timestamp: string;
 }
 
-// autoload: false → modül import edildiğinde async dosya I/O TETİKLENMEZ.
-// Bu, pure-fonksiyon testlerinin (caddy/pm2) NeDB'yi yüklemeden import edebilmesini
-// ve "async activity after test ended" hatasını önler. Datastore'lar boot'ta
-// initDb() ile açıkça yüklenir (instrumentation.ts) — yüklenmeden yapılan
-// sorgular NeDB tarafından kuyruğa alınır ve load sonrası çalışır.
-export const db = {
-  domains: new Datastore<DomainDoc>({ filename: path.join(dbPath, 'domains.db'), autoload: false }),
-  users: new Datastore<UserDoc>({ filename: path.join(dbPath, 'users.db'), autoload: false }),
-  logs: new Datastore<LogDoc>({ filename: path.join(dbPath, 'logs.db'), autoload: false }),
-  memorySnapshots: new Datastore<MemorySnapshotDoc>({ filename: path.join(dbPath, 'memory_snapshots.db'), autoload: false }),
-};
+// db, TÜM Next bundle'ları (instrumentation + her route handler) arasında TEK
+// instance olmalı. Next route'ları ayrı bundle'larda derlediği için modül birden
+// fazla örneklenebilir; bu durumda farklı route'lar aynı NeDB dosyasının ayrı
+// in-memory kopyalarını kullanır (tracker'ın yazdığını route görmez, sorgular
+// hang eder). globalThis singleton (standart Next/Prisma pattern) bunu çözer.
+// autoload: false → import anında async dosya I/O olmaz (pure-fn testleri db'yi
+// yüklemeden import edebilir); yükleme initDb() ile açıkça yapılır.
+interface DbBundle {
+  domains: Datastore<DomainDoc>;
+  users: Datastore<UserDoc>;
+  logs: Datastore<LogDoc>;
+  memorySnapshots: Datastore<MemorySnapshotDoc>;
+}
+const g = globalThis as unknown as { __zolpanelDb?: DbBundle; __zolpanelDbReady?: Promise<void> };
 
-let dbReady: Promise<void> | null = null;
+export const db: DbBundle =
+  g.__zolpanelDb ??
+  (g.__zolpanelDb = {
+    domains: new Datastore<DomainDoc>({ filename: path.join(dbPath, 'domains.db'), autoload: false }),
+    users: new Datastore<UserDoc>({ filename: path.join(dbPath, 'users.db'), autoload: false }),
+    logs: new Datastore<LogDoc>({ filename: path.join(dbPath, 'logs.db'), autoload: false }),
+    memorySnapshots: new Datastore<MemorySnapshotDoc>({ filename: path.join(dbPath, 'memory_snapshots.db'), autoload: false }),
+  });
 
-// Tüm datastore'ları yükler ve indeksleri kurar. Idempotent (tek sefer çalışır).
+// Tüm datastore'ları yükler ve indeksleri kurar. Idempotent + process-global.
 export function initDb(): Promise<void> {
-  if (dbReady) return dbReady;
+  if (g.__zolpanelDbReady) return g.__zolpanelDbReady;
   const load = (store: Datastore<unknown>) =>
     new Promise<void>((resolve, reject) => store.loadDatabase((err) => (err ? reject(err) : resolve())));
-  dbReady = Promise.all([
+  g.__zolpanelDbReady = Promise.all([
     load(db.domains as Datastore<unknown>),
     load(db.users as Datastore<unknown>),
     load(db.logs as Datastore<unknown>),
@@ -75,7 +85,7 @@ export function initDb(): Promise<void> {
     db.domains.ensureIndex({ fieldName: 'domain', unique: true });
     db.users.ensureIndex({ fieldName: 'username', unique: true });
   });
-  return dbReady;
+  return g.__zolpanelDbReady;
 }
 
 export function addLog(domain: string | null, level: string, message: string): void {
