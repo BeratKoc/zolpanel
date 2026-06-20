@@ -580,14 +580,17 @@ export function unauthorized(message = 'Yetkisiz') {
 ```ts
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { initAdmin } = await import('./lib/server/db');
+    const { initDb, initAdmin } = await import('./lib/server/db');
     const { startTracker } = await import('./lib/server/memoryTracker');
-    await initAdmin();
+    await initDb();      // NeDB datastore'ları yükle (autoload:false)
+    await initAdmin();   // ilk kurulumda admin (rastgele şifre)
     startTracker();
     console.log('🚀 Zolpanel başladı — http://127.0.0.1:3999');
   }
 }
 ```
+
+> Not: `db.ts` `autoload:false` kullanır; datastore'lar `initDb()` ile boot'ta yüklenir (test sırasındaki NeDB teardown yarışını önler). `initAdmin()` zaten içeride `initDb()` bekler, ama instrumentation netlik için açıkça çağırır.
 
 - [ ] **Step 2:** Run: `npm run build` → build başarılı.
 - [ ] **Step 3:** Commit — `git add instrumentation.ts && git commit -m "feat: boot initAdmin + memoryTracker via instrumentation"`

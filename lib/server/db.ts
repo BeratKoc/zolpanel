@@ -47,15 +47,36 @@ export interface MemorySnapshotDoc {
   timestamp: string;
 }
 
+// autoload: false → modül import edildiğinde async dosya I/O TETİKLENMEZ.
+// Bu, pure-fonksiyon testlerinin (caddy/pm2) NeDB'yi yüklemeden import edebilmesini
+// ve "async activity after test ended" hatasını önler. Datastore'lar boot'ta
+// initDb() ile açıkça yüklenir (instrumentation.ts) — yüklenmeden yapılan
+// sorgular NeDB tarafından kuyruğa alınır ve load sonrası çalışır.
 export const db = {
-  domains: new Datastore<DomainDoc>({ filename: path.join(dbPath, 'domains.db'), autoload: true }),
-  users: new Datastore<UserDoc>({ filename: path.join(dbPath, 'users.db'), autoload: true }),
-  logs: new Datastore<LogDoc>({ filename: path.join(dbPath, 'logs.db'), autoload: true }),
-  memorySnapshots: new Datastore<MemorySnapshotDoc>({ filename: path.join(dbPath, 'memory_snapshots.db'), autoload: true }),
+  domains: new Datastore<DomainDoc>({ filename: path.join(dbPath, 'domains.db'), autoload: false }),
+  users: new Datastore<UserDoc>({ filename: path.join(dbPath, 'users.db'), autoload: false }),
+  logs: new Datastore<LogDoc>({ filename: path.join(dbPath, 'logs.db'), autoload: false }),
+  memorySnapshots: new Datastore<MemorySnapshotDoc>({ filename: path.join(dbPath, 'memory_snapshots.db'), autoload: false }),
 };
 
-db.domains.ensureIndex({ fieldName: 'domain', unique: true });
-db.users.ensureIndex({ fieldName: 'username', unique: true });
+let dbReady: Promise<void> | null = null;
+
+// Tüm datastore'ları yükler ve indeksleri kurar. Idempotent (tek sefer çalışır).
+export function initDb(): Promise<void> {
+  if (dbReady) return dbReady;
+  const load = (store: Datastore<unknown>) =>
+    new Promise<void>((resolve, reject) => store.loadDatabase((err) => (err ? reject(err) : resolve())));
+  dbReady = Promise.all([
+    load(db.domains as Datastore<unknown>),
+    load(db.users as Datastore<unknown>),
+    load(db.logs as Datastore<unknown>),
+    load(db.memorySnapshots as Datastore<unknown>),
+  ]).then(() => {
+    db.domains.ensureIndex({ fieldName: 'domain', unique: true });
+    db.users.ensureIndex({ fieldName: 'username', unique: true });
+  });
+  return dbReady;
+}
 
 export function addLog(domain: string | null, level: string, message: string): void {
   db.logs.insert({
@@ -70,6 +91,7 @@ export function addLog(domain: string | null, level: string, message: string): v
 
 // İlk kurulumda admin oluştur — sabit şifre YOK, rastgele üret ve bir kez logla.
 export async function initAdmin(): Promise<void> {
+  await initDb();
   return new Promise((resolve) => {
     db.users.findOne({ username: 'admin' }, async (_err, user) => {
       if (!user) {
