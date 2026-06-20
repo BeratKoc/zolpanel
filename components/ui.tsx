@@ -188,7 +188,7 @@ export function Modal({ title, onClose, children, width = 480 }: ModalProps) {
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
-        width,
+        width: `min(${width}px, calc(100vw - 24px))`,
         maxWidth: '95vw',
         maxHeight: '90vh',
         overflow: 'auto',
@@ -262,7 +262,7 @@ export function useToast() {
   };
 
   const ToastContainer = () => (
-    <div style={{
+    <div className="toast-wrap" style={{
       position: 'fixed', bottom: '20px', right: '20px',
       zIndex: 999, display: 'flex', flexDirection: 'column', gap: '8px',
     }}>

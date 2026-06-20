@@ -86,3 +86,16 @@ test('mobil: logs taşma yok', async ({ page }) => {
   await expect(page.locator('.log-row').first()).toBeVisible();
   await expectNoOverflow(page);
 });
+
+test('mobil: settings taşma yok', async ({ page }) => {
+  await login(page);
+  await page.goto('/settings');
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
+
+test('mobil: login sayfası 393px taşmıyor', async ({ page }) => {
+  await page.context().clearCookies();
+  await page.goto('/login');
+  await expectNoOverflow(page);
+});

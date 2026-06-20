@@ -149,3 +149,11 @@ input::placeholder, textarea::placeholder {
   .log-row { flex-direction: column; gap: 2px; align-items: stretch; }
 }
 @media (max-width: 480px) { .page { padding: 12px; } }
+
+.login-card { width: 360px; max-width: calc(100vw - 32px); }
+.info-row { display: flex; justify-content: space-between; gap: 12px; }
+@media (max-width: 480px) {
+  .info-row { flex-direction: column; gap: 2px; }
+  .toast-wrap { left: 12px; right: 12px !important; }
+  .toast-wrap > div { max-width: none !important; }
+}

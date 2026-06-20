@@ -40,8 +40,7 @@ export default function Login() {
       alignItems: 'center',
       justifyContent: 'center',
     }}>
-      <div style={{
-        width: 360,
+      <div className="login-card" style={{
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
