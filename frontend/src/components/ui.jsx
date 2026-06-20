@@ -1,0 +1,271 @@
+import { useState } from 'react';
+
+// Button
+export function Btn({ children, variant = 'default', size = 'md', onClick, disabled, type = 'button', style }) {
+  const styles = {
+    default: {
+      background: 'var(--bg-elevated)',
+      border: '1px solid var(--border-light)',
+      color: 'var(--text-primary)',
+    },
+    primary: {
+      background: 'var(--accent)',
+      border: '1px solid var(--accent)',
+      color: '#fff',
+    },
+    danger: {
+      background: 'transparent',
+      border: '1px solid var(--border)',
+      color: 'var(--red)',
+    },
+    ghost: {
+      background: 'transparent',
+      border: '1px solid transparent',
+      color: 'var(--text-secondary)',
+    },
+  };
+
+  const sizes = {
+    sm: { padding: '4px 10px', fontSize: '12px', borderRadius: '5px' },
+    md: { padding: '7px 14px', fontSize: '13px', borderRadius: 'var(--radius)' },
+    lg: { padding: '10px 20px', fontSize: '14px', borderRadius: 'var(--radius)' },
+  };
+
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontWeight: 400,
+        transition: 'all 0.15s',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.4 : 1,
+        ...styles[variant],
+        ...sizes[size],
+        ...style,
+      }}
+      onMouseEnter={e => {
+        if (disabled) return;
+        if (variant === 'primary') e.currentTarget.style.background = 'var(--accent-hover)';
+        else if (variant !== 'ghost') e.currentTarget.style.background = 'var(--bg-hover)';
+        else e.currentTarget.style.color = 'var(--text-primary)';
+      }}
+      onMouseLeave={e => {
+        if (disabled) return;
+        e.currentTarget.style.background = styles[variant].background;
+        e.currentTarget.style.color = styles[variant].color;
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Badge
+export function Badge({ children, color = 'default' }) {
+  const colors = {
+    default: { bg: 'var(--bg-hover)', color: 'var(--text-secondary)' },
+    green: { bg: 'rgba(34,197,94,0.1)', color: 'var(--green)' },
+    yellow: { bg: 'rgba(245,158,11,0.1)', color: 'var(--yellow)' },
+    red: { bg: 'rgba(239,68,68,0.1)', color: 'var(--red)' },
+    blue: { bg: 'rgba(59,130,246,0.1)', color: 'var(--accent)' },
+    purple: { bg: 'rgba(167,139,250,0.1)', color: 'var(--purple)' },
+  };
+  const c = colors[color] || colors.default;
+  return (
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      padding: '2px 8px',
+      borderRadius: '4px',
+      fontSize: '11px',
+      fontWeight: 400,
+      background: c.bg,
+      color: c.color,
+      fontFamily: 'var(--font-sans)',
+    }}>
+      {children}
+    </span>
+  );
+}
+
+// StatusDot
+export function StatusDot({ status }) {
+  const colors = {
+    active: 'var(--green)',
+    offline: 'var(--red)',
+    pending: 'var(--yellow)',
+    online: 'var(--green)',
+    stopped: 'var(--red)',
+    errored: 'var(--red)',
+  };
+  const isPulsing = status === 'active' || status === 'online';
+  return (
+    <span style={{
+      display: 'inline-block',
+      width: '7px',
+      height: '7px',
+      borderRadius: '50%',
+      background: colors[status] || 'var(--text-muted)',
+      flexShrink: 0,
+      animation: isPulsing ? 'pulse 2s infinite' : 'none',
+    }} />
+  );
+}
+
+// Spinner
+export function Spinner({ size = 16 }) {
+  return (
+    <span style={{
+      display: 'inline-block',
+      width: size,
+      height: size,
+      border: '2px solid var(--border-light)',
+      borderTopColor: 'var(--accent)',
+      borderRadius: '50%',
+      animation: 'spin 0.7s linear infinite',
+      flexShrink: 0,
+    }} />
+  );
+}
+
+// Modal
+export function Modal({ title, onClose, children, width = 480 }) {
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100,
+        background: 'rgba(0,0,0,0.7)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        animation: 'fadeIn 0.15s ease',
+      }}
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div style={{
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)',
+        width,
+        maxWidth: '95vw',
+        maxHeight: '90vh',
+        overflow: 'auto',
+        animation: 'fadeIn 0.2s ease',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 20px',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          <span style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-primary)' }}>{title}</span>
+          <Btn variant="ghost" size="sm" onClick={onClose} style={{ padding: '4px 6px' }}>✕</Btn>
+        </div>
+        <div style={{ padding: '20px' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// FormField
+export function FormField({ label, children, hint }) {
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      {label && (
+        <label style={{
+          display: 'block',
+          fontSize: '12px',
+          color: 'var(--text-secondary)',
+          marginBottom: '6px',
+          fontWeight: 400,
+        }}>
+          {label}
+        </label>
+      )}
+      {children}
+      {hint && (
+        <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Toast notification
+export function useToast() {
+  const [toasts, setToasts] = useState([]);
+
+  const show = (message, type = 'info') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 3500);
+  };
+
+  const ToastContainer = () => (
+    <div style={{
+      position: 'fixed', bottom: '20px', right: '20px',
+      zIndex: 999, display: 'flex', flexDirection: 'column', gap: '8px',
+    }}>
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          background: 'var(--bg-elevated)',
+          border: `1px solid ${t.type === 'error' ? 'var(--red)' : t.type === 'success' ? 'var(--green)' : 'var(--border-light)'}`,
+          borderRadius: 'var(--radius)',
+          padding: '10px 16px',
+          fontSize: '13px',
+          color: 'var(--text-primary)',
+          animation: 'fadeIn 0.2s ease',
+          maxWidth: '320px',
+        }}>
+          {t.message}
+        </div>
+      ))}
+    </div>
+  );
+
+  return { show, ToastContainer };
+}
+
+// Empty state
+export function EmptyState({ icon, title, subtitle, action }) {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', padding: '60px 20px', gap: '12px',
+      color: 'var(--text-muted)',
+    }}>
+      <span style={{ fontSize: '32px', opacity: 0.4 }}>{icon}</span>
+      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500 }}>{title}</p>
+      {subtitle && <p style={{ fontSize: '12px', textAlign: 'center', maxWidth: 280 }}>{subtitle}</p>}
+      {action && <div style={{ marginTop: '8px' }}>{action}</div>}
+    </div>
+  );
+}
+
+// Metric card
+export function MetricCard({ label, value, sub, color }) {
+  return (
+    <div style={{
+      background: 'var(--bg-surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-lg)',
+      padding: '16px 18px',
+    }}>
+      <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
+        {label}
+      </p>
+      <p style={{ fontSize: '24px', fontWeight: 500, color: color || 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+        {value}
+      </p>
+      {sub && <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{sub}</p>}
+    </div>
+  );
+}
