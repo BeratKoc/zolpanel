@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { Btn, FormField, Spinner, useToast } from '@/components/ui';
 
 export default function Settings() {
+  const t = useTranslations();
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [caddyConfig, setCaddyConfig] = useState('');
@@ -29,12 +31,12 @@ export default function Settings() {
 
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
-    if (pwForm.next !== pwForm.confirm) return show('Şifreler eşleşmiyor', 'error');
-    if (pwForm.next.length < 6) return show('Şifre en az 6 karakter olmalı', 'error');
+    if (pwForm.next !== pwForm.confirm) return show(t('settings.passwordMismatch'), 'error');
+    if (pwForm.next.length < 6) return show(t('settings.passwordTooShort'), 'error');
     setPwLoading(true);
     try {
       await api.changePassword(pwForm.current, pwForm.next);
-      show('Şifre güncellendi', 'success');
+      show(t('settings.passwordUpdated'), 'success');
       setPwForm({ current: '', next: '', confirm: '' });
     } catch (e: any) {
       show(e.message, 'error');
@@ -47,7 +49,7 @@ export default function Settings() {
     setReloading(true);
     try {
       await api.reloadCaddy();
-      show('Caddy yeniden yüklendi', 'success');
+      show(t('settings.caddyReloaded'), 'success');
       const d = await api.getCaddyConfig();
       setCaddyConfig(d.content);
     } catch (e: any) {
@@ -61,14 +63,14 @@ export default function Settings() {
     <div style={{ padding: '24px', overflowY: 'auto', height: '100%', animation: 'fadeIn 0.2s ease' }}>
       <ToastContainer />
 
-      <h2 style={{ fontSize: '15px', fontWeight: 500, marginBottom: '24px' }}>Ayarlar</h2>
+      <h2 style={{ fontSize: '15px', fontWeight: 500, marginBottom: '24px' }}>{t('settings.title')}</h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
 
         {/* Şifre değiştir */}
-        <Section title="Şifre Değiştir">
+        <Section title={t('settings.changePassword')}>
           <form onSubmit={handleChangePassword}>
-            <FormField label="Mevcut şifre">
+            <FormField label={t('settings.currentPassword')}>
               <input
                 type="password"
                 value={pwForm.current}
@@ -76,7 +78,7 @@ export default function Settings() {
                 required
               />
             </FormField>
-            <FormField label="Yeni şifre">
+            <FormField label={t('settings.newPassword')}>
               <input
                 type="password"
                 value={pwForm.next}
@@ -84,7 +86,7 @@ export default function Settings() {
                 required
               />
             </FormField>
-            <FormField label="Yeni şifre (tekrar)">
+            <FormField label={t('settings.newPasswordConfirm')}>
               <input
                 type="password"
                 value={pwForm.confirm}
@@ -93,23 +95,23 @@ export default function Settings() {
               />
             </FormField>
             <Btn type="submit" variant="primary" disabled={pwLoading}>
-              {pwLoading ? <Spinner size={13} /> : 'Güncelle'}
+              {pwLoading ? <Spinner size={13} /> : t('settings.update')}
             </Btn>
           </form>
         </Section>
 
         {/* Sistem bilgisi */}
-        <Section title="Sistem Bilgisi">
+        <Section title={t('settings.systemInfo')}>
           {metrics ? (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <tbody>
                 {([
-                  ['İşletim Sistemi', `${metrics.os?.distro} ${metrics.os?.release}`],
-                  ['Hostname', metrics.os?.hostname],
-                  ['CPU', `${metrics.cpu?.load}% kullanım (${metrics.cpu?.cores} çekirdek)`],
+                  [t('settings.operatingSystem'), `${metrics.os?.distro} ${metrics.os?.release}`],
+                  [t('settings.hostname'), metrics.os?.hostname],
+                  ['CPU', t('settings.cpuUsage', { load: metrics.cpu?.load, cores: metrics.cpu?.cores })],
                   ['RAM', `${formatBytes(metrics.memory?.used)} / ${formatBytes(metrics.memory?.total)}`],
                   ['Disk', `${formatBytes(metrics.disk?.used)} / ${formatBytes(metrics.disk?.total)} (${metrics.disk?.percent}%)`],
-                  ['Caddy', metrics.caddy?.running ? '✅ Çalışıyor' : '❌ Durdu'],
+                  ['Caddy', metrics.caddy?.running ? `✅ ${t('settings.running')}` : `❌ ${t('settings.stopped')}`],
                 ] as [string, string][]).map(([k, v]) => (
                   <tr key={k}>
                     <td style={{ padding: '6px 0', color: 'var(--text-muted)', width: '40%' }}>{k}</td>
@@ -125,7 +127,7 @@ export default function Settings() {
         <Section title="Caddyfile" style={{ gridColumn: '1 / -1' }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <Btn variant="default" size="sm" onClick={handleReloadCaddy} disabled={reloading}>
-              {reloading ? <Spinner size={12} /> : '↻'} Reload Caddy
+              {reloading ? <Spinner size={12} /> : '↻'} {t('settings.reloadCaddy')}
             </Btn>
           </div>
           <pre style={{
@@ -141,18 +143,18 @@ export default function Settings() {
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-all',
           }}>
-            {caddyConfig || '# Caddyfile boş veya okunamadı'}
+            {caddyConfig || t('settings.caddyfileEmpty')}
           </pre>
         </Section>
 
         {/* Oturum */}
-        <Section title="Oturum">
+        <Section title={t('settings.session')}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <p style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{username}</p>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Giriş yapıldı</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{t('settings.loggedIn')}</p>
             </div>
-            <Btn variant="danger" onClick={handleLogout}>Çıkış Yap</Btn>
+            <Btn variant="danger" onClick={handleLogout}>{t('settings.logout')}</Btn>
           </div>
         </Section>
 

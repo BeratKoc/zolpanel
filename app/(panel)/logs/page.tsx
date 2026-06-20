@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { Btn, Spinner, useToast } from '@/components/ui';
 
@@ -12,6 +13,7 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 export default function Logs() {
+  const t = useTranslations();
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [domains, setDomains] = useState<any[]>([]);
@@ -59,10 +61,10 @@ export default function Logs() {
   }, [logs, autoScroll]);
 
   async function handleClear() {
-    if (!window.confirm('Logları temizle?')) return;
+    if (!window.confirm(t('logs.confirmClear'))) return;
     try {
       await api.clearLogs(filter.domain !== 'all' ? filter.domain : undefined);
-      show('Loglar temizlendi', 'success');
+      show(t('logs.cleared'), 'success');
       load();
     } catch (e: any) {
       show(e.message, 'error');
@@ -93,7 +95,7 @@ export default function Logs() {
         flexShrink: 0,
       }}>
         <span style={{ fontSize: '13px', color: 'var(--text-muted)', marginRight: '4px' }}>
-          {logs.length} kayıt
+          {t('logs.records', { n: logs.length })}
         </span>
 
         <select
@@ -101,8 +103,8 @@ export default function Logs() {
           onChange={e => setFilter(f => ({ ...f, domain: e.target.value }))}
           style={{ width: 'auto' }}
         >
-          <option value="all">Tüm domainler</option>
-          <option value="system">System</option>
+          <option value="all">{t('logs.allDomains')}</option>
+          <option value="system">{t('logs.system')}</option>
           {domains.map(d => (
             <option key={d._id} value={d.domain}>{d.domain}</option>
           ))}
@@ -113,11 +115,11 @@ export default function Logs() {
           onChange={e => setFilter(f => ({ ...f, level: e.target.value }))}
           style={{ width: 'auto' }}
         >
-          <option value="all">Tüm seviyeler</option>
-          <option value="info">Info</option>
-          <option value="warn">Warn</option>
-          <option value="error">Error</option>
-          <option value="success">Success</option>
+          <option value="all">{t('logs.allLevels')}</option>
+          <option value="info">{t('logs.levelInfo')}</option>
+          <option value="warn">{t('logs.levelWarn')}</option>
+          <option value="error">{t('logs.levelError')}</option>
+          <option value="success">{t('logs.levelSuccess')}</option>
         </select>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
@@ -131,10 +133,10 @@ export default function Logs() {
               onChange={e => setAutoScroll(e.target.checked)}
               style={{ width: 'auto', accentColor: 'var(--accent)' }}
             />
-            Otomatik scroll
+            {t('logs.autoScroll')}
           </label>
           <Btn variant="ghost" size="sm" onClick={load}>↻</Btn>
-          <Btn variant="danger" size="sm" onClick={handleClear}>Temizle</Btn>
+          <Btn variant="danger" size="sm" onClick={handleClear}>{t('logs.clear')}</Btn>
         </div>
       </div>
 
@@ -152,7 +154,7 @@ export default function Logs() {
           </div>
         ) : logs.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-            Log bulunamadı
+            {t('logs.noLogs')}
           </div>
         ) : (
           logs.slice().reverse().map((log, i) => (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { Btn, Badge, StatusDot, Modal, FormField, Spinner, EmptyState, useToast } from '@/components/ui';
 
@@ -20,6 +21,7 @@ function formatUptime(ms?: number): string {
 }
 
 export default function Processes() {
+  const t = useTranslations();
   const [data, setData] = useState<{ available: boolean; processes: any[] }>({ available: false, processes: [] });
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -50,10 +52,10 @@ export default function Processes() {
       if (action === 'stop') await api.stopProcess(name);
       else if (action === 'restart') await api.restartProcess(name);
       else if (action === 'delete') {
-        if (!window.confirm(`"${name}" process'i silinsin mi?`)) return;
+        if (!window.confirm(t('processes.confirmDelete', { name }))) return;
         await api.deleteProcess(name);
       }
-      show(`${name} ${action} başarılı`, 'success');
+      show(t('processes.actionSuccess', { name, action }), 'success');
       load();
     } catch (e: any) {
       show(e.message, 'error');
@@ -73,15 +75,15 @@ export default function Processes() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '15px', fontWeight: 500 }}>Processes</h2>
+          <h2 style={{ fontSize: '15px', fontWeight: 500 }}>{t('processes.title')}</h2>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            {!data.available ? 'PM2 bulunamadı' : `${data.processes.length} process`}
+            {!data.available ? t('processes.pm2NotFound') : t('processes.processCount', { n: data.processes.length })}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Btn variant="default" onClick={load}>↻ Yenile</Btn>
+          <Btn variant="default" onClick={load}>↻ {t('processes.refresh')}</Btn>
           {data.available && (
-            <Btn variant="primary" onClick={() => setShowStart(true)}>+ Process Başlat</Btn>
+            <Btn variant="primary" onClick={() => setShowStart(true)}>{t('processes.startProcess')}</Btn>
           )}
         </div>
       </div>
@@ -93,15 +95,15 @@ export default function Processes() {
       ) : !data.available ? (
         <EmptyState
           icon="⚙️"
-          title="PM2 kurulu değil"
-          subtitle="Process yönetimi için PM2 gerekli. SSH ile bağlanıp kurun: npm install -g pm2"
+          title={t('processes.pm2NotInstalled')}
+          subtitle={t('processes.pm2InstallHint', { cmd: 'npm install -g pm2' })}
         />
       ) : data.processes.length === 0 ? (
         <EmptyState
           icon="⚡"
-          title="Çalışan process yok"
-          subtitle="PM2 ile yönetilen bir uygulama başlatın"
-          action={<Btn variant="primary" onClick={() => setShowStart(true)}>+ Process Başlat</Btn>}
+          title={t('processes.noProcesses')}
+          subtitle={t('processes.noProcessesSubtitle')}
+          action={<Btn variant="primary" onClick={() => setShowStart(true)}>{t('processes.startProcess')}</Btn>}
         />
       ) : (
         <div>
@@ -118,13 +120,13 @@ export default function Processes() {
             marginBottom: '6px',
           }}>
             <span></span>
-            <span>İsim</span>
-            <span>Durum</span>
+            <span>{t('processes.colName')}</span>
+            <span>{t('processes.colStatus')}</span>
             <span>CPU</span>
             <span>RAM</span>
             <span>Restart</span>
             <span>Uptime</span>
-            <span style={{ textAlign: 'right' }}>Aksiyon</span>
+            <span style={{ textAlign: 'right' }}>{t('processes.colAction')}</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -179,33 +181,33 @@ export default function Processes() {
                 <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                   <ProcBtn
                     onClick={() => setShowLogs(p.name)}
-                    title="Loglar"
+                    title={t('processes.logs')}
                     loading={actionLoading === p.name + 'logs'}
                   >📋</ProcBtn>
 
                   {p.status === 'online' ? (
                     <ProcBtn
                       onClick={() => handleAction(p.name, 'stop')}
-                      title="Durdur"
+                      title={t('processes.stop')}
                       loading={actionLoading === p.name + 'stop'}
                     >⏸</ProcBtn>
                   ) : (
                     <ProcBtn
                       onClick={() => handleAction(p.name, 'restart')}
-                      title="Başlat"
+                      title={t('processes.start')}
                       loading={actionLoading === p.name + 'restart'}
                     >▶</ProcBtn>
                   )}
 
                   <ProcBtn
                     onClick={() => handleAction(p.name, 'restart')}
-                    title="Yeniden Başlat"
+                    title={t('processes.restart')}
                     loading={actionLoading === p.name + 'restart'}
                   >↺</ProcBtn>
 
                   <ProcBtn
                     onClick={() => handleAction(p.name, 'delete')}
-                    title="Sil"
+                    title={t('common.delete')}
                     danger
                     loading={actionLoading === p.name + 'delete'}
                   >🗑</ProcBtn>
@@ -223,7 +225,7 @@ export default function Processes() {
       {showStart && (
         <StartProcessModal
           onClose={() => setShowStart(false)}
-          onSuccess={() => { setShowStart(false); load(); show('Process başlatıldı', 'success'); }}
+          onSuccess={() => { setShowStart(false); load(); show(t('processes.started'), 'success'); }}
           onError={msg => show(msg, 'error')}
         />
       )}
@@ -264,6 +266,7 @@ function ProcBtn({ children, onClick, title, danger, loading }: {
 }
 
 function LogModal({ name, onClose }: { name: string; onClose: () => void }) {
+  const t = useTranslations();
   const [logs, setLogs] = useState('');
   const [loading, setLoading] = useState(true);
   const [lines, setLines] = useState(100);
@@ -272,9 +275,9 @@ function LogModal({ name, onClose }: { name: string; onClose: () => void }) {
     setLoading(true);
     try {
       const data = await api.getProcessLogs(name, lines);
-      setLogs(data.logs || 'Log bulunamadı');
+      setLogs(data.logs || t('processes.logNotFound'));
     } catch (e: any) {
-      setLogs('Log alınamadı: ' + e.message);
+      setLogs(t('processes.logFetchFailed') + ' ' + e.message);
     } finally {
       setLoading(false);
     }
@@ -284,9 +287,9 @@ function LogModal({ name, onClose }: { name: string; onClose: () => void }) {
   useEffect(() => { load(); }, [lines]);
 
   return (
-    <Modal title={`Loglar: ${name}`} onClose={onClose} width={720}>
+    <Modal title={t('processes.logsTitle', { name })} onClose={onClose} width={720}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Son</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('processes.last')}</span>
         {[50, 100, 200].map(n => (
           <Btn
             key={n}
@@ -294,7 +297,7 @@ function LogModal({ name, onClose }: { name: string; onClose: () => void }) {
             variant={lines === n ? 'primary' : 'default'}
             onClick={() => setLines(n)}
           >
-            {n} satır
+            {t('processes.lines', { n })}
           </Btn>
         ))}
         <Btn size="sm" variant="ghost" onClick={load}>↻</Btn>
@@ -328,6 +331,7 @@ function StartProcessModal({ onClose, onSuccess, onError }: {
   onSuccess: () => void;
   onError: (msg: string) => void;
 }) {
+  const t = useTranslations();
   const [form, setForm] = useState({ name: '', script: '', cwd: '/var/www' });
   const [submitting, setSubmitting] = useState(false);
 
@@ -347,21 +351,21 @@ function StartProcessModal({ onClose, onSuccess, onError }: {
   }
 
   return (
-    <Modal title="Process Başlat" onClose={onClose}>
+    <Modal title={t('processes.startProcessTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <FormField label="Process ismi">
+        <FormField label={t('processes.processName')}>
           <input placeholder="myapp" value={form.name} onChange={e => update('name', e.target.value)} required autoFocus />
         </FormField>
-        <FormField label="Script yolu" hint="Çalıştırılacak dosya (ör: server.js, index.js)">
+        <FormField label={t('processes.scriptPath')} hint={t('processes.scriptPathHint')}>
           <input placeholder="server.js" value={form.script} onChange={e => update('script', e.target.value)} required />
         </FormField>
-        <FormField label="Çalışma dizini">
+        <FormField label={t('processes.workingDir')}>
           <input placeholder="/var/www/myapp" value={form.cwd} onChange={e => update('cwd', e.target.value)} />
         </FormField>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-          <Btn type="button" variant="ghost" onClick={onClose}>İptal</Btn>
+          <Btn type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Btn>
           <Btn type="submit" variant="primary" disabled={submitting}>
-            {submitting ? <Spinner size={13} /> : 'Başlat'}
+            {submitting ? <Spinner size={13} /> : t('processes.start')}
           </Btn>
         </div>
       </form>

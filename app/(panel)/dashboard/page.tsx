@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { MetricCard, StatusDot, Badge, Spinner, Btn } from '@/components/ui';
 
@@ -32,26 +33,27 @@ function Sparkline({ data, color = 'var(--accent)', width = 80, height = 28 }: {
 
 // Anomali badge
 function AnomalyBadge({ anomaly, trend }: { anomaly?: any; trend?: string }) {
+  const t = useTranslations();
   if (anomaly) return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
       background: 'rgba(255,80,80,0.15)', color: 'var(--red)',
       border: '1px solid rgba(255,80,80,0.3)', fontWeight: 600,
-    }}>⚠️ Leak şüphesi</span>
+    }}>⚠️ {t('dashboard.leakSuspect')}</span>
   );
   if (trend === 'growing') return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
       background: 'rgba(255,180,0,0.12)', color: 'var(--yellow)',
       border: '1px solid rgba(255,180,0,0.25)',
-    }}>↑ Artıyor</span>
+    }}>↑ {t('dashboard.trendGrowing')}</span>
   );
   if (trend === 'stable') return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
       background: 'rgba(0,200,100,0.1)', color: 'var(--green)',
       border: '1px solid rgba(0,200,100,0.2)',
-    }}>✓ Stabil</span>
+    }}>✓ {t('dashboard.trendStable')}</span>
   );
   return null;
 }
@@ -104,6 +106,7 @@ function ServiceMemoryRow({ svc }: { svc: any }) {
 }
 
 export default function Dashboard() {
+  const t = useTranslations();
   const [metrics, setMetrics] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [domains, setDomains] = useState<any[]>([]);
@@ -171,18 +174,18 @@ export default function Dashboard() {
       {/* Sistem metrikleri */}
       <div style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
-          Sistem
+          {t('dashboard.system')}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
-          <MetricCard label="CPU" value={`${metrics?.cpu?.load ?? '–'}%`} sub={`${metrics?.cpu?.cores ?? '?'} çekirdek`}
+          <MetricCard label="CPU" value={`${metrics?.cpu?.load ?? '–'}%`} sub={`${metrics?.cpu?.cores ?? '?'} ${t('dashboard.cores')}`}
             color={metrics?.cpu?.load > 80 ? 'var(--red)' : metrics?.cpu?.load > 50 ? 'var(--yellow)' : 'var(--text-primary)'} />
-          <MetricCard label="RAM (toplam)" value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
+          <MetricCard label={t('dashboard.ramTotal')} value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
             color={metrics?.memory?.percent > 80 ? 'var(--red)' : 'var(--text-primary)'} />
-          <MetricCard label="RAM (gerçek)" value={formatBytes(metrics?.memory?.active)} sub={`% ${metrics?.memory?.activePercent ?? '–'} aktif`}
+          <MetricCard label={t('dashboard.ramReal')} value={formatBytes(metrics?.memory?.active)} sub={`% ${metrics?.memory?.activePercent ?? '–'} ${t('dashboard.active')}`}
             color={metrics?.memory?.activePercent > 80 ? 'var(--red)' : 'var(--green)'} />
           <MetricCard label="Disk" value={`${metrics?.disk?.percent ?? '–'}%`}
             sub={`${formatBytes(metrics?.disk?.used)} / ${formatBytes(metrics?.disk?.total)}`} />
-          <MetricCard label="Caddy" value={metrics?.caddy?.running ? 'Çalışıyor' : 'Durdu'}
+          <MetricCard label="Caddy" value={metrics?.caddy?.running ? t('dashboard.running') : t('dashboard.stopped')}
             sub={metrics?.os?.hostname || ''}
             color={metrics?.caddy?.running ? 'var(--green)' : 'var(--red)'} />
         </div>
@@ -191,13 +194,13 @@ export default function Dashboard() {
       {/* Domain istatistikleri */}
       <div style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
-          Domainler
+          {t('dashboard.domains')}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-          <MetricCard label="Toplam" value={stats?.total ?? 0} />
-          <MetricCard label="Aktif" value={stats?.active ?? 0} color="var(--green)" />
-          <MetricCard label="Offline" value={stats?.offline ?? 0} color={stats?.offline > 0 ? 'var(--red)' : 'var(--text-primary)'} />
-          <MetricCard label="SSL Aktif" value={stats?.sslActive ?? 0} color="var(--accent)" />
+          <MetricCard label={t('dashboard.total')} value={stats?.total ?? 0} />
+          <MetricCard label={t('dashboard.activeLabel')} value={stats?.active ?? 0} color="var(--green)" />
+          <MetricCard label={t('dashboard.offline')} value={stats?.offline ?? 0} color={stats?.offline > 0 ? 'var(--red)' : 'var(--text-primary)'} />
+          <MetricCard label={t('dashboard.sslActive')} value={stats?.sslActive ?? 0} color="var(--accent)" />
         </div>
       </div>
 
@@ -206,7 +209,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Servis Bellek Kullanımı
+              {t('dashboard.serviceMemoryUsage')}
             </p>
             {anomalyCount > 0 && (
               <span style={{
@@ -214,7 +217,7 @@ export default function Dashboard() {
                 background: 'rgba(255,80,80,0.15)', color: 'var(--red)',
                 border: '1px solid rgba(255,80,80,0.3)', fontWeight: 600,
               }}>
-                {anomalyCount} anomali
+                {t('dashboard.anomalies', { n: anomalyCount })}
               </span>
             )}
           </div>
@@ -228,7 +231,7 @@ export default function Dashboard() {
                 color: memHours === h ? '#fff' : 'var(--text-muted)',
                 cursor: 'pointer',
               }}>
-                {h === 1 ? '1s' : h === 6 ? '6s' : '24s'}
+                {t('dashboard.hoursShort', { h })}
               </button>
             ))}
           </div>
@@ -240,7 +243,7 @@ export default function Dashboard() {
             borderRadius: 'var(--radius-lg)', padding: '24px', textAlign: 'center',
             color: 'var(--text-muted)', fontSize: 13,
           }}>
-            Henüz veri toplanmadı (30 saniye bekleyin)
+            {t('dashboard.noDataYet')}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -256,10 +259,10 @@ export default function Dashboard() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Son Eklenen Domainler
+            {t('dashboard.recentDomains')}
           </p>
           <Btn variant="ghost" size="sm" onClick={handleReloadCaddy} disabled={reloading}>
-            {reloading ? <Spinner size={12} /> : '↻'} Caddy Reload
+            {reloading ? <Spinner size={12} /> : '↻'} {t('dashboard.caddyReload')}
           </Btn>
         </div>
         {domains.length === 0 ? (
@@ -268,7 +271,7 @@ export default function Dashboard() {
             borderRadius: 'var(--radius-lg)', padding: 32,
             textAlign: 'center', color: 'var(--text-muted)', fontSize: 13,
           }}>
-            Henüz domain eklenmedi
+            {t('dashboard.noDomainsYet')}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -281,6 +284,7 @@ export default function Dashboard() {
 }
 
 function DomainRow({ domain }: { domain: any }) {
+  const t = useTranslations();
   return (
     <div style={{
       background: 'var(--bg-surface)', border: '1px solid var(--border)',
@@ -290,7 +294,7 @@ function DomainRow({ domain }: { domain: any }) {
       <StatusDot status={domain.status} />
       <span style={{ flex: 1, fontSize: 13 }}>{domain.domain}</span>
       {domain.aliases?.length > 0 && (
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>+{domain.aliases.length} alias</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('dashboard.aliasCount', { n: domain.aliases.length })}</span>
       )}
       <Badge color={domain.type === 'proxy' ? 'blue' : 'purple'}>
         {domain.type === 'proxy' ? `proxy :${domain.port}` : 'static'}

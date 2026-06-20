@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import {
   Btn, Badge, StatusDot, Modal, FormField,
@@ -16,6 +17,7 @@ interface Route {
 }
 
 export default function Domains() {
+  const t = useTranslations();
   const [domains, setDomains] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -37,11 +39,11 @@ export default function Domains() {
   useEffect(() => { load(); }, []);
 
   async function handleDelete(domain: any) {
-    if (!window.confirm(`"${domain.domain}" silinsin mi?`)) return;
+    if (!window.confirm(t('domains.confirmDelete', { domain: domain.domain }))) return;
     setDeleting(domain._id);
     try {
       await api.deleteDomain(domain._id);
-      show(`${domain.domain} silindi`, 'success');
+      show(t('domains.deleted', { domain: domain.domain }), 'success');
       load();
     } catch (e: any) {
       show(e.message, 'error');
@@ -66,13 +68,13 @@ export default function Domains() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '15px', fontWeight: 500 }}>Domainler</h2>
+          <h2 style={{ fontSize: '15px', fontWeight: 500 }}>{t('domains.title')}</h2>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            {domains.length} domain kayıtlı
+            {t('domains.registered', { n: domains.length })}
           </p>
         </div>
         <Btn variant="primary" onClick={() => setShowAdd(true)}>
-          + Domain Ekle
+          {t('domains.addDomain')}
         </Btn>
       </div>
 
@@ -83,9 +85,9 @@ export default function Domains() {
       ) : domains.length === 0 ? (
         <EmptyState
           icon="🌐"
-          title="Henüz domain yok"
-          subtitle="İlk domainini ekleyerek başla"
-          action={<Btn variant="primary" onClick={() => setShowAdd(true)}>+ Domain Ekle</Btn>}
+          title={t('domains.emptyTitle')}
+          subtitle={t('domains.emptySubtitle')}
+          action={<Btn variant="primary" onClick={() => setShowAdd(true)}>{t('domains.addDomain')}</Btn>}
         />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -105,7 +107,7 @@ export default function Domains() {
       {showAdd && (
         <AddDomainModal
           onClose={() => setShowAdd(false)}
-          onSuccess={() => { setShowAdd(false); load(); show('Domain eklendi', 'success'); }}
+          onSuccess={() => { setShowAdd(false); load(); show(t('domains.added'), 'success'); }}
           onError={msg => show(msg, 'error')}
         />
       )}
@@ -114,7 +116,7 @@ export default function Domains() {
         <EditDomainModal
           domain={selectedDomain}
           onClose={() => setSelectedDomain(null)}
-          onSuccess={() => { setSelectedDomain(null); load(); show('Domain güncellendi', 'success'); }}
+          onSuccess={() => { setSelectedDomain(null); load(); show(t('domains.updated'), 'success'); }}
           onError={msg => show(msg, 'error')}
         />
       )}
@@ -129,6 +131,7 @@ function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
   onToggle: () => void;
   deleting: boolean;
 }) {
+  const t = useTranslations();
   return (
     <div style={{
       background: 'var(--bg-surface)',
@@ -159,7 +162,7 @@ function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
             {domain.type === 'proxy'
               ? `→ :${domain.port}`
               : domain.type === 'advanced'
-              ? `${domain.routes?.length || 0} route`
+              ? t('domains.routeCount', { n: domain.routes?.length || 0 })
               : domain.rootPath}
           </span>
           {domain.appType && domain.appType !== 'other' && (
@@ -178,11 +181,11 @@ function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
       </div>
 
       <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-        <IconBtn onClick={onToggle} title={domain.status === 'active' ? 'Durdur' : 'Aktif Et'}>
+        <IconBtn onClick={onToggle} title={domain.status === 'active' ? t('domains.stop') : t('domains.activate')}>
           {domain.status === 'active' ? '⏸' : '▶'}
         </IconBtn>
-        <IconBtn onClick={onEdit} title="Düzenle">✏️</IconBtn>
-        <IconBtn onClick={onDelete} title="Sil" danger disabled={deleting}>
+        <IconBtn onClick={onEdit} title={t('common.edit')}>✏️</IconBtn>
+        <IconBtn onClick={onDelete} title={t('common.delete')} danger disabled={deleting}>
           {deleting ? <Spinner size={12} /> : '🗑'}
         </IconBtn>
       </div>
@@ -227,6 +230,7 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
   onSuccess: () => void;
   onError: (msg: string) => void;
 }) {
+  const t = useTranslations();
   const [form, setForm] = useState<{
     domain: string;
     type: string;
@@ -296,7 +300,7 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
           .map(r => ({ path: r.path.trim(), port: parseInt(r.port), type: r.type }))
           .filter(r => r.path && !isNaN(r.port));
         if (routes.length === 0) {
-          onError('En az bir geçerli route (path + port) gerekli');
+          onError(t('domains.routeRequired'));
           setSubmitting(false);
           return;
         }
@@ -313,9 +317,9 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
   }
 
   return (
-    <Modal title="Domain Ekle" onClose={onClose}>
+    <Modal title={t('domains.addDomainTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <FormField label="Domain adı">
+        <FormField label={t('domains.domainName')}>
           <input
             placeholder="ornek.com"
             value={form.domain}
@@ -325,12 +329,12 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
           />
         </FormField>
 
-        <FormField label="Tip">
+        <FormField label={t('domains.type')}>
           <div style={{ display: 'flex', gap: '8px' }}>
             {[
-              { v: 'proxy', label: '🔀 Proxy' },
-              { v: 'static', label: '📁 Static' },
-              { v: 'advanced', label: '⚙️ Gelişmiş' },
+              { v: 'proxy', label: `🔀 ${t('domains.typeProxy')}` },
+              { v: 'static', label: `📁 ${t('domains.typeStatic')}` },
+              { v: 'advanced', label: `⚙️ ${t('domains.typeAdvanced')}` },
             ].map(({ v, label }) => (
               <button
                 key={v}
@@ -354,7 +358,7 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
         </FormField>
 
         {form.type === 'proxy' && (
-          <FormField label="Port" hint="Uygulamanın çalıştığı port numarası">
+          <FormField label={t('domains.port')} hint={t('domains.portHint')}>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="number"
@@ -364,14 +368,14 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
                 required
               />
               <Btn type="button" variant="default" onClick={autoPort} disabled={loadingPort} style={{ flexShrink: 0 }}>
-                {loadingPort ? <Spinner size={12} /> : 'Otomatik'}
+                {loadingPort ? <Spinner size={12} /> : t('domains.auto')}
               </Btn>
             </div>
           </FormField>
         )}
 
         {form.type === 'static' && (
-          <FormField label="Klasör yolu" hint="Boş bırakırsan /var/www/{domain} kullanılır">
+          <FormField label={t('domains.folderPath')} hint={t('domains.folderPathHint', { path: '/var/www/{domain}' })}>
             <input
               placeholder="/var/www/sitem"
               value={form.rootPath}
@@ -381,7 +385,7 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
         )}
 
         {form.type === 'advanced' && (
-          <FormField label="Route'lar" hint="Path → port eşlemesi. WS = websocket (uzun bağlantı).">
+          <FormField label={t('domains.routes')} hint={t('domains.routesHint')}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {form.routes.map((r, i) => (
                 <div key={i} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -393,7 +397,7 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
                   />
                   <input
                     type="number"
-                    placeholder="port"
+                    placeholder={t('domains.portPlaceholder')}
                     value={r.port}
                     onChange={e => updateRoute(i, 'port', e.target.value)}
                     style={{ flex: 1, minWidth: 0 }}
@@ -410,7 +414,7 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
                     type="button"
                     onClick={() => removeRoute(i)}
                     disabled={form.routes.length === 1}
-                    title="Route sil"
+                    title={t('domains.removeRoute')}
                     style={{
                       width: '30px', height: '30px', flexShrink: 0,
                       background: 'transparent',
@@ -426,19 +430,19 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
                 </div>
               ))}
               <Btn type="button" variant="default" onClick={addRoute} style={{ alignSelf: 'flex-start' }}>
-                + Route ekle
+                {t('domains.addRoute')}
               </Btn>
             </div>
           </FormField>
         )}
 
-        <FormField label="Uygulama tipi">
+        <FormField label={t('domains.appType')}>
           <select value={form.appType} onChange={e => update('appType', e.target.value)}>
-            {APP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            {APP_TYPES.map(at => <option key={at} value={at}>{at}</option>)}
           </select>
         </FormField>
 
-        <FormField label="Alias domainler" hint="Virgülle ayır: site.net, site.org">
+        <FormField label={t('domains.aliasDomains')} hint={t('domains.aliasHintAdd')}>
           <input
             placeholder="ornek.net, ornek.org"
             value={form.aliases}
@@ -446,10 +450,10 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
           />
         </FormField>
 
-        <FormField label="Notlar">
+        <FormField label={t('domains.notes')}>
           <textarea
             rows={2}
-            placeholder="Opsiyonel not..."
+            placeholder={t('domains.notesPlaceholder')}
             value={form.notes}
             onChange={e => update('notes', e.target.value)}
             style={{ resize: 'none' }}
@@ -457,9 +461,9 @@ function AddDomainModal({ onClose, onSuccess, onError }: {
         </FormField>
 
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-          <Btn type="button" variant="ghost" onClick={onClose}>İptal</Btn>
+          <Btn type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Btn>
           <Btn type="submit" variant="primary" disabled={submitting}>
-            {submitting ? <Spinner size={13} /> : 'Ekle'}
+            {submitting ? <Spinner size={13} /> : t('common.add')}
           </Btn>
         </div>
       </form>
@@ -473,6 +477,7 @@ function EditDomainModal({ domain, onClose, onSuccess, onError }: {
   onSuccess: () => void;
   onError: (msg: string) => void;
 }) {
+  const t = useTranslations();
   const [form, setForm] = useState({
     aliases: domain.aliases?.join(', ') || '',
     appType: domain.appType || 'other',
@@ -502,7 +507,7 @@ function EditDomainModal({ domain, onClose, onSuccess, onError }: {
   }
 
   return (
-    <Modal title={`Düzenle: ${domain.domain}`} onClose={onClose}>
+    <Modal title={t('domains.editTitle', { domain: domain.domain })} onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <div style={{
           background: 'var(--bg-elevated)',
@@ -520,20 +525,20 @@ function EditDomainModal({ domain, onClose, onSuccess, onError }: {
             : `root * ${domain.rootPath}`}
         </div>
 
-        <FormField label="Durum">
+        <FormField label={t('domains.status')}>
           <select value={form.status} onChange={e => update('status', e.target.value)}>
-            <option value="active">Aktif</option>
-            <option value="offline">Offline</option>
+            <option value="active">{t('domains.statusActive')}</option>
+            <option value="offline">{t('domains.statusOffline')}</option>
           </select>
         </FormField>
 
-        <FormField label="Uygulama tipi">
+        <FormField label={t('domains.appType')}>
           <select value={form.appType} onChange={e => update('appType', e.target.value)}>
-            {APP_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            {APP_TYPES.map(at => <option key={at} value={at}>{at}</option>)}
           </select>
         </FormField>
 
-        <FormField label="Alias domainler" hint="Virgülle ayır">
+        <FormField label={t('domains.aliasDomains')} hint={t('domains.aliasHintEdit')}>
           <input
             placeholder="ornek.net, ornek.org"
             value={form.aliases}
@@ -541,7 +546,7 @@ function EditDomainModal({ domain, onClose, onSuccess, onError }: {
           />
         </FormField>
 
-        <FormField label="Notlar">
+        <FormField label={t('domains.notes')}>
           <textarea
             rows={2}
             value={form.notes}
@@ -551,9 +556,9 @@ function EditDomainModal({ domain, onClose, onSuccess, onError }: {
         </FormField>
 
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-          <Btn type="button" variant="ghost" onClick={onClose}>İptal</Btn>
+          <Btn type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Btn>
           <Btn type="submit" variant="primary" disabled={submitting}>
-            {submitting ? <Spinner size={13} /> : 'Kaydet'}
+            {submitting ? <Spinner size={13} /> : t('common.save')}
           </Btn>
         </div>
       </form>
