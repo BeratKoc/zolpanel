@@ -82,16 +82,13 @@ export default function Logs() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.2s ease' }}>
+    <div className="log-shell" style={{ animation: 'fadeIn 0.2s ease' }}>
       <ToastContainer />
 
       {/* Toolbar */}
-      <div style={{
+      <div className="filters" style={{
         padding: '14px 24px',
         borderBottom: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
         flexShrink: 0,
       }}>
         <span style={{ fontSize: '13px', color: 'var(--text-muted)', marginRight: '4px' }}>
@@ -160,10 +157,8 @@ export default function Logs() {
           logs.slice().reverse().map((log, i) => (
             <div
               key={log._id || i}
+              className="log-row"
               style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
                 padding: '4px 0',
                 borderBottom: '1px solid rgba(255,255,255,0.02)',
                 lineHeight: 1.6,

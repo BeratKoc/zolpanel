@@ -116,6 +116,9 @@ input::placeholder, textarea::placeholder {
 .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .domain-card { display: flex; align-items: center; gap: 12px; }
 .route-row { display: flex; gap: 6px; align-items: center; }
+.log-shell { display: flex; flex-direction: column; height: 100%; }
+.filters { display: flex; gap: 8px; align-items: center; }
+.log-row { display: flex; gap: 10px; align-items: baseline; }
 
 @media (max-width: 767px) {
   .sidebar {
@@ -141,5 +144,8 @@ input::placeholder, textarea::placeholder {
   .domain-card { flex-wrap: wrap; align-items: flex-start; }
   .route-row { flex-wrap: wrap; }
   .route-row > * { flex: 1 1 auto; }
+  .filters { flex-wrap: wrap; }
+  .filters > * { flex: 1 1 auto; }
+  .log-row { flex-direction: column; gap: 2px; align-items: stretch; }
 }
 @media (max-width: 480px) { .page { padding: 12px; } }

@@ -72,3 +72,17 @@ test('mobil: domain kartı taşmıyor (mock liste)', async ({ page }) => {
   await expect(page.locator('.domain-card').first()).toBeVisible();
   await expectNoOverflow(page);
 });
+
+test('mobil: logs taşma yok', async ({ page }) => {
+  await page.route('**/api/system/logs**', async (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    await route.fulfill({ json: [
+      { _id:'l1', domain:'cok-uzun-alan-adi.example.com', level:'info', message:'Çok uzun bir log mesajı '.repeat(8), timestamp:'2026-01-01T12:00:00Z' },
+      { _id:'l2', domain:'system', level:'error', message:'Hata: '.repeat(20), timestamp:'2026-01-01T12:01:00Z' },
+    ] });
+  });
+  await login(page);
+  await page.goto('/logs');
+  await expect(page.locator('.log-row').first()).toBeVisible();
+  await expectNoOverflow(page);
+});
