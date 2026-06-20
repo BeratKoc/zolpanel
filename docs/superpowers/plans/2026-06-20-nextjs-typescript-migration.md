@@ -405,6 +405,8 @@ test('geçerli isimler kabul edilir', () => {
 
 **Files:** Create `lib/server/memoryTracker.ts`. Reference `backend/services/memoryTracker.js`.
 
+> **Tam port gerekir:** `memoryTracker.js`'in TÜMÜ taşınır — `getPm2Memory`, `getDockerMemory`, `takeSnapshot`, `checkAnomalies`, `getMemoryStats(hours)`, `getCurrentServices`, `startTracker`, `stopTracker`. `db.memorySnapshots`'a yazar (Task 2'de eklendi). exec yerine mümkünse execFile tercih edilir ama davranış birebir korunur. `getMemoryStats`/`getCurrentServices` Task 13'teki `/memory-stats` ve `/services` route'larında kullanılır.
+
 - [ ] **Step 1:** `memoryTracker.js`'i TS'e taşı. `startTracker()`'a dev-HMR çift başlatma koruması ekle:
 
 ```ts
@@ -796,9 +798,13 @@ export async function POST(req: Request) {
 
 ### Task 13: system route handlers
 
-**Files:** Create `app/api/system/metrics|stats|logs|caddy/config|caddy/reload/route.ts` ve `app/api/health/route.ts`. Reference `backend/routes/system.js`.
+**Files:** Create `app/api/system/metrics|stats|logs|memory-stats|services|caddy/config|caddy/reload/route.ts` ve `app/api/health/route.ts`. Reference `backend/routes/system.js` (CANLI sürüm — memory endpoint'leri içerir).
 
-- [ ] **Step 1:** Taşı (`systeminformation` metrics, logs GET/DELETE, stats, caddy config/reload); hepsi `requireAuth`. Ayrıca `app/api/health/route.ts` (auth'suz): `Response.json({ status: 'ok', app: 'Zolpanel', timestamp: new Date().toISOString() })` — cut-over doğrulaması bunu kullanır.
+- [ ] **Step 1:** Taşı (`systeminformation` metrics, logs GET/DELETE, stats, caddy config/reload); hepsi `requireAuth`. **ÖNEMLİ — canlı system.js'te olan ve atlanmaması gerekenler:**
+  - `/metrics` → `memory` objesi `active` ve `activePercent` alanlarını DA içerir (`mem.active`, `Math.round(mem.active/mem.total*100)`).
+  - `/memory-stats?hours=N` → `getMemoryStats(hours)` (memoryTracker'dan) döndürür.
+  - `/services` → `getCurrentServices()` döndürür.
+  - `app/api/health/route.ts` (auth'suz): `Response.json({ status: 'ok', app: 'Zolpanel', timestamp: new Date().toISOString() })` — cut-over doğrulaması bunu kullanır.
 - [ ] **Step 2: Manuel doğrula** — `/api/system/metrics` token ile 200 + cpu/mem/disk döner.
 - [ ] **Step 3: Commit** — `git add app/api/system && git commit -m "feat: system route handlers"`
 
@@ -864,8 +870,12 @@ export const api = {
   clearLogs: (d?: string) => request('DELETE', `/system/logs${d ? '?domain=' + d : ''}`),
   reloadCaddy: () => request('POST', '/system/caddy/reload'),
   getCaddyConfig: () => request('GET', '/system/caddy/config'),
+  getMemoryStats: (hours = 1) => request('GET', `/system/memory-stats?hours=${hours}`),
+  getServices: () => request('GET', '/system/services'),
 };
 ```
+
+> Not: Frontend sayfaları (Dashboard dahil) Task 17'de mevcut `.jsx` dosyalarından **birebir** TS'e taşınır; memory/sparkline UI zaten orada olduğu için ayrıca yazılmaz — sadece bu iki api metodunun mevcut olması yeterli.
 
 - [ ] **Step 2:** Run: `npx tsc --noEmit` → hata yok.
 - [ ] **Step 3: Commit** — `git add lib/api-client.ts && git commit -m "feat: api client w/ 401 auto-logout (#7)"`

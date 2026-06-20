@@ -36,11 +36,22 @@ export interface LogDoc {
   message: string;
   timestamp: string;
 }
+export interface MemorySnapshotDoc {
+  _id?: string;
+  name: string;
+  type: 'pm2' | 'docker';
+  memoryMB: number;
+  memPercent: number | null;
+  status: string;
+  restarts: number | null;
+  timestamp: string;
+}
 
 export const db = {
   domains: new Datastore<DomainDoc>({ filename: path.join(dbPath, 'domains.db'), autoload: true }),
   users: new Datastore<UserDoc>({ filename: path.join(dbPath, 'users.db'), autoload: true }),
   logs: new Datastore<LogDoc>({ filename: path.join(dbPath, 'logs.db'), autoload: true }),
+  memorySnapshots: new Datastore<MemorySnapshotDoc>({ filename: path.join(dbPath, 'memory_snapshots.db'), autoload: true }),
 };
 
 db.domains.ensureIndex({ fieldName: 'domain', unique: true });
