@@ -5,9 +5,11 @@ Caddy + PM2 tabanlı VDS yönetim paneli. **Next.js (App Router) + TypeScript** 
 ## Stack
 
 - **Next.js 15** (App Router), **TypeScript**, React 18
-- **NeDB** (dosya tabanlı DB) — `lib/server/db.ts`
+- **better-sqlite3** (senkron, dosya tabanlı SQL) — `lib/server/db.ts`
+- **next-intl** i18n (6 dil: tr/en/zh/es/de/fr, cookie tabanlı)
 - **Zod** girdi doğrulama, **JWT** auth (Authorization header)
 - Sistem entegrasyonu: PM2, Caddy, `systeminformation` — `lib/server/*`
+- Testler: `node --test` (birim) + **Playwright** (E2E)
 
 ## Yapı
 
@@ -30,9 +32,20 @@ instrumentation.ts → boot'ta initDb + initAdmin + memoryTracker
 ```bash
 npm install
 npm run dev        # http://localhost:3999
-npm test           # birim testler (caddy, pm2, validation)
+npm test           # birim testler (caddy, pm2, validation, portManager)
 npm run build      # production build
+npm run e2e        # Playwright E2E (build + headless chromium)
 ```
+
+## Test & CI
+
+- **Birim:** `npm test` (caddy token-match/dedup/parse, pm2 isim whitelist, Zod, portManager).
+- **E2E:** `npm run e2e` — Playwright kendi Chromium'unu kullanır; login → domain ekle/durdur/sil → dil değiştir akışlarını gerçek tarayıcıda sürer. Deterministik giriş için `ZOLPANEL_TEST_ADMIN_PASSWORD` env'i kullanılır.
+- **CI:** `.github/workflows/ci.yml` her push/PR'de `tsc + npm test + build + Playwright E2E` koşar (otomatik deploy YOK). **Aktif olması için repoyu GitHub'a bağla:**
+  ```bash
+  gh repo create zolpanel --private --source=. --push   # veya: git remote add origin <url> && git push -u origin nextjs-migration
+  ```
+  GitHub'a push'ladığın anda CI çalışmaya başlar.
 
 ## Çevre Değişkenleri (`.env`)
 
