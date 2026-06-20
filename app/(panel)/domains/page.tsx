@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
+import { Globe } from 'lucide-react';
 import { Btn, Spinner, EmptyState, useToast } from '@/components/ui';
 import { DomainCard } from '@/components/domains/DomainCard';
 import { AddDomainModal } from '@/components/domains/AddDomainModal';
@@ -76,7 +77,7 @@ export default function Domains() {
         </div>
       ) : domains.length === 0 ? (
         <EmptyState
-          icon="🌐"
+          icon={<Globe size={32} strokeWidth={1.5} />}
           title={t('domains.emptyTitle')}
           subtitle={t('domains.emptySubtitle')}
           action={<Btn variant="primary" onClick={() => setShowAdd(true)}>{t('domains.addDomain')}</Btn>}

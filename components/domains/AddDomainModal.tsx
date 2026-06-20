@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Shuffle, Folder, SlidersHorizontal, X } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, Modal, FormField, Spinner } from '@/components/ui';
 import { APP_TYPES, Route } from '@/components/domains/shared';
@@ -113,16 +114,17 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
         <FormField label={t('domains.type')}>
           <div style={{ display: 'flex', gap: '8px' }}>
             {[
-              { v: 'proxy', label: `🔀 ${t('domains.typeProxy')}` },
-              { v: 'static', label: `📁 ${t('domains.typeStatic')}` },
-              { v: 'advanced', label: `⚙️ ${t('domains.typeAdvanced')}` },
-            ].map(({ v, label }) => (
+              { v: 'proxy', icon: <Shuffle size={16} strokeWidth={1.75} />, label: t('domains.typeProxy') },
+              { v: 'static', icon: <Folder size={16} strokeWidth={1.75} />, label: t('domains.typeStatic') },
+              { v: 'advanced', icon: <SlidersHorizontal size={16} strokeWidth={1.75} />, label: t('domains.typeAdvanced') },
+            ].map(({ v, icon, label }) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => update('type', v)}
                 style={{
                   flex: 1, padding: '8px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                   background: form.type === v ? 'var(--accent)' : 'var(--bg-elevated)',
                   border: `1px solid ${form.type === v ? 'var(--accent)' : 'var(--border)'}`,
                   borderRadius: 'var(--radius)',
@@ -132,7 +134,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
                   transition: 'all 0.15s',
                 }}
               >
-                {label}
+                {icon} {label}
               </button>
             ))}
           </div>
@@ -196,8 +198,11 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
                     onClick={() => removeRoute(i)}
                     disabled={form.routes.length === 1}
                     title={t('domains.removeRoute')}
+                    aria-label={t('domains.removeRoute')}
+                    className="icon-btn"
                     style={{
                       width: '30px', height: '30px', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                       background: 'transparent',
                       border: '1px solid var(--border)',
                       borderRadius: 'var(--radius)',
@@ -206,7 +211,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
                       opacity: form.routes.length === 1 ? 0.4 : 1,
                     }}
                   >
-                    ✕
+                    <X size={14} strokeWidth={1.75} />
                   </button>
                 </div>
               ))}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Pause, Play, Pencil, Trash2, Lock, Clock } from 'lucide-react';
 import { Badge, StatusDot, Spinner } from '@/components/ui';
 
 export function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
@@ -54,27 +55,52 @@ export function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
           {domain.type}
         </Badge>
         <Badge color={domain.sslStatus === 'active' ? 'green' : 'yellow'}>
-          {domain.sslStatus === 'active' ? '🔒' : '⏳'} SSL
+          {domain.sslStatus === 'active'
+            ? <Lock size={12} strokeWidth={1.75} />
+            : <Clock size={12} strokeWidth={1.75} />} SSL
         </Badge>
       </div>
 
       <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-        <IconBtn onClick={onToggle} title={domain.status === 'active' ? t('domains.stop') : t('domains.activate')}>
-          {domain.status === 'active' ? '⏸' : '▶'}
+        <IconBtn
+          onClick={onToggle}
+          title={domain.status === 'active' ? t('domains.stop') : t('domains.activate')}
+          aria-label={domain.status === 'active' ? t('domains.stop') : t('domains.activate')}
+          className="icon-btn"
+        >
+          {domain.status === 'active'
+            ? <Pause size={14} strokeWidth={1.75} />
+            : <Play size={14} strokeWidth={1.75} />}
         </IconBtn>
-        <IconBtn onClick={onEdit} title={t('common.edit')}>✏️</IconBtn>
-        <IconBtn onClick={onDelete} title={t('common.delete')} danger disabled={deleting}>
-          {deleting ? <Spinner size={12} /> : '🗑'}
+        <IconBtn
+          onClick={onEdit}
+          title={t('common.edit')}
+          aria-label={t('common.edit')}
+          className="icon-btn"
+        >
+          <Pencil size={14} strokeWidth={1.75} />
+        </IconBtn>
+        <IconBtn
+          onClick={onDelete}
+          title={t('common.delete')}
+          aria-label={t('common.delete')}
+          className="icon-btn"
+          danger
+          disabled={deleting}
+        >
+          {deleting ? <Spinner size={12} /> : <Trash2 size={14} strokeWidth={1.75} />}
         </IconBtn>
       </div>
     </div>
   );
 }
 
-function IconBtn({ children, onClick, title, danger, disabled }: {
+function IconBtn({ children, onClick, title, 'aria-label': ariaLabel, className, danger, disabled }: {
   children: React.ReactNode;
   onClick: () => void;
   title: string;
+  'aria-label'?: string;
+  className?: string;
   danger?: boolean;
   disabled?: boolean;
 }) {
@@ -82,6 +108,8 @@ function IconBtn({ children, onClick, title, danger, disabled }: {
     <button
       onClick={onClick}
       title={title}
+      aria-label={ariaLabel}
+      className={className}
       disabled={disabled}
       style={{
         width: '30px', height: '30px',
