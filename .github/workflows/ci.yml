@@ -16,7 +16,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Node 22: `node --test` glob deseni (lib/**/*.test.ts) Node 21+ ister.
+          # Uygulama prod'da Node 20'de çalışır; bu yalnızca CI test koşumu içindir.
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
