@@ -140,6 +140,7 @@ export default function Logs() {
       {/* Log listesi */}
       <div style={{
         flex: 1,
+        minHeight: 0,
         overflowY: 'auto',
         padding: '12px 24px',
         fontFamily: 'var(--font-mono)',

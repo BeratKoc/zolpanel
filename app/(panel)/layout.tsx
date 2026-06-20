@@ -152,7 +152,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Page content */}
-          <div style={{ flex: 1, overflow: 'hidden' }}>
+          <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
             {children}
           </div>
         </main>

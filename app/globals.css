@@ -117,7 +117,7 @@ input::placeholder, textarea::placeholder {
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .domain-card { display: flex; align-items: center; gap: 12px; }
 .route-row { display: flex; gap: 6px; align-items: center; }
-.log-shell { display: flex; flex-direction: column; height: 100%; }
+.log-shell { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .filters { display: flex; gap: 8px; align-items: center; }
 .log-row { display: flex; gap: 10px; align-items: baseline; }
 .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
