@@ -25,6 +25,13 @@ test('mobil: processes yatay taşma yok', async ({ page }) => {
   await expectNoOverflow(page);
 });
 
+test('mobil: dashboard kart grid taşmıyor (derin)', async ({ page }) => {
+  await login(page);
+  await page.goto('/dashboard');
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
+
 test('mobil: processes gerçek satırlarla kart olarak render + taşma yok', async ({ page }) => {
   await page.route('**/api/processes', async (route) => {
     await route.fulfill({

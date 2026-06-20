@@ -113,6 +113,7 @@ input::placeholder, textarea::placeholder {
 .sidebar-backdrop { display: none; }
 .page { padding: 24px; overflow-y: auto; height: 100%; }
 .proc-row { display: grid; grid-template-columns: 7px 1fr 80px 80px 70px 70px 80px 120px; gap: 12px; align-items: center; }
+.grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 
 @media (max-width: 767px) {
   .sidebar {

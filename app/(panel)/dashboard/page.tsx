@@ -68,6 +68,7 @@ function ServiceMemoryRow({ svc }: { svc: any }) {
       padding: '10px 16px',
       display: 'flex',
       alignItems: 'center',
+      flexWrap: 'wrap',
       gap: 12,
     }}>
       <span style={{
@@ -169,14 +170,14 @@ export default function Dashboard() {
   );
 
   return (
-    <div style={{ padding: '24px', animation: 'fadeIn 0.2s ease', overflowY: 'auto', height: '100%' }}>
+    <div className="page" style={{ animation: 'fadeIn 0.2s ease' }}>
 
       {/* Sistem metrikleri */}
       <div style={{ marginBottom: 28 }}>
         <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
           {t('dashboard.system')}
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+        <div className="grid-cards">
           <MetricCard label="CPU" value={`${metrics?.cpu?.load ?? '–'}%`} sub={`${metrics?.cpu?.cores ?? '?'} ${t('dashboard.cores')}`}
             color={metrics?.cpu?.load > 80 ? 'var(--red)' : metrics?.cpu?.load > 50 ? 'var(--yellow)' : 'var(--text-primary)'} />
           <MetricCard label={t('dashboard.ramTotal')} value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
@@ -196,7 +197,7 @@ export default function Dashboard() {
         <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
           {t('dashboard.domains')}
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div className="grid-cards">
           <MetricCard label={t('dashboard.total')} value={stats?.total ?? 0} />
           <MetricCard label={t('dashboard.activeLabel')} value={stats?.active ?? 0} color="var(--green)" />
           <MetricCard label={t('dashboard.offline')} value={stats?.offline ?? 0} color={stats?.offline > 0 ? 'var(--red)' : 'var(--text-primary)'} />
