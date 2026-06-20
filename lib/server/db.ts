@@ -105,7 +105,9 @@ export async function initAdmin(): Promise<void> {
   return new Promise((resolve) => {
     db.users.findOne({ username: 'admin' }, async (_err, user) => {
       if (!user) {
-        const generated = crypto.randomBytes(12).toString('base64url'); // ~16 karakter
+        // E2E/test ortamında deterministik şifre için override; aksi halde rastgele.
+        const testPassword = process.env.ZOLPANEL_TEST_ADMIN_PASSWORD;
+        const generated = testPassword || crypto.randomBytes(12).toString('base64url'); // ~16 karakter
         const hash = await bcrypt.hash(generated, 12);
         db.users.insert({
           username: 'admin',
@@ -116,8 +118,12 @@ export async function initAdmin(): Promise<void> {
         console.log('============================================================');
         console.log('  Zolpanel admin oluşturuldu.');
         console.log('  Kullanıcı: admin');
-        console.log('  Şifre    : ' + generated);
-        console.log('  >> Bu şifreyi kaydedin; ilk girişten sonra değiştirin.');
+        if (testPassword) {
+          console.log('  Şifre    : (ZOLPANEL_TEST_ADMIN_PASSWORD env ile ayarlandı)');
+        } else {
+          console.log('  Şifre    : ' + generated);
+          console.log('  >> Bu şifreyi kaydedin; ilk girişten sonra değiştirin.');
+        }
         console.log('============================================================');
       }
       resolve();

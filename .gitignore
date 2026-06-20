@@ -8,3 +8,7 @@ node_modules
 db/data
 tsconfig.tsbuildinfo
 _pull.tgz
+e2e/.tmpdb
+test-results
+playwright-report
+/playwright/.cache
