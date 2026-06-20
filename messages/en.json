@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "online": "online",
+    "language": "Language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "domains": "Domains",
+    "processes": "Processes",
+    "logs": "Logs",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "login": {
+    "subtitle": "Sign in to continue",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "errorEmpty": "Enter username and password",
+    "errorGeneric": "Request failed"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "add": "Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "loading": "Yükleniyor...",
+    "online": "çevrimiçi",
+    "language": "Dil"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "domains": "Domainler",
+    "processes": "Süreçler",
+    "logs": "Loglar",
+    "settings": "Ayarlar",
+    "logout": "Çıkış"
+  },
+  "login": {
+    "subtitle": "Devam etmek için giriş yapın",
+    "username": "Kullanıcı adı",
+    "password": "Şifre",
+    "submit": "Giriş Yap",
+    "errorEmpty": "Kullanıcı adı ve şifre girin",
+    "errorGeneric": "İstek başarısız"
+  }
+}

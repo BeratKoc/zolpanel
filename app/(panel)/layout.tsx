@@ -3,26 +3,28 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import AuthGate from '@/components/AuthGate';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface NavItemDef {
   id: string;
-  label: string;
   icon: string;
   href: string;
 }
 
 const NAV_ITEMS: NavItemDef[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: '▦', href: '/dashboard' },
-  { id: 'domains', label: 'Domains', icon: '⬡', href: '/domains' },
-  { id: 'processes', label: 'Processes', icon: '⚙', href: '/processes' },
-  { id: 'logs', label: 'Logs', icon: '≡', href: '/logs' },
-  { id: 'settings', label: 'Settings', icon: '◎', href: '/settings' },
+  { id: 'dashboard', icon: '▦', href: '/dashboard' },
+  { id: 'domains', icon: '⬡', href: '/domains' },
+  { id: 'processes', icon: '⚙', href: '/processes' },
+  { id: 'logs', icon: '≡', href: '/logs' },
+  { id: 'settings', icon: '◎', href: '/settings' },
 ];
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations();
   const [user, setUser] = useState('');
 
   useEffect(() => {
@@ -68,6 +70,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
               <NavItem
                 key={item.id}
                 item={item}
+                label={t(`nav.${item.id}`)}
                 active={activeItem?.id === item.id}
               />
             ))}
@@ -92,7 +95,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
                 animation: 'pulse 2s infinite',
                 display: 'inline-block',
               }} />
-              online
+              {t('common.online')}
             </span>
           </div>
         </aside>
@@ -109,12 +112,13 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
             flexShrink: 0,
           }}>
             <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>
-              {activeItem?.label}
+              {activeItem ? t(`nav.${activeItem.id}`) : ''}
             </span>
-            <button
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <LanguageSwitcher />
+              <button
               onClick={handleLogout}
               style={{
-                marginLeft: 'auto',
                 background: 'transparent',
                 border: '1px solid var(--border)',
                 borderRadius: 'var(--radius)',
@@ -128,8 +132,9 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
               onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-hover)'; }}
               onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
             >
-              Çıkış
+              {t('nav.logout')}
             </button>
+            </div>
           </div>
 
           {/* Page content */}
@@ -142,7 +147,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   );
 }
 
-function NavItem({ item, active }: { item: NavItemDef; active: boolean }) {
+function NavItem({ item, label, active }: { item: NavItemDef; label: string; active: boolean }) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -176,7 +181,7 @@ function NavItem({ item, active }: { item: NavItemDef; active: boolean }) {
       }}>
         {item.icon}
       </span>
-      {item.label}
+      {label}
     </Link>
   );
 }

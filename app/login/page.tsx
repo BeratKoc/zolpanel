@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { Btn, Spinner } from '@/components/ui';
 
 export default function Login() {
   const router = useRouter();
+  const t = useTranslations('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,7 +16,7 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!username || !password) return setError('Kullanıcı adı ve şifre girin');
+    if (!username || !password) return setError(t('errorEmpty'));
     setError('');
     setLoading(true);
     try {
@@ -24,7 +26,7 @@ export default function Login() {
       router.push('/');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'İstek başarısız');
+      setError(err instanceof Error ? err.message : t('errorGeneric'));
     } finally {
       setLoading(false);
     }
@@ -53,10 +55,10 @@ export default function Login() {
             color: 'var(--text-primary)',
             marginBottom: '4px',
           }}>
-            VPS Panel
+            Zolpanel
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Devam etmek için giriş yapın
+            {t('subtitle')}
           </p>
         </div>
 
@@ -64,7 +66,7 @@ export default function Login() {
           <div style={{ marginBottom: '12px' }}>
             <input
               type="text"
-              placeholder="Kullanıcı adı"
+              placeholder={t('username')}
               value={username}
               onChange={e => setUsername(e.target.value)}
               autoFocus
@@ -73,7 +75,7 @@ export default function Login() {
           <div style={{ marginBottom: '20px' }}>
             <input
               type="password"
-              placeholder="Şifre"
+              placeholder={t('password')}
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
@@ -99,7 +101,7 @@ export default function Login() {
             disabled={loading}
             style={{ width: '100%', justifyContent: 'center', padding: '9px' }}
           >
-            {loading ? <Spinner size={14} /> : 'Giriş Yap'}
+            {loading ? <Spinner size={14} /> : t('submit')}
           </Btn>
         </form>
       </div>

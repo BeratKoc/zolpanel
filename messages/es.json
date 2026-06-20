@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "add": "Añadir",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "loading": "Cargando...",
+    "online": "en línea",
+    "language": "Idioma"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "domains": "Dominios",
+    "processes": "Procesos",
+    "logs": "Registros",
+    "settings": "Ajustes",
+    "logout": "Salir"
+  },
+  "login": {
+    "subtitle": "Inicia sesión para continuar",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "submit": "Iniciar sesión",
+    "errorEmpty": "Introduce usuario y contraseña",
+    "errorGeneric": "La solicitud falló"
+  }
+}

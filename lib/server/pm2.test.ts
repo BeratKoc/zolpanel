@@ -8,7 +8,7 @@ test('kötü process isimleri reddedilir', () => {
   }
 });
 test('geçerli isimler kabul edilir', () => {
-  for (const ok of ['vps-panel', 'my_app.1', 'Portfolio']) {
+  for (const ok of ['zolpanel', 'my_app.1', 'Portfolio']) {
     assert.doesNotThrow(() => assertSafeName(ok));
   }
 });

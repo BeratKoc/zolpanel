@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "loading": "Wird geladen...",
+    "online": "online",
+    "language": "Sprache"
+  },
+  "nav": {
+    "dashboard": "Übersicht",
+    "domains": "Domains",
+    "processes": "Prozesse",
+    "logs": "Protokolle",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "login": {
+    "subtitle": "Zum Fortfahren anmelden",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "submit": "Anmelden",
+    "errorEmpty": "Benutzername und Passwort eingeben",
+    "errorGeneric": "Anfrage fehlgeschlagen"
+  }
+}

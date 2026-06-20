@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "loading": "Chargement...",
+    "online": "en ligne",
+    "language": "Langue"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "domains": "Domaines",
+    "processes": "Processus",
+    "logs": "Journaux",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "login": {
+    "subtitle": "Connectez-vous pour continuer",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "errorEmpty": "Saisissez le nom d'utilisateur et le mot de passe",
+    "errorGeneric": "Échec de la requête"
+  }
+}

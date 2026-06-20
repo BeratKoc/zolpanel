@@ -1,0 +1,28 @@
+{
+  "common": {
+    "cancel": "取消",
+    "save": "保存",
+    "add": "添加",
+    "edit": "编辑",
+    "delete": "删除",
+    "loading": "加载中...",
+    "online": "在线",
+    "language": "语言"
+  },
+  "nav": {
+    "dashboard": "仪表盘",
+    "domains": "域名",
+    "processes": "进程",
+    "logs": "日志",
+    "settings": "设置",
+    "logout": "退出"
+  },
+  "login": {
+    "subtitle": "登录以继续",
+    "username": "用户名",
+    "password": "密码",
+    "submit": "登录",
+    "errorEmpty": "请输入用户名和密码",
+    "errorGeneric": "请求失败"
+  }
+}
