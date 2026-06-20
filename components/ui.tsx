@@ -218,9 +218,10 @@ interface FormFieldProps {
   label?: React.ReactNode;
   children?: React.ReactNode;
   hint?: React.ReactNode;
+  error?: React.ReactNode;
 }
 
-export function FormField({ label, children, hint }: FormFieldProps) {
+export function FormField({ label, children, hint, error }: FormFieldProps) {
   return (
     <div style={{ marginBottom: '16px' }}>
       {label && (
@@ -239,6 +240,9 @@ export function FormField({ label, children, hint }: FormFieldProps) {
         <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
           {hint}
         </p>
+      )}
+      {error && (
+        <p role="alert" style={{ fontSize: '11px', color: 'var(--red)', marginTop: '4px' }}>{error}</p>
       )}
     </div>
   );

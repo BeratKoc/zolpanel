@@ -61,7 +61,7 @@ export default function Domains() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '15px', fontWeight: 500 }}>{t('domains.title')}</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('domains.title')}</h2>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
             {t('domains.registered', { n: domains.length })}
           </p>

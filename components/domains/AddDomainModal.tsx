@@ -34,6 +34,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
   });
   const [loadingPort, setLoadingPort] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [domainErr, setDomainErr] = useState<string | undefined>(undefined);
 
   function update(key: string, val: string) {
     setForm(prev => ({ ...prev, [key]: val }));
@@ -101,11 +102,20 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
   return (
     <Modal title={t('domains.addDomainTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <FormField label={t('domains.domainName')}>
+        <FormField label={t('domains.domainName')} error={domainErr}>
           <input
             placeholder="ornek.com"
             value={form.domain}
             onChange={e => update('domain', e.target.value)}
+            onBlur={e => {
+              const v = e.target.value;
+              if (v && !/^[a-z0-9.-]+$/i.test(v)) {
+                setDomainErr(t('domains.errInvalidDomain'));
+              } else {
+                setDomainErr(undefined);
+              }
+            }}
+            aria-invalid={!!domainErr}
             required
             autoFocus
           />

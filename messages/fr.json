@@ -88,7 +88,8 @@
     "editTitle": "Modifier : {domain}",
     "status": "Statut",
     "statusActive": "Actif",
-    "statusOffline": "Hors ligne"
+    "statusOffline": "Hors ligne",
+    "errInvalidDomain": "Domaine invalide (lettres, chiffres, points, tirets uniquement)"
   },
   "processes": {
     "title": "Processus",

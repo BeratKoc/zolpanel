@@ -64,7 +64,7 @@ export default function Processes() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '15px', fontWeight: 500 }}>{t('processes.title')}</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('processes.title')}</h2>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
             {!data.available ? t('processes.pm2NotFound') : t('processes.processCount', { n: data.processes.length })}
           </p>

@@ -88,7 +88,8 @@
     "editTitle": "编辑：{domain}",
     "status": "状态",
     "statusActive": "活动",
-    "statusOffline": "离线"
+    "statusOffline": "离线",
+    "errInvalidDomain": "无效域名（仅字母、数字、点、连字符）"
   },
   "processes": {
     "title": "进程",

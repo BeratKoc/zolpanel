@@ -88,7 +88,8 @@
     "editTitle": "Editar: {domain}",
     "status": "Estado",
     "statusActive": "Activo",
-    "statusOffline": "Sin conexión"
+    "statusOffline": "Sin conexión",
+    "errInvalidDomain": "Dominio inválido (solo letras, dígitos, puntos, guiones)"
   },
   "processes": {
     "title": "Procesos",

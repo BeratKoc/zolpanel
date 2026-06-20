@@ -49,8 +49,8 @@ export default function Login() {
       }}>
         <div style={{ marginBottom: '28px' }}>
           <h1 style={{
-            fontSize: '18px',
-            fontWeight: 500,
+            fontSize: '20px',
+            fontWeight: 600,
             color: 'var(--text-primary)',
             marginBottom: '4px',
           }}>

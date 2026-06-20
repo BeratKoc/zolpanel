@@ -15,6 +15,7 @@ export default function Settings() {
   const [metrics, setMetrics] = useState<any>(null);
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
   const [pwLoading, setPwLoading] = useState(false);
+  const [pwErr, setPwErr] = useState<{ next?: string; confirm?: string }>({});
   const [reloading, setReloading] = useState(false);
   const { show, ToastContainer } = useToast();
 
@@ -65,7 +66,7 @@ export default function Settings() {
     <div className="page" style={{ animation: 'fadeIn 0.2s ease' }}>
       <ToastContainer />
 
-      <h2 style={{ fontSize: '15px', fontWeight: 500, marginBottom: '24px' }}>{t('settings.title')}</h2>
+      <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '24px' }}>{t('settings.title')}</h2>
 
       <div className="cols-2" style={{ alignItems: 'start' }}>
 
@@ -80,19 +81,37 @@ export default function Settings() {
                 required
               />
             </FormField>
-            <FormField label={t('settings.newPassword')}>
+            <FormField label={t('settings.newPassword')} error={pwErr.next}>
               <input
                 type="password"
                 value={pwForm.next}
                 onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
+                onBlur={e => {
+                  const v = e.target.value;
+                  if (v && (v.length < 12 || !/[A-Z]/.test(v) || !/[0-9]/.test(v))) {
+                    setPwErr(prev => ({ ...prev, next: t('settings.passwordTooShort') }));
+                  } else {
+                    setPwErr(prev => ({ ...prev, next: undefined }));
+                  }
+                }}
+                aria-invalid={!!pwErr.next}
                 required
               />
             </FormField>
-            <FormField label={t('settings.newPasswordConfirm')}>
+            <FormField label={t('settings.newPasswordConfirm')} error={pwErr.confirm}>
               <input
                 type="password"
                 value={pwForm.confirm}
                 onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                onBlur={e => {
+                  const v = e.target.value;
+                  if (v && v !== pwForm.next) {
+                    setPwErr(prev => ({ ...prev, confirm: t('settings.passwordMismatch') }));
+                  } else {
+                    setPwErr(prev => ({ ...prev, confirm: undefined }));
+                  }
+                }}
+                aria-invalid={!!pwErr.confirm}
                 required
               />
             </FormField>

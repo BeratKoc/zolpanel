@@ -88,7 +88,8 @@
     "editTitle": "Düzenle: {domain}",
     "status": "Durum",
     "statusActive": "Aktif",
-    "statusOffline": "Offline"
+    "statusOffline": "Offline",
+    "errInvalidDomain": "Geçersiz domain (sadece harf, rakam, nokta, tire)"
   },
   "processes": {
     "title": "Processes",
