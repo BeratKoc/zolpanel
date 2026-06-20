@@ -144,7 +144,7 @@
     "newPasswordConfirm": "New password (repeat)",
     "update": "Update",
     "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordTooShort": "Password must be at least 12 characters and include an uppercase letter and a number",
     "passwordUpdated": "Password updated",
     "caddyReloaded": "Caddy reloaded",
     "systemInfo": "System Info",

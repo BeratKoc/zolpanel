@@ -144,7 +144,7 @@
     "newPasswordConfirm": "新密码（重复）",
     "update": "更新",
     "passwordMismatch": "密码不匹配",
-    "passwordTooShort": "密码至少需要 6 个字符",
+    "passwordTooShort": "密码至少需要 12 个字符，并包含一个大写字母和一个数字",
     "passwordUpdated": "密码已更新",
     "caddyReloaded": "Caddy 已重载",
     "systemInfo": "系统信息",

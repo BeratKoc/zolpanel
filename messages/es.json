@@ -144,7 +144,7 @@
     "newPasswordConfirm": "Nueva contraseña (repetir)",
     "update": "Actualizar",
     "passwordMismatch": "Las contraseñas no coinciden",
-    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+    "passwordTooShort": "La contraseña debe tener al menos 12 caracteres e incluir una mayúscula y un número",
     "passwordUpdated": "Contraseña actualizada",
     "caddyReloaded": "Caddy recargado",
     "systemInfo": "Información del sistema",

@@ -144,7 +144,7 @@
     "newPasswordConfirm": "Neues Passwort (wiederholen)",
     "update": "Aktualisieren",
     "passwordMismatch": "Passwörter stimmen nicht überein",
-    "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "passwordTooShort": "Das Passwort muss mindestens 12 Zeichen lang sein und einen Großbuchstaben sowie eine Zahl enthalten",
     "passwordUpdated": "Passwort aktualisiert",
     "caddyReloaded": "Caddy neu geladen",
     "systemInfo": "Systeminfo",

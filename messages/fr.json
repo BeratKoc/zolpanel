@@ -144,7 +144,7 @@
     "newPasswordConfirm": "Nouveau mot de passe (répéter)",
     "update": "Mettre à jour",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
-    "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères",
+    "passwordTooShort": "Le mot de passe doit comporter au moins 12 caractères, dont une majuscule et un chiffre",
     "passwordUpdated": "Mot de passe mis à jour",
     "caddyReloaded": "Caddy rechargé",
     "systemInfo": "Infos système",

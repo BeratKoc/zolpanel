@@ -32,7 +32,8 @@ export default function Settings() {
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
     if (pwForm.next !== pwForm.confirm) return show(t('settings.passwordMismatch'), 'error');
-    if (pwForm.next.length < 6) return show(t('settings.passwordTooShort'), 'error');
+    if (pwForm.next.length < 12 || !/[A-Z]/.test(pwForm.next) || !/[0-9]/.test(pwForm.next))
+      return show(t('settings.passwordTooShort'), 'error');
     setPwLoading(true);
     try {
       await api.changePassword(pwForm.current, pwForm.next);

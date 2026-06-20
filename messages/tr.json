@@ -144,7 +144,7 @@
     "newPasswordConfirm": "Yeni şifre (tekrar)",
     "update": "Güncelle",
     "passwordMismatch": "Şifreler eşleşmiyor",
-    "passwordTooShort": "Şifre en az 6 karakter olmalı",
+    "passwordTooShort": "Şifre en az 12 karakter olmalı, bir büyük harf ve bir rakam içermeli",
     "passwordUpdated": "Şifre güncellendi",
     "caddyReloaded": "Caddy yeniden yüklendi",
     "systemInfo": "Sistem Bilgisi",
