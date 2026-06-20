@@ -89,7 +89,8 @@
     "status": "Estado",
     "statusActive": "Activo",
     "statusOffline": "Sin conexión",
-    "errInvalidDomain": "Dominio inválido (solo letras, dígitos, puntos, guiones)"
+    "errInvalidDomain": "Dominio inválido (solo letras, dígitos, puntos, guiones)",
+    "routeRequired": "Se requiere al menos una ruta"
   },
   "processes": {
     "title": "Procesos",

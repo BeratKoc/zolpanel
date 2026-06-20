@@ -89,7 +89,8 @@
     "status": "Statut",
     "statusActive": "Actif",
     "statusOffline": "Hors ligne",
-    "errInvalidDomain": "Domaine invalide (lettres, chiffres, points, tirets uniquement)"
+    "errInvalidDomain": "Domaine invalide (lettres, chiffres, points, tirets uniquement)",
+    "routeRequired": "Au moins une route est requise"
   },
   "processes": {
     "title": "Processus",

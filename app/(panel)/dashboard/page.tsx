@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { AlertTriangle, TrendingUp, Check, RotateCw, Clock } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Check, RotateCw, Clock, Lock } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { MetricCard, StatusDot, Badge, Spinner, Btn } from '@/components/ui';
 
@@ -311,7 +311,9 @@ function DomainRow({ domain }: { domain: any }) {
         {domain.type === 'proxy' ? `proxy :${domain.port}` : 'static'}
       </Badge>
       <Badge color={domain.sslStatus === 'active' ? 'green' : 'yellow'}>
-        {domain.sslStatus === 'active' ? '🔒 SSL' : <><Clock size={12} strokeWidth={1.75} style={{ verticalAlign: '-2px', marginRight: 3 }} />SSL</>}
+        {domain.sslStatus === 'active'
+          ? <><Lock size={12} strokeWidth={1.75} style={{ verticalAlign: '-2px', marginRight: 3 }} />SSL</>
+          : <><Clock size={12} strokeWidth={1.75} style={{ verticalAlign: '-2px', marginRight: 3 }} />SSL</>}
       </Badge>
     </div>
   );

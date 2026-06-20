@@ -89,7 +89,8 @@
     "status": "Status",
     "statusActive": "Active",
     "statusOffline": "Offline",
-    "errInvalidDomain": "Invalid domain (letters, digits, dots, hyphens only)"
+    "errInvalidDomain": "Invalid domain (letters, digits, dots, hyphens only)",
+    "routeRequired": "At least one route is required"
   },
   "processes": {
     "title": "Processes",

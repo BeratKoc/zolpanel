@@ -89,7 +89,8 @@
     "status": "Status",
     "statusActive": "Aktiv",
     "statusOffline": "Offline",
-    "errInvalidDomain": "Ungültige Domain (nur Buchstaben, Ziffern, Punkte, Bindestriche)"
+    "errInvalidDomain": "Ungültige Domain (nur Buchstaben, Ziffern, Punkte, Bindestriche)",
+    "routeRequired": "Mindestens eine Route erforderlich"
   },
   "processes": {
     "title": "Prozesse",

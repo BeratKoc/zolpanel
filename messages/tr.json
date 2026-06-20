@@ -89,7 +89,8 @@
     "status": "Durum",
     "statusActive": "Aktif",
     "statusOffline": "Offline",
-    "errInvalidDomain": "Geçersiz domain (sadece harf, rakam, nokta, tire)"
+    "errInvalidDomain": "Geçersiz domain (sadece harf, rakam, nokta, tire)",
+    "routeRequired": "En az bir route gerekli"
   },
   "processes": {
     "title": "Processes",
