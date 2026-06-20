@@ -1,134 +1,65 @@
-# VPS Panel
+# Zolpanel
 
-Caddy + PM2 tabanlı, kendi VDS'ini tarayıcıdan yönetmek için minimal panel.
+Caddy + PM2 tabanlı VDS yönetim paneli. **Next.js (App Router) + TypeScript** tek uygulama: API route handler'ları + React arayüzü aynı projede.
 
-## Özellikler
+## Stack
 
-- **Dashboard** — CPU, RAM, disk, Caddy durumu gerçek zamanlı
-- **Domains** — Domain ekle/sil/düzenle, reverse proxy veya static site, otomatik SSL, alias desteği, otomatik port atama
-- **Processes** — PM2 process listesi, başlat/durdur/restart, log görüntüleme
-- **Logs** — Sistem ve domain bazlı loglar, filtrele, gerçek zamanlı
-- **Settings** — Şifre değiştir, Caddyfile görüntüle, sistem bilgisi
+- **Next.js 15** (App Router), **TypeScript**, React 18
+- **NeDB** (dosya tabanlı DB) — `lib/server/db.ts`
+- **Zod** girdi doğrulama, **JWT** auth (Authorization header)
+- Sistem entegrasyonu: PM2, Caddy, `systeminformation` — `lib/server/*`
 
----
+## Yapı
 
-## Kurulum (VDS'e)
+```
+app/
+  api/            → route handlers (auth, domains, processes, system, health)
+  (panel)/        → dashboard, domains, processes, logs, settings (+ nav layout)
+  login/          → giriş sayfası
+lib/
+  server/         → db, caddy, pm2, portManager, memoryTracker, rateLimit (server-only)
+  auth.ts         → signToken / requireAuth (tokenVersion ile invalidation)
+  validation.ts   → Zod şemaları
+  api-client.ts   → frontend fetch wrapper (401'de otomatik logout)
+components/        → ui.tsx, AuthGate.tsx
+instrumentation.ts → boot'ta initDb + initAdmin + memoryTracker
+```
 
-### 1. Projeyi VDS'e kopyala
+## Geliştirme
 
 ```bash
-scp -r vps-panel/ root@VDS_IP:/tmp/
-ssh root@VDS_IP
-cd /tmp/vps-panel
+npm install
+npm run dev        # http://localhost:3999
+npm test           # birim testler (caddy, pm2, validation)
+npm run build      # production build
 ```
 
-### 2. Kurulum scriptini çalıştır
-
-```bash
-chmod +x install.sh
-sudo ./install.sh
-```
-
-Script şunları yapar:
-- Node.js 20, PM2, Caddy kurar
-- Panel'i `/opt/vps-panel` dizinine kurar
-- Backend'i PM2 ile başlatır
-- Caddy'yi systemd servisi olarak başlatır
-
-### 3. Panele eriş
-
-```
-http://VDS_IP:3999
-```
-
-Varsayılan giriş: `admin` / `admin123`
-
-> ⚠️ İlk girişten sonra Settings sayfasından şifrenizi değiştirin!
-
----
-
-## Panel'i HTTPS ile Yayınlama (Önerilen)
-
-Panel'i `panel.sitenindomaini.com` adresiyle SSL'li açmak için:
-
-1. Domain'in DNS kaydını VDS IP'sine yönlendirin
-2. Caddyfile'a ekleyin:
-
-```
-panel.sitenindomaini.com {
-    reverse_proxy localhost:3999
-    basicauth {
-        admin $2a$14$... # bcrypt hash
-    }
-}
-```
-
-Ya da panele domain ekleyip aynı şeyi arayüzden yapın.
-
----
-
-## Manuel Komutlar
-
-```bash
-# Panel durumu
-pm2 status
-
-# Panel logları
-pm2 logs vps-panel
-
-# Panel restart
-pm2 restart vps-panel
-
-# Caddy durumu
-systemctl status caddy
-
-# Caddy reload
-caddy reload --config /etc/caddy/Caddyfile
-```
-
----
-
-## Proje Yapısı
-
-```
-vps-panel/
-├── backend/
-│   ├── index.js              # Express sunucu
-│   ├── routes/
-│   │   ├── auth.js           # Login, JWT
-│   │   ├── domains.js        # Domain CRUD
-│   │   ├── processes.js      # PM2 yönetimi
-│   │   └── system.js         # Metrikler, loglar
-│   ├── services/
-│   │   ├── caddy.js          # Caddyfile yönetimi
-│   │   ├── pm2.js            # PM2 wrapper
-│   │   └── portManager.js    # Otomatik port bulma
-│   └── db/
-│       └── database.js       # NeDB veritabanı
-└── frontend/
-    └── src/
-        ├── App.jsx            # Ana layout, routing
-        ├── api.js             # API helper
-        ├── pages/
-        │   ├── Login.jsx
-        │   ├── Dashboard.jsx
-        │   ├── Domains.jsx
-        │   ├── Processes.jsx
-        │   ├── Logs.jsx
-        │   └── Settings.jsx
-        └── components/
-            └── ui.jsx         # Ortak bileşenler
-```
-
----
-
-## Çevre Değişkenleri
-
-Backend için `.env` dosyası oluşturabilirsiniz:
+## Çevre Değişkenleri (`.env`)
 
 ```env
-PORT=3999
-JWT_SECRET=guclu-bir-secret-girin
+JWT_SECRET=guclu-bir-secret        # zorunlu
+JWT_EXPIRES=8h
 CADDYFILE_PATH=/etc/caddy/Caddyfile
+DB_DIR=/opt/zolpanel/db/data
+PROTECTED_DOMAINS=panel.zolvix.app # panel'in dokunmayacağı bloklar
 NODE_ENV=production
 ```
+
+İlk açılışta admin yoksa **rastgele güçlü şifre** üretilir ve boot log'una bir kez basılır (kullanıcı: `admin`). İlk girişten sonra Settings'ten değiştirin.
+
+## Deploy
+
+`deploy.sh` local'den sunucudaki `/opt/zolpanel`'e gönderir (kod + `npm install` + `npm run build` + pm2), `.env` / `db/data` / `node_modules` korunur:
+
+```bash
+bash deploy.sh
+```
+
+PM2: `ecosystem.config.cjs` → `next start -p 3999`. Caddy `panel.zolvix.app`'i `127.0.0.1:3999`'a reverse-proxy eder.
+
+## Güvenlik notları
+
+- Tüm domain/route girdileri Zod ile doğrulanır (Caddyfile injection engellenir).
+- PM2 işlemleri `execFile` (shell yok) + isim whitelist ile çalıştırılır.
+- Şifre değişiminde `tokenVersion` artar → eski JWT'ler geçersiz olur.
+- `removeDomainBlock` tam-token eşleştirme yapar (substring değil) → korumalı bloklar (ör. `panel.zolvix.app`) yanlışlıkla silinmez.
