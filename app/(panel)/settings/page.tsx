@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { CheckCircle2, XCircle, RotateCw } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, FormField, Spinner, useToast } from '@/components/ui';
 
@@ -112,11 +113,15 @@ export default function Settings() {
                   ['CPU', t('settings.cpuUsage', { load: metrics.cpu?.load, cores: metrics.cpu?.cores })],
                   ['RAM', `${formatBytes(metrics.memory?.used)} / ${formatBytes(metrics.memory?.total)}`],
                   ['Disk', `${formatBytes(metrics.disk?.used)} / ${formatBytes(metrics.disk?.total)} (${metrics.disk?.percent}%)`],
-                  ['Caddy', metrics.caddy?.running ? `✅ ${t('settings.running')}` : `❌ ${t('settings.stopped')}`],
-                ] as [string, string][]).map(([k, v]) => (
-                  <tr key={k}>
+                  ['Caddy', metrics.caddy?.running
+                    ? <><CheckCircle2 size={14} strokeWidth={1.75} style={{ color: 'var(--green)', verticalAlign: '-2px', marginRight: 4 }} />{t('settings.running')}</>
+                    : <><XCircle size={14} strokeWidth={1.75} style={{ color: 'var(--red)', verticalAlign: '-2px', marginRight: 4 }} />{t('settings.stopped')}</>
+                  ],
+                ] as [string, React.ReactNode][]).map(([k, v]) => (
+                  <tr key={String(k)}>
                     <td style={{ padding: '6px 0', color: 'var(--text-muted)', width: '40%' }}>{k}</td>
-                    <td style={{ padding: '6px 0', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>{v}</td>
+                    <td className={['RAM', 'Disk', 'CPU'].includes(String(k)) ? 'tabular' : undefined}
+                        style={{ padding: '6px 0', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>{v}</td>
                   </tr>
                 ))}
               </tbody>
@@ -128,7 +133,7 @@ export default function Settings() {
         <Section title="Caddyfile" style={{ gridColumn: '1 / -1' }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <Btn variant="default" size="sm" onClick={handleReloadCaddy} disabled={reloading}>
-              {reloading ? <Spinner size={12} /> : '↻'} {t('settings.reloadCaddy')}
+              {reloading ? <Spinner size={12} /> : <RotateCw size={12} strokeWidth={1.75} />} {t('settings.reloadCaddy')}
             </Btn>
           </div>
           <pre style={{

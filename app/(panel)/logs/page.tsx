@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { RotateCw } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, Spinner, useToast } from '@/components/ui';
 
@@ -132,7 +133,7 @@ export default function Logs() {
             />
             {t('logs.autoScroll')}
           </label>
-          <Btn variant="ghost" size="sm" onClick={load}>↻</Btn>
+          <Btn variant="ghost" size="sm" onClick={load}><RotateCw size={12} strokeWidth={1.75} /></Btn>
           <Btn variant="danger" size="sm" onClick={handleClear}>{t('logs.clear')}</Btn>
         </div>
       </div>
@@ -165,7 +166,7 @@ export default function Logs() {
                 lineHeight: 1.6,
               }}
             >
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, fontSize: '11px', paddingTop: '1px' }}>
+              <span className="tabular" style={{ color: 'var(--text-muted)', flexShrink: 0, fontSize: '11px', paddingTop: '1px' }}>
                 {formatDate(log.timestamp)} {formatTime(log.timestamp)}
               </span>
 

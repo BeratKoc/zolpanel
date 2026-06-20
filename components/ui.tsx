@@ -331,7 +331,7 @@ export function MetricCard({ label, value, sub, color }: MetricCardProps) {
       <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
         {label}
       </p>
-      <p style={{ fontSize: '24px', fontWeight: 500, color: color || 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+      <p className="tabular" style={{ fontSize: '24px', fontWeight: 500, color: color || 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
         {value}
       </p>
       {sub && <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{sub}</p>}

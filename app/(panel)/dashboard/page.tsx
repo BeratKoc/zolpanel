@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { AlertTriangle, TrendingUp, Check, RotateCw, Clock } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { MetricCard, StatusDot, Badge, Spinner, Btn } from '@/components/ui';
 
@@ -39,21 +40,30 @@ function AnomalyBadge({ anomaly, trend }: { anomaly?: any; trend?: string }) {
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
       background: 'rgba(255,80,80,0.15)', color: 'var(--red)',
       border: '1px solid rgba(255,80,80,0.3)', fontWeight: 600,
-    }}>⚠️ {t('dashboard.leakSuspect')}</span>
+      display: 'inline-flex', alignItems: 'center', gap: 3,
+    }}>
+      <AlertTriangle size={12} strokeWidth={1.75} /> {t('dashboard.leakSuspect')}
+    </span>
   );
   if (trend === 'growing') return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
       background: 'rgba(255,180,0,0.12)', color: 'var(--yellow)',
       border: '1px solid rgba(255,180,0,0.25)',
-    }}>↑ {t('dashboard.trendGrowing')}</span>
+      display: 'inline-flex', alignItems: 'center', gap: 3,
+    }}>
+      <TrendingUp size={12} strokeWidth={1.75} /> {t('dashboard.trendGrowing')}
+    </span>
   );
   if (trend === 'stable') return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
       background: 'rgba(0,200,100,0.1)', color: 'var(--green)',
       border: '1px solid rgba(0,200,100,0.2)',
-    }}>✓ {t('dashboard.trendStable')}</span>
+      display: 'inline-flex', alignItems: 'center', gap: 3,
+    }}>
+      <Check size={12} strokeWidth={1.75} /> {t('dashboard.trendStable')}
+    </span>
   );
   return null;
 }
@@ -95,10 +105,10 @@ function ServiceMemoryRow({ svc }: { svc: any }) {
       <Sparkline data={svc.sparkline} color={sparkColor} />
 
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
+        <p className="tabular" style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>
           {svc.current} MB
         </p>
-        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+        <p className="tabular" style={{ fontSize: 11, color: 'var(--text-muted)' }}>
           max {svc.max} MB
         </p>
       </div>
@@ -263,7 +273,7 @@ export default function Dashboard() {
             {t('dashboard.recentDomains')}
           </p>
           <Btn variant="ghost" size="sm" onClick={handleReloadCaddy} disabled={reloading}>
-            {reloading ? <Spinner size={12} /> : '↻'} {t('dashboard.caddyReload')}
+            {reloading ? <Spinner size={12} /> : <RotateCw size={12} strokeWidth={1.75} />} {t('dashboard.caddyReload')}
           </Btn>
         </div>
         {domains.length === 0 ? (
@@ -301,7 +311,7 @@ function DomainRow({ domain }: { domain: any }) {
         {domain.type === 'proxy' ? `proxy :${domain.port}` : 'static'}
       </Badge>
       <Badge color={domain.sslStatus === 'active' ? 'green' : 'yellow'}>
-        {domain.sslStatus === 'active' ? '🔒 SSL' : '⏳ SSL'}
+        {domain.sslStatus === 'active' ? '🔒 SSL' : <><Clock size={12} strokeWidth={1.75} style={{ verticalAlign: '-2px', marginRight: 3 }} />SSL</>}
       </Badge>
     </div>
   );
