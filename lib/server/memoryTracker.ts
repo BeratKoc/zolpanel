@@ -1,5 +1,11 @@
 import { exec } from 'child_process';
-import { db, addLog } from './db';
+import {
+  addLog,
+  insertSnapshot,
+  pruneSnapshots,
+  getSnapshotsForName,
+  getSnapshotsSince,
+} from './db';
 
 const SNAPSHOT_INTERVAL = 30 * 1000; // 30 saniye
 const RETENTION_HOURS = 24;           // 24 saatlik geçmiş tut
@@ -89,7 +95,7 @@ async function takeSnapshot(): Promise<void> {
     const timestamp = new Date().toISOString();
 
     for (const svc of services) {
-      db.memorySnapshots.insert({
+      insertSnapshot({
         name: svc.name,
         type: svc.type,
         memoryMB: svc.memoryMB,
@@ -102,46 +108,42 @@ async function takeSnapshot(): Promise<void> {
 
     // Eski kayıtları temizle (24 saatten eski)
     const cutoff = new Date(Date.now() - RETENTION_HOURS * 60 * 60 * 1000).toISOString();
-    db.memorySnapshots.remove({ timestamp: { $lt: cutoff } }, { multi: true });
+    pruneSnapshots(cutoff);
 
     // Anomali kontrolü
-    await checkAnomalies(services);
+    checkAnomalies(services);
   } catch (e) {
     // sessizce geç
   }
 }
 
 // Anomali tespiti
-async function checkAnomalies(currentServices: ServiceMem[]): Promise<void> {
+function checkAnomalies(currentServices: ServiceMem[]): void {
   const windowStart = new Date(Date.now() - ANOMALY_WINDOW_MINUTES * 60 * 1000).toISOString();
 
   for (const svc of currentServices) {
     // Son X dakikadaki snapshot'ları al
-    db.memorySnapshots.find({
-      name: svc.name,
-      timestamp: { $gt: windowStart }
-    }).sort({ timestamp: 1 }).exec((err, snapshots) => {
-      if (err || snapshots.length < 3) return;
+    const snapshots = getSnapshotsForName(svc.name, windowStart);
+    if (snapshots.length < 3) continue;
 
-      const first = snapshots[0].memoryMB;
-      const last = snapshots[snapshots.length - 1].memoryMB;
-      const growth = last - first;
+    const first = snapshots[0].memoryMB;
+    const last = snapshots[snapshots.length - 1].memoryMB;
+    const growth = last - first;
 
-      // Sürekli artış mı? (snapshots hep artıyor mu)
-      let alwaysGrowing = true;
-      for (let i = 1; i < snapshots.length; i++) {
-        if (snapshots[i].memoryMB < snapshots[i - 1].memoryMB - 5) {
-          alwaysGrowing = false;
-          break;
-        }
+    // Sürekli artış mı? (snapshots hep artıyor mu)
+    let alwaysGrowing = true;
+    for (let i = 1; i < snapshots.length; i++) {
+      if (snapshots[i].memoryMB < snapshots[i - 1].memoryMB - 5) {
+        alwaysGrowing = false;
+        break;
       }
+    }
 
-      if (growth > ANOMALY_GROWTH_MB && alwaysGrowing) {
-        addLog(svc.name, 'warn',
-          `⚠️ Memory leak şüphesi: Son ${ANOMALY_WINDOW_MINUTES} dakikada ${growth} MB artış (${first} → ${last} MB)`
-        );
-      }
-    });
+    if (growth > ANOMALY_GROWTH_MB && alwaysGrowing) {
+      addLog(svc.name, 'warn',
+        `⚠️ Memory leak şüphesi: Son ${ANOMALY_WINDOW_MINUTES} dakikada ${growth} MB artış (${first} → ${last} MB)`
+      );
+    }
   }
 }
 
@@ -175,70 +177,61 @@ interface MemoryStat {
 }
 
 // Son N saatin memory datasını getir
-function getMemoryStats(hours = 1): Promise<MemoryStat[]> {
-  return new Promise((resolve, reject) => {
-    const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-    db.memorySnapshots
-      .find({ timestamp: { $gt: since } })
-      .sort({ timestamp: 1 })
-      .exec((err, docs) => {
-        if (err) return reject(err);
+function getMemoryStats(hours = 1): MemoryStat[] {
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+  const docs = getSnapshotsSince(since);
 
-        // Servis bazında grupla
-        const grouped: Record<string, GroupedService> = {};
-        for (const doc of docs) {
-          if (!grouped[doc.name]) {
-            grouped[doc.name] = {
-              name: doc.name,
-              type: doc.type,
-              snapshots: [],
-            };
-          }
-          grouped[doc.name].snapshots.push({
-            t: doc.timestamp,
-            m: doc.memoryMB,
-          });
-        }
+  // Servis bazında grupla
+  const grouped: Record<string, GroupedService> = {};
+  for (const doc of docs) {
+    if (!grouped[doc.name]) {
+      grouped[doc.name] = {
+        name: doc.name,
+        type: doc.type,
+        snapshots: [],
+      };
+    }
+    grouped[doc.name].snapshots.push({
+      t: doc.timestamp,
+      m: doc.memoryMB,
+    });
+  }
 
-        // Her servis için özet hesapla
-        const result = Object.values(grouped).map((svc) => {
-          const mems = svc.snapshots.map((s) => s.m);
-          const current = mems[mems.length - 1] || 0;
-          const min = Math.min(...mems);
-          const max = Math.max(...mems);
-          const first = mems[0] || 0;
-          const growth = current - first;
+  // Her servis için özet hesapla
+  return Object.values(grouped).map((svc) => {
+    const mems = svc.snapshots.map((s) => s.m);
+    const current = mems[mems.length - 1] || 0;
+    const min = Math.min(...mems);
+    const max = Math.max(...mems);
+    const first = mems[0] || 0;
+    const growth = current - first;
 
-          // Trend: growing / stable / decreasing
-          let trend = 'stable';
-          if (growth > 50) trend = 'growing';
-          else if (growth < -50) trend = 'decreasing';
+    // Trend: growing / stable / decreasing
+    let trend = 'stable';
+    if (growth > 50) trend = 'growing';
+    else if (growth < -50) trend = 'decreasing';
 
-          // Anomali skoru
-          let anomaly: MemoryStatAnomaly | null = null;
-          if (growth > ANOMALY_GROWTH_MB) {
-            anomaly = {
-              type: 'leak_suspect',
-              growthMB: growth,
-              message: `${hours}h içinde ${growth} MB artış`,
-            };
-          }
+    // Anomali skoru
+    let anomaly: MemoryStatAnomaly | null = null;
+    if (growth > ANOMALY_GROWTH_MB) {
+      anomaly = {
+        type: 'leak_suspect',
+        growthMB: growth,
+        message: `${hours}h içinde ${growth} MB artış`,
+      };
+    }
 
-          return {
-            name: svc.name,
-            type: svc.type,
-            current,
-            min,
-            max,
-            growth,
-            trend,
-            anomaly,
-            sparkline: svc.snapshots.slice(-20).map((s) => s.m), // son 20 nokta
-          };
-        });
-
-        resolve(result);
-      });
+    return {
+      name: svc.name,
+      type: svc.type,
+      current,
+      min,
+      max,
+      growth,
+      trend,
+      anomaly,
+      sparkline: svc.snapshots.slice(-20).map((s) => s.m), // son 20 nokta
+    };
   });
 }
 

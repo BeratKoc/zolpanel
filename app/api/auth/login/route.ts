@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { db, addLog, initDb } from '@/lib/server/db';
+import { getUserByName, addLog } from '@/lib/server/db';
 import { signToken } from '@/lib/auth';
 import { loginSchema } from '@/lib/validation';
 import { rateLimit, resetLimit } from '@/lib/server/rateLimit';
@@ -17,8 +17,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return Response.json({ error: 'Kullanıcı adı ve şifre gerekli' }, { status: 400 });
   const { username, password } = parsed.data;
 
-  await initDb(); // db instance'ı yüklü olsun (Next bundle izolasyonu)
-  const user = await new Promise<any>((res) => db.users.findOne({ username }, (_e, u) => res(u)));
+  const user = getUserByName(username);
   if (!user || !(await bcrypt.compare(password, user.password))) {
     addLog('system', 'warn', `Başarısız giriş: "${username}" - IP: ${ip}`);
     return Response.json({ error: 'Geçersiz kullanıcı adı veya şifre' }, { status: 401 });

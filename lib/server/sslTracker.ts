@@ -1,4 +1,4 @@
-import { db, type DomainDoc } from './db';
+import { getActiveDomains, updateDomain, type DomainDoc } from './db';
 import { checkDomainSsl } from './ssl';
 
 const SSL_INTERVAL = 60 * 1000; // 60 saniye
@@ -10,18 +10,12 @@ declare global {
 
 // Aktif domainlerin GERÇEK SSL durumunu kontrol edip DB'ye yazar.
 async function refreshAll(): Promise<void> {
-  const domains: DomainDoc[] = await new Promise((resolve) =>
-    db.domains.find({ status: 'active' }, (_e: Error | null, d: DomainDoc[]) => resolve(d || [])),
-  );
+  const domains = getActiveDomains();
 
   for (const dom of domains) {
     const status = await checkDomainSsl(dom.domain);
     if (status !== dom.sslStatus) {
-      db.domains.update(
-        { _id: dom._id },
-        { $set: { sslStatus: status, updatedAt: new Date().toISOString() } },
-        {},
-      );
+      updateDomain(dom._id!, { sslStatus: status as DomainDoc['sslStatus'], updatedAt: new Date().toISOString() });
     }
   }
 }

@@ -1,21 +1,14 @@
-import { db, addLog, DomainDoc } from '@/lib/server/db';
+import { addLog, DomainDoc, getDomainById, updateDomain, removeDomain } from '@/lib/server/db';
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { updateDomainSchema } from '@/lib/validation';
 import { addDomainToConfig, removeDomainFromConfig, isCaddyRunning } from '@/lib/server/caddy';
 
 export const runtime = 'nodejs';
 
-const findOne = (q: any): Promise<DomainDoc | null> =>
-  new Promise((res) => db.domains.findOne(q, (_e: Error | null, d: DomainDoc | null) => res(d || null)));
-const update = (q: any, u: any): Promise<void> =>
-  new Promise((res, rej) => db.domains.update(q, u, {}, (e: Error | null) => (e ? rej(e) : res())));
-const remove = (q: any): Promise<void> =>
-  new Promise((res, rej) => db.domains.remove(q, {}, (e: Error | null) => (e ? rej(e) : res())));
-
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await requireAuth(req))) return unauthorized();
   const { id } = await params;
-  const domain = await findOne({ _id: id });
+  const domain = getDomainById(id);
   if (!domain) return Response.json({ error: 'Domain bulunamadı' }, { status: 404 });
   return Response.json(domain);
 }
@@ -27,7 +20,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (!parsed.success) return Response.json({ error: parsed.error.issues[0].message }, { status: 400 });
   const { notes, aliases, status, appType } = parsed.data;
 
-  const domain = await findOne({ _id: id });
+  const domain = getDomainById(id);
   if (!domain) return Response.json({ error: 'Domain bulunamadı' }, { status: 404 });
 
   const updates: Partial<DomainDoc> = { updatedAt: new Date().toISOString() };
@@ -36,7 +29,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (status !== undefined) updates.status = status;
   if (appType !== undefined) updates.appType = appType;
 
-  await update({ _id: id }, { $set: updates });
+  updateDomain(id, updates);
 
   // Status değiştiyse Caddyfile'ı güncelle
   if (status !== undefined) {
@@ -61,10 +54,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (!(await requireAuth(req))) return unauthorized();
   const { id } = await params;
 
-  const domain = await findOne({ _id: id });
+  const domain = getDomainById(id);
   if (!domain) return Response.json({ error: 'Domain bulunamadı' }, { status: 404 });
 
-  await remove({ _id: id });
+  removeDomain(id);
 
   try {
     if (await isCaddyRunning()) {
