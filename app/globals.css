@@ -119,6 +119,7 @@ input::placeholder, textarea::placeholder {
 .log-shell { display: flex; flex-direction: column; height: 100%; }
 .filters { display: flex; gap: 8px; align-items: center; }
 .log-row { display: flex; gap: 10px; align-items: baseline; }
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
 @media (max-width: 767px) {
   .sidebar {
@@ -147,6 +148,7 @@ input::placeholder, textarea::placeholder {
   .filters { flex-wrap: wrap; }
   .filters > * { flex: 1 1 auto; }
   .log-row { flex-direction: column; gap: 2px; align-items: stretch; }
+  .cols-2 { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) { .page { padding: 12px; } }
 

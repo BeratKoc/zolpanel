@@ -66,7 +66,7 @@ export default function Settings() {
 
       <h2 style={{ fontSize: '15px', fontWeight: 500, marginBottom: '24px' }}>{t('settings.title')}</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
+      <div className="cols-2" style={{ alignItems: 'start' }}>
 
         {/* Şifre değiştir */}
         <Section title={t('settings.changePassword')}>
