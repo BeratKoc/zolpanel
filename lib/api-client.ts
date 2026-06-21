@@ -25,6 +25,7 @@ export const api = {
   createDomain: (d: unknown) => request('POST', '/domains', d),
   updateDomain: (id: string, d: unknown) => request('PUT', `/domains/${id}`, d),
   deleteDomain: (id: string) => request('DELETE', `/domains/${id}`),
+  recheckSsl: (id: string) => request('GET', `/domains/${id}/ssl`),
   getNextPort: () => request('GET', '/domains/utils/next-port'),
   getProcesses: () => request('GET', '/processes'),
   startProcess: (d: unknown) => request('POST', '/processes/start', d),
