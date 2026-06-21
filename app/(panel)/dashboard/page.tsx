@@ -69,6 +69,7 @@ function AnomalyBadge({ anomaly, trend }: { anomaly?: any; trend?: string }) {
 }
 
 function ServiceMemoryRow({ svc }: { svc: any }) {
+  const t = useTranslations();
   const sparkColor = svc.anomaly ? 'var(--red)' : svc.trend === 'growing' ? 'var(--yellow)' : 'var(--green)';
   return (
     <div style={{
@@ -109,7 +110,7 @@ function ServiceMemoryRow({ svc }: { svc: any }) {
           {svc.current} MB
         </p>
         <p className="tabular" style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-          max {svc.max} MB
+          {t('dashboard.max')} {svc.max} MB
         </p>
       </div>
     </div>
