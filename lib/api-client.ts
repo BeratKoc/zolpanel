@@ -45,4 +45,8 @@ export const api = {
   stopContainer: (id: string) => request('POST', `/docker/containers/${id}/stop`),
   restartContainer: (id: string) => request('POST', `/docker/containers/${id}/restart`),
   getContainerLogs: (id: string, tail = 200) => request('GET', `/docker/containers/${id}/logs?tail=${tail}`),
+  getDatabases: () => request('GET', '/databases'),
+  createDatabase: (b: unknown) => request('POST', '/databases', b),
+  getDatabase: (id: string) => request('GET', `/databases/${id}`),
+  deleteDatabase: (id: string, withVolume?: boolean) => request('DELETE', `/databases/${id}${withVolume ? '?volume=1' : ''}`),
 };
