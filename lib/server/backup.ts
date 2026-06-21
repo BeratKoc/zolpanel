@@ -2,6 +2,10 @@ import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { addLog } from './db';
+import { reloadCaddy } from './caddy';
+
+declare global { // eslint-disable-next-line no-var
+  var __zolpanelBackup: boolean | undefined; }
 
 const INSTALL_DIR = process.env.INSTALL_DIR || process.cwd();
 export const BACKUP_DIR = process.env.BACKUP_DIR || path.join(INSTALL_DIR, 'backups');
@@ -58,4 +62,43 @@ export async function createBackup(): Promise<BackupInfo> {
   const st = fs.statSync(path.join(BACKUP_DIR, name));
   addLog('system', 'info', `Yedek alındı: ${name} (${Math.round(st.size / 1024)} KB)`);
   return { name, size: st.size, createdAt: st.mtime.toISOString() };
+}
+
+export async function restoreBackup(name: string): Promise<void> {
+  const file = backupFilePath(name);
+  const staging = path.join(BACKUP_DIR, '.restore-tmp');
+  fs.rmSync(staging, { recursive: true, force: true });
+  fs.mkdirSync(staging, { recursive: true });
+  await exec('tar', ['-xzf', file, '-C', staging]);
+
+  // Caddyfile: yedekle → yaz → validate → başarısızsa geri al → reload
+  const stagedCaddy = path.join(staging, path.basename(CADDYFILE));
+  if (fs.existsSync(stagedCaddy)) {
+    const bak = `${CADDYFILE}.zolpanel-restore.bak`;
+    if (fs.existsSync(CADDYFILE)) fs.copyFileSync(CADDYFILE, bak);
+    fs.copyFileSync(stagedCaddy, CADDYFILE);
+    try { await exec('caddy', ['validate', '--config', CADDYFILE, '--adapter', 'caddyfile']); }
+    catch (e) { if (fs.existsSync(bak)) fs.copyFileSync(bak, CADDYFILE); throw new Error('Caddyfile doğrulama başarısız, geri alındı'); }
+    await reloadCaddy().catch(() => {});
+  }
+  // DB: atomik değişim (çalışan bağlantı eski inode'da kalır; restart yeni dosyayı açar)
+  const stagedDb = path.join(staging, 'zolpanel.db');
+  if (fs.existsSync(stagedDb)) {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+    const tmp = path.join(DB_DIR, 'zolpanel.db.restoring');
+    fs.copyFileSync(stagedDb, tmp);
+    fs.renameSync(tmp, path.join(DB_DIR, 'zolpanel.db'));
+  }
+  fs.rmSync(staging, { recursive: true, force: true });
+  addLog('system', 'warn', `Geri yükleme yapıldı: ${name} — panel yeniden başlatılıyor`);
+  // Yanıt aktıktan sonra paneli yeniden başlat (restore edilmiş DB'yi açmak için)
+  setTimeout(() => { execFile('pm2', ['restart', 'zolpanel'], () => {}); }, 1200);
+}
+
+export function startBackupScheduler(): void {
+  if (globalThis.__zolpanelBackup) return;
+  globalThis.__zolpanelBackup = true;
+  const hours = Number(process.env.BACKUP_INTERVAL_HOURS) || 24;
+  setInterval(() => { createBackup().catch((e) => console.error('[backup] zamanlanmış hata:', e)); }, hours * 60 * 60 * 1000);
+  console.log(`💾 Yedek zamanlayıcı başlatıldı (${hours}sa)`);
 }
