@@ -16,6 +16,7 @@
     "domains": "Dominios",
     "processes": "Procesos",
     "docker": "Docker",
+    "databases": "Bases de datos",
     "logs": "Registros",
     "settings": "Ajustes",
     "logout": "Salir"
@@ -183,6 +184,24 @@
     "restart": "Reiniciar",
     "viewLogs": "Registros",
     "logsTitle": "Registros del contenedor"
+  },
+  "databases": {
+    "title": "Bases de datos",
+    "registered": "{n} bases de datos",
+    "create": "Crear base de datos",
+    "engine": "Motor",
+    "nameOptional": "Nombre (opcional)",
+    "emptyTitle": "Sin bases de datos",
+    "emptySubtitle": "Crea una base de datos Postgres/MySQL/Redis con un clic",
+    "connectionString": "Cadena de conexión",
+    "reveal": "Mostrar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "delete": "Eliminar",
+    "deleteWithVolume": "Eliminar con volumen de datos",
+    "confirmDelete": "¿Eliminar {name}?",
+    "creating": "Creando… (puede estar descargando la imagen)",
+    "dockerRequired": "Docker es necesario"
   },
   "settings": {
     "title": "Ajustes",

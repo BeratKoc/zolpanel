@@ -16,6 +16,7 @@
     "domains": "Domainler",
     "processes": "Süreçler",
     "docker": "Docker",
+    "databases": "Veritabanları",
     "logs": "Loglar",
     "settings": "Ayarlar",
     "logout": "Çıkış"
@@ -183,6 +184,24 @@
     "restart": "Yeniden başlat",
     "viewLogs": "Loglar",
     "logsTitle": "Konteyner logları"
+  },
+  "databases": {
+    "title": "Veritabanları",
+    "registered": "{n} veritabanı",
+    "create": "Veritabanı oluştur",
+    "engine": "Motor",
+    "nameOptional": "Ad (opsiyonel)",
+    "emptyTitle": "Veritabanı yok",
+    "emptySubtitle": "Tek tıkla Postgres/MySQL/Redis oluştur",
+    "connectionString": "Bağlantı dizesi",
+    "reveal": "Göster",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı",
+    "delete": "Sil",
+    "deleteWithVolume": "Veriyle birlikte sil",
+    "confirmDelete": "{name} silinsin mi?",
+    "creating": "Oluşturuluyor… (imaj indiriliyor olabilir)",
+    "dockerRequired": "Docker gerekli"
   },
   "settings": {
     "title": "Ayarlar",

@@ -16,6 +16,7 @@
     "domains": "Domains",
     "processes": "Prozesse",
     "docker": "Docker",
+    "databases": "Datenbanken",
     "logs": "Protokolle",
     "settings": "Einstellungen",
     "logout": "Abmelden"
@@ -183,6 +184,24 @@
     "restart": "Neu starten",
     "viewLogs": "Protokolle",
     "logsTitle": "Container-Protokolle"
+  },
+  "databases": {
+    "title": "Datenbanken",
+    "registered": "{n} Datenbanken",
+    "create": "Datenbank erstellen",
+    "engine": "Engine",
+    "nameOptional": "Name (optional)",
+    "emptyTitle": "Keine Datenbanken",
+    "emptySubtitle": "Postgres/MySQL/Redis mit einem Klick erstellen",
+    "connectionString": "Verbindungszeichenfolge",
+    "reveal": "Anzeigen",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "delete": "Löschen",
+    "deleteWithVolume": "Mit Datenvolume löschen",
+    "confirmDelete": "{name} löschen?",
+    "creating": "Wird erstellt… (Image wird möglicherweise heruntergeladen)",
+    "dockerRequired": "Docker ist erforderlich"
   },
   "settings": {
     "title": "Einstellungen",

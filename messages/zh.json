@@ -16,6 +16,7 @@
     "domains": "域名",
     "processes": "进程",
     "docker": "Docker",
+    "databases": "数据库",
     "logs": "日志",
     "settings": "设置",
     "logout": "退出"
@@ -183,6 +184,24 @@
     "restart": "重启",
     "viewLogs": "日志",
     "logsTitle": "容器日志"
+  },
+  "databases": {
+    "title": "数据库",
+    "registered": "{n} 个数据库",
+    "create": "创建数据库",
+    "engine": "引擎",
+    "nameOptional": "名称（可选）",
+    "emptyTitle": "暂无数据库",
+    "emptySubtitle": "一键创建 Postgres/MySQL/Redis 数据库",
+    "connectionString": "连接字符串",
+    "reveal": "显示",
+    "copy": "复制",
+    "copied": "已复制",
+    "delete": "删除",
+    "deleteWithVolume": "连同数据卷一起删除",
+    "confirmDelete": "删除 {name}？",
+    "creating": "创建中…（可能正在拉取镜像）",
+    "dockerRequired": "需要 Docker"
   },
   "settings": {
     "title": "设置",

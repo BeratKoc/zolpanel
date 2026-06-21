@@ -16,6 +16,7 @@
     "domains": "Domains",
     "processes": "Processes",
     "docker": "Docker",
+    "databases": "Databases",
     "logs": "Logs",
     "settings": "Settings",
     "logout": "Log out"
@@ -183,6 +184,24 @@
     "restart": "Restart",
     "viewLogs": "Logs",
     "logsTitle": "Container logs"
+  },
+  "databases": {
+    "title": "Databases",
+    "registered": "{n} databases",
+    "create": "Create database",
+    "engine": "Engine",
+    "nameOptional": "Name (optional)",
+    "emptyTitle": "No databases",
+    "emptySubtitle": "Create a Postgres/MySQL/Redis database in one click",
+    "connectionString": "Connection string",
+    "reveal": "Show",
+    "copy": "Copy",
+    "copied": "Copied",
+    "delete": "Delete",
+    "deleteWithVolume": "Delete with data volume",
+    "confirmDelete": "Delete {name}?",
+    "creating": "Creating… (image may be pulling)",
+    "dockerRequired": "Docker is required"
   },
   "settings": {
     "title": "Settings",
