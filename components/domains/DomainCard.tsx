@@ -1,15 +1,17 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Pause, Play, Pencil, Trash2, Lock, Clock } from 'lucide-react';
+import { Pause, Play, Pencil, Trash2, Lock, Clock, AlertTriangle, RotateCw } from 'lucide-react';
 import { Badge, StatusDot, Spinner } from '@/components/ui';
 
-export function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
+export function DomainCard({ domain, onDelete, onEdit, onToggle, deleting, onRecheck, rechecking }: {
   domain: any;
   onDelete: () => void;
   onEdit: () => void;
   onToggle: () => void;
   deleting: boolean;
+  onRecheck?: (id: string) => void;
+  rechecking?: boolean;
 }) {
   const t = useTranslations();
   return (
@@ -54,11 +56,53 @@ export function DomainCard({ domain, onDelete, onEdit, onToggle, deleting }: {
         <Badge color={domain.type === 'proxy' ? 'blue' : 'purple'}>
           {domain.type}
         </Badge>
-        <Badge color={domain.sslStatus === 'active' ? 'green' : 'yellow'}>
-          {domain.sslStatus === 'active'
-            ? <Lock size={12} strokeWidth={1.75} />
-            : <Clock size={12} strokeWidth={1.75} />} SSL
-        </Badge>
+        {domain.sslStatus === 'active' ? (
+          <span title={domain.sslValidTo
+            ? `${t('domains.sslActiveTitle')} — ${domain.sslValidTo}`
+            : t('domains.sslActiveTitle')}>
+            <Badge color="green">
+              <Lock size={12} strokeWidth={1.75} /> SSL
+            </Badge>
+          </span>
+        ) : domain.sslStatus === 'error' ? (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Badge color="red">
+              <AlertTriangle size={12} strokeWidth={1.75} /> {t('domains.sslError')}
+            </Badge>
+            {onRecheck && (
+              <IconBtn
+                onClick={() => onRecheck(domain._id)}
+                title={t('domains.sslRetry')}
+                aria-label={t('domains.sslRetry')}
+                className="icon-btn"
+                disabled={rechecking}
+              >
+                {rechecking
+                  ? <Spinner size={12} />
+                  : <RotateCw size={12} strokeWidth={1.75} />}
+              </IconBtn>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Badge color="yellow">
+              <Clock size={12} strokeWidth={1.75} /> {t('domains.sslPending')}
+            </Badge>
+            {onRecheck && (
+              <IconBtn
+                onClick={() => onRecheck(domain._id)}
+                title={t('domains.sslRetry')}
+                aria-label={t('domains.sslRetry')}
+                className="icon-btn"
+                disabled={rechecking}
+              >
+                {rechecking
+                  ? <Spinner size={12} />
+                  : <RotateCw size={12} strokeWidth={1.75} />}
+              </IconBtn>
+            )}
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>

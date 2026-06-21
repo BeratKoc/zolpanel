@@ -111,7 +111,11 @@
     "ipAllow": "Nur diese zulassen",
     "ipDeny": "Diese blockieren",
     "ipCidrs": "IP / CIDR-Liste",
-    "ipCidrsHint": "Durch Komma oder Zeilenumbruch trennen: 1.2.3.4, 10.0.0.0/8"
+    "ipCidrsHint": "Durch Komma oder Zeilenumbruch trennen: 1.2.3.4, 10.0.0.0/8",
+    "sslPending": "SSL ausstehend",
+    "sslError": "SSL-Fehler",
+    "sslActiveTitle": "SSL aktiv",
+    "sslRetry": "SSL erneut prüfen"
   },
   "processes": {
     "title": "Prozesse",

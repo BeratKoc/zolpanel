@@ -111,7 +111,11 @@
     "ipAllow": "仅允许这些",
     "ipDeny": "屏蔽这些",
     "ipCidrs": "IP / CIDR 列表",
-    "ipCidrsHint": "用逗号或换行分隔：1.2.3.4, 10.0.0.0/8"
+    "ipCidrsHint": "用逗号或换行分隔：1.2.3.4, 10.0.0.0/8",
+    "sslPending": "SSL 待处理",
+    "sslError": "SSL 错误",
+    "sslActiveTitle": "SSL 已启用",
+    "sslRetry": "重新检查 SSL"
   },
   "processes": {
     "title": "进程",

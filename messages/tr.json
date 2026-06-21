@@ -111,7 +111,11 @@
     "ipAllow": "Sadece bunlara izin ver",
     "ipDeny": "Bunları engelle",
     "ipCidrs": "IP / CIDR listesi",
-    "ipCidrsHint": "Virgül veya satırla ayır: 1.2.3.4, 10.0.0.0/8"
+    "ipCidrsHint": "Virgül veya satırla ayır: 1.2.3.4, 10.0.0.0/8",
+    "sslPending": "SSL Bekleniyor",
+    "sslError": "SSL Hatası",
+    "sslActiveTitle": "SSL aktif",
+    "sslRetry": "SSL'i yeniden kontrol et"
   },
   "processes": {
     "title": "Processes",

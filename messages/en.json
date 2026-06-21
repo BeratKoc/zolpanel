@@ -111,7 +111,11 @@
     "ipAllow": "Allow only these",
     "ipDeny": "Block these",
     "ipCidrs": "IP / CIDR list",
-    "ipCidrsHint": "Separate by comma or line: 1.2.3.4, 10.0.0.0/8"
+    "ipCidrsHint": "Separate by comma or line: 1.2.3.4, 10.0.0.0/8",
+    "sslPending": "SSL Pending",
+    "sslError": "SSL Error",
+    "sslActiveTitle": "SSL active",
+    "sslRetry": "Recheck SSL"
   },
   "processes": {
     "title": "Processes",

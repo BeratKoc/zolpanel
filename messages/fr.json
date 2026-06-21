@@ -111,7 +111,11 @@
     "ipAllow": "Autoriser uniquement ceux-ci",
     "ipDeny": "Bloquer ceux-ci",
     "ipCidrs": "Liste IP / CIDR",
-    "ipCidrsHint": "Séparer par virgule ou saut de ligne : 1.2.3.4, 10.0.0.0/8"
+    "ipCidrsHint": "Séparer par virgule ou saut de ligne : 1.2.3.4, 10.0.0.0/8",
+    "sslPending": "SSL en attente",
+    "sslError": "Erreur SSL",
+    "sslActiveTitle": "SSL actif",
+    "sslRetry": "Revérifier le SSL"
   },
   "processes": {
     "title": "Processus",

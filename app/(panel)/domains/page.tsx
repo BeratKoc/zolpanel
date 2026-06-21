@@ -9,6 +9,9 @@ import { DomainCard } from '@/components/domains/DomainCard';
 import { AddDomainModal } from '@/components/domains/AddDomainModal';
 import { EditDomainModal } from '@/components/domains/EditDomainModal';
 
+const POLL_INTERVAL_MS = 8000;
+const MAX_POLL_TICKS = 18;
+
 export default function Domains() {
   const t = useTranslations();
   const [domains, setDomains] = useState<any[]>([]);
@@ -16,6 +19,7 @@ export default function Domains() {
   const [showAdd, setShowAdd] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<any>(null);
+  const [recheckingIds, setRecheckingIds] = useState<Set<string>>(new Set());
   const { show, ToastContainer } = useToast();
 
   async function load() {
@@ -30,6 +34,45 @@ export default function Domains() {
   }
 
   useEffect(() => { load(); }, []);
+
+  // Polling: while any domain is not active, refresh every 8s (up to 18 ticks)
+  useEffect(() => {
+    const hasPending = domains.some(d => d.sslStatus !== 'active');
+    if (!hasPending) return;
+
+    let ticks = 0;
+    const id = setInterval(() => {
+      if (document.hidden) return;
+      ticks++;
+      if (ticks >= MAX_POLL_TICKS) {
+        clearInterval(id);
+        return;
+      }
+      load();
+    }, POLL_INTERVAL_MS);
+
+    return () => clearInterval(id);
+  }, [domains]);
+
+  async function handleRecheck(domainId: string) {
+    setRecheckingIds(prev => new Set(prev).add(domainId));
+    try {
+      const info = await api.recheckSsl(domainId);
+      setDomains(prev => prev.map(d =>
+        d._id === domainId
+          ? { ...d, sslStatus: info.status, sslIssuer: info.issuer, sslValidTo: info.validTo }
+          : d
+      ));
+    } catch (e: any) {
+      show(e.message, 'error');
+    } finally {
+      setRecheckingIds(prev => {
+        const next = new Set(prev);
+        next.delete(domainId);
+        return next;
+      });
+    }
+  }
 
   async function handleDelete(domain: any) {
     if (!window.confirm(t('domains.confirmDelete', { domain: domain.domain }))) return;
@@ -92,6 +135,8 @@ export default function Domains() {
               onEdit={() => setSelectedDomain(d)}
               onToggle={() => handleStatusToggle(d)}
               deleting={deleting === d._id}
+              onRecheck={handleRecheck}
+              rechecking={recheckingIds.has(d._id)}
             />
           ))}
         </div>
