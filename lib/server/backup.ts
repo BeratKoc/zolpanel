@@ -52,8 +52,9 @@ export async function createBackup(): Promise<BackupInfo> {
   // WAL'ı ana dosyaya yaz ki commit'lenmiş tüm veri zolpanel.db'de olsun
   // (yedek -wal/-shm içermiyor). TRUNCATE sonrası ana dosya tutarlı.
   checkpointDb();
-  // tar -C ile dosyaları köke göre ekle (mutlak yol uyarısından kaçın)
-  const args = ['-czf', path.join(BACKUP_DIR, name)];
+  // --force-local: GNU tar, Windows yolundaki "C:"yi uzak-host sanmasın
+  // (Linux'ta zararsız no-op). -C ile dosyaları köke göre ekle.
+  const args = ['--force-local', '-czf', path.join(BACKUP_DIR, name)];
   const dbFile = path.join(DB_DIR, 'zolpanel.db');
   if (fs.existsSync(dbFile)) args.push('-C', DB_DIR, 'zolpanel.db');
   if (fs.existsSync(CADDYFILE)) args.push('-C', path.dirname(CADDYFILE), path.basename(CADDYFILE));
@@ -72,7 +73,7 @@ export async function restoreBackup(name: string): Promise<void> {
   const staging = path.join(BACKUP_DIR, '.restore-tmp');
   fs.rmSync(staging, { recursive: true, force: true });
   fs.mkdirSync(staging, { recursive: true });
-  await exec('tar', ['-xzf', file, '-C', staging]);
+  await exec('tar', ['--force-local', '-xzf', file, '-C', staging]);
 
   // Caddyfile: STAGED kopyayı ÖNCE validate et (canlı dosyayı asla geçersiz bırakma),
   // ancak geçerliyse canlıya yaz + reload. (syncCaddyConfig ile aynı güvenli desen.)
