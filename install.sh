@@ -246,11 +246,9 @@ configure_caddy() {
   fi
 
   local caddyfile="/etc/caddy/Caddyfile"
-  local dom_re
-  dom_re="$(_regex_escape "${PANEL_DOMAIN}")"
 
   # Alan adı zaten ekli mi kontrol et
-  if grep -qE "^${dom_re}[[:space:]]*\{" "${caddyfile}" 2>/dev/null; then
+  if [ -f "${caddyfile}" ] && _caddy_block_exists "${PANEL_DOMAIN}" "${caddyfile}"; then
     log "Caddy: '${PANEL_DOMAIN}' zaten Caddyfile'da mevcut — atlanıyor"
     return
   fi
@@ -373,15 +371,18 @@ print_summary() {
   echo ""
 }
 
-# ── Yardımcı: regex meta-karakterlerini kaçır ────────────────────────────────
-_regex_escape() { printf '%s' "$1" | sed 's/[][.^$*+?(){}|\\]/\\&/g'; }
+# ── Yardımcı: Caddyfile'da "domain {" bloğu var mı? ──────────────────────────
+# index() ile tam literal eşleşme — domain'deki regex meta-karakterleri (. gibi)
+# yanlış eşleşmeye yol açmaz. Kaldırma awk'ıyla aynı eşleşme mantığı.
+_caddy_block_exists() {
+  # $1 = domain, $2 = caddyfile
+  awk -v d="$1" 'index($0,d)==1 && substr($0,length(d)+1) ~ /^[[:space:]]*\{/ {found=1; exit} END{exit !found}' "$2"
+}
 
 # ── Uninstall: Caddy bloğunu brace-farkında awk ile temizle ──────────────────
 remove_caddy_block() {
   local domain="$1"
   local CADDYFILE="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
-  local dom_re
-  dom_re="$(_regex_escape "$domain")"
 
   # Dosya yoksa veya blok yoksa atla
   if [ ! -f "$CADDYFILE" ]; then
@@ -389,7 +390,7 @@ remove_caddy_block() {
     return 0
   fi
 
-  if ! grep -qE "^${dom_re}[[:space:]]*\{" "$CADDYFILE" 2>/dev/null; then
+  if ! _caddy_block_exists "$domain" "$CADDYFILE"; then
     log "Caddy bloğu yok (${domain}), atlanıyor"
     return 0
   fi
