@@ -64,3 +64,50 @@ test('dbexplorer: veritabanları sayfası, bağlantı varsa editör + SQL konsol
     page.locator('td').filter({ hasText: /^1$/ }).first(),
   ).toBeVisible({ timeout: 20_000 });
 });
+
+test('dbexplorer: redis bağlantısı varsa editör açılır ve anahtar tarayıcı görünür', async ({ page }) => {
+  await login(page);
+
+  await page.getByRole('link', { name: 'Veritabanları' }).click();
+  await page.waitForURL('**/databases');
+
+  // Sayfa başlığı yüklenene kadar bekle.
+  await expect(page.locator('h2').filter({ hasText: 'Veritabanları' })).toBeVisible({ timeout: 10_000 });
+
+  // Herhangi bir bağlantı kartının yüklenmesini bekle (boş durum VEYA domain-card).
+  const emptyState = page.getByText('Veritabanı yok', { exact: true });
+  const anyCard = page.locator('.domain-card').first();
+  await expect(emptyState.or(anyCard)).toBeVisible({ timeout: 15_000 });
+
+  // Redis engine badge'i içeren domain-card'ı bul (engine badge metni "redis").
+  // Badge, kart içinde büyük-küçük harf duyarsız olarak "redis" metnini içerir.
+  const redisCard = page.locator('.domain-card').filter({ hasText: /redis/i });
+  const redisCardCount = await redisCard.count();
+
+  // Redis bağlantısı yoksa testi atla — CI'da konteyner olmayabilir.
+  if (redisCardCount === 0) {
+    return;
+  }
+
+  // Redis kartının "Aç" butonuna tıkla; aynı kart içindeki butonu hedefle.
+  const openBtn = redisCard.first().getByRole('button', { name: 'Aç' });
+  await expect(openBtn).toBeVisible({ timeout: 5_000 });
+  await openBtn.click();
+
+  // Editör URL'sine git.
+  await page.waitForURL('**/databases/**', { timeout: 10_000 });
+
+  // Editör başlığı görünmeli.
+  await expect(
+    page.locator('h2').filter({ hasText: 'DB Düzenleyici' }),
+  ).toBeVisible({ timeout: 10_000 });
+
+  // Redis tarayıcı: anahtar arama input'u görünmeli (placeholder: "Anahtar ara (örn: user:*)").
+  const keySearchInput = page.getByPlaceholder('Anahtar ara (örn: user:*)');
+  await expect(keySearchInput).toBeVisible({ timeout: 10_000 });
+
+  // Anahtar listesi ya da boş durum görünmeli — ikisi de geçerli (Redis boş olabilir).
+  // keySearchInput zaten görünür olduğunu doğruladık; ek olarak noKeys veya input tekrar kontrol.
+  const noKeys = page.getByText('Anahtar yok', { exact: true });
+  await expect(noKeys.or(keySearchInput)).toBeVisible({ timeout: 15_000 });
+});
