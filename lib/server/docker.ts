@@ -91,3 +91,25 @@ export async function getContainerLogs(ref: string, tail = 200): Promise<string>
   const n = Math.max(1, Math.min(2000, Math.floor(Number(tail) || 200)));
   return dockerExec(['logs', '--tail', String(n), c.id]);
 }
+
+export interface RunSpec {
+  name: string; image: string; hostPort: number; containerPort: number;
+  env: Record<string, string>; volume: string; volumePath: string;
+}
+export function buildRunArgs(s: RunSpec): string[] {
+  const args = ['run', '-d', '--name', s.name, '--restart', 'unless-stopped',
+    '-p', `${s.hostPort}:${s.containerPort}`, '-v', `${s.volume}:${s.volumePath}`];
+  for (const [k, v] of Object.entries(s.env)) args.push('-e', `${k}=${v}`);
+  args.push(s.image);
+  return args;
+}
+export async function dockerRun(args: string[]): Promise<string> {
+  return (await dockerExec(args)).trim();
+}
+export async function pullImage(image: string): Promise<void> { await dockerExec(['pull', image]); }
+export async function removeContainer(ref: string, withVolume?: string): Promise<void> {
+  const c = await resolveContainer(ref);            // yalnız var olan konteyner
+  await dockerExec(['rm', '-f', c.id]);
+  if (withVolume) await dockerExec(['volume', 'rm', withVolume]).catch(() => {});
+  addLog(c.name, 'info', 'Docker konteyner silindi');
+}

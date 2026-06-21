@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { parsePsLines, assertSafeContainerRef, resolveRef } from './docker';
+import { parsePsLines, assertSafeContainerRef, resolveRef, buildRunArgs } from './docker';
 
 const C = (id: string, name: string) => ({ id, name, image: '', state: 'running', status: '' });
 
@@ -47,4 +47,13 @@ test('assertSafeContainerRef: enjeksiyon/boşluk/; reddedilir', () => {
   for (const bad of ['a;rm -rf /', 'a b', '$(x)', '../x', '-rf', '', 'a'.repeat(200)]) {
     assert.throws(() => assertSafeContainerRef(bad));
   }
+});
+
+test('buildRunArgs: sabit/kontrollü docker run argümanları üretir', () => {
+  const a = buildRunArgs({ name: 'zolpanel-db-postgres-ab12', image: 'postgres:16-alpine', hostPort: 5433, containerPort: 5432, env: { POSTGRES_PASSWORD: 'p', POSTGRES_DB: 'app' }, volume: 'zolpanel-db-postgres-ab12-data', volumePath: '/var/lib/postgresql/data' });
+  assert.deepStrictEqual(a, [
+    'run','-d','--name','zolpanel-db-postgres-ab12','--restart','unless-stopped',
+    '-p','5433:5432','-v','zolpanel-db-postgres-ab12-data:/var/lib/postgresql/data',
+    '-e','POSTGRES_PASSWORD=p','-e','POSTGRES_DB=app','postgres:16-alpine',
+  ]);
 });
