@@ -371,6 +371,115 @@ print_summary() {
   echo ""
 }
 
+# ── Uninstall: Caddy bloğunu brace-farkında awk ile temizle ──────────────────
+remove_caddy_block() {
+  local domain="$1"
+  local CADDYFILE="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
+
+  # Dosya yoksa veya blok yoksa atla
+  if [ ! -f "$CADDYFILE" ]; then
+    log "Caddyfile bulunamadı: ${CADDYFILE} — atlanıyor"
+    return 0
+  fi
+
+  if ! grep -qE "^${domain}[[:space:]]*\{" "$CADDYFILE" 2>/dev/null; then
+    log "Caddy bloğu yok (${domain}), atlanıyor"
+    return 0
+  fi
+
+  # --check modunda sadece raporla
+  if [ "$CHECK_ONLY" = "1" ]; then
+    info "[DRY-RUN] Caddy panel bloğu kaldırılacak: ${domain}"
+    return 0
+  fi
+
+  # Yedek al
+  local bak="${CADDYFILE}.zolpanel-uninstall.bak"
+  log "Caddyfile yedekleniyor: ${bak}"
+  cp "$CADDYFILE" "$bak"
+
+  # Brace-farkında awk ile yalnız hedef bloğu çıkar
+  awk -v d="$domain" '
+    BEGIN{skip=0; depth=0}
+    skip==0 && $0 ~ "^"d"[[:space:]]*\\{" {skip=1; depth=1; next}
+    skip==1 { n=gsub(/\{/,"{"); m=gsub(/\}/,"}"); depth+=n-m; if(depth<=0) skip=0; next }
+    {print}
+  ' "$CADDYFILE" > "${CADDYFILE}.zolpanel.tmp" && mv "${CADDYFILE}.zolpanel.tmp" "$CADDYFILE"
+
+  # Doğrula
+  log "Caddy yapılandırması doğrulanıyor…"
+  if ! caddy validate --config "$CADDYFILE" --adapter caddyfile; then
+    warn "Caddy doğrulama başarısız — yedekten geri yükleniyor"
+    cp "$bak" "$CADDYFILE"
+    err "Caddy doğrulama başarısız, geri alındı"
+  fi
+
+  log "Caddy yeniden yükleniyor…"
+  systemctl reload caddy || warn "Caddy yeniden yüklenemedi (manuel kontrol edin)"
+  log "Caddy bloğu kaldırıldı: ${domain}"
+}
+
+# ── Uninstall: pm2 sil, Caddy bloğunu kaldır, (opsiyonel) dizini sil ─────────
+do_uninstall() {
+  need_root
+
+  echo ""
+  log "Zolpanel kaldırılıyor…"
+  if [ "$CHECK_ONLY" = "1" ]; then
+    warn "PREFLIGHT modu: değişiklik yapılmayacak"
+  fi
+  echo ""
+
+  # Panel domain bilgisini .env'den oku (PANEL_DOMAIN env override yapabilir)
+  local dom
+  dom="$(grep -E '^PROTECTED_DOMAINS=' "${INSTALL_DIR}/.env" 2>/dev/null | cut -d= -f2- | tr -d ' ')" || dom=""
+  dom="${PANEL_DOMAIN:-$dom}"
+
+  # PM2 uygulamasını kaldır
+  if pm2 describe zolpanel >/dev/null 2>&1; then
+    if [ "$CHECK_ONLY" = "1" ]; then
+      info "[DRY-RUN] pm2 uygulaması silinecek: zolpanel"
+    else
+      log "pm2 uygulaması siliniyor: zolpanel"
+      pm2 delete zolpanel
+      pm2 save
+    fi
+  else
+    log "pm2 app yok (zolpanel) — atlanıyor"
+  fi
+
+  # Caddy bloğunu kaldır
+  if [ -n "$dom" ]; then
+    remove_caddy_block "$dom"
+  else
+    log "panel domaini yok (HTTP kurulum) → Caddy'ye dokunulmuyor"
+  fi
+
+  # Kurulum dizini
+  if [ "$PURGE" = "1" ]; then
+    if [ "$CHECK_ONLY" = "1" ]; then
+      info "[DRY-RUN] Kurulum dizini silinecek: ${INSTALL_DIR}"
+    else
+      rm -rf "${INSTALL_DIR}"
+      log "dizin silindi: ${INSTALL_DIR}"
+    fi
+  else
+    if [ "$CHECK_ONLY" = "1" ]; then
+      info "[DRY-RUN] Kurulum dizini korunacak: ${INSTALL_DIR} (silmek için --purge)"
+    else
+      log "veri korundu: ${INSTALL_DIR} (silmek için --purge)"
+    fi
+  fi
+
+  if [ "$CHECK_ONLY" = "1" ]; then
+    echo ""
+    log "DRY-RUN: değişiklik yapılmadı"
+    exit 0
+  fi
+
+  log "Kaldırma tamam."
+}
+
 # ── Update: kodu tazele, build et, pm2 restart ────────────────────────────────
 do_update() {
   need_root
@@ -433,7 +542,7 @@ main() {
       do_update
       ;;
     uninstall)
-      err "uninstall bu sürümde henüz yok"
+      do_uninstall
       ;;
   esac
 }

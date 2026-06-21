@@ -43,6 +43,28 @@ Curl ile doğrudan (local `install.sh` dosyası gerekmez):
 curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh | sudo bash -s -- --update
 ```
 
+### Kaldırma
+
+Paneli kaldırır (pm2 uygulaması durdurulur ve silinir, Caddy panel bloğu güvenli şekilde kaldırılır). **Kurulum dizini ve veriler korunur:**
+
+```bash
+sudo bash install.sh --uninstall
+```
+
+Kurulum dizinini de dahil olmak üzere **her şeyi sil** (`/opt/zolpanel` ve tüm veriler):
+
+```bash
+sudo bash install.sh --uninstall --purge
+```
+
+Hiçbir şeyi silmeden ne yapılacağını **önizle** (yan-etki kesinlikle yok — pm2 ve Caddy'ye dokunulmaz):
+
+```bash
+sudo bash install.sh --uninstall --check
+```
+
+> Caddy bloğu kaldırma işlemi backup → validate → rollback güvencesiyle çalışır: doğrulama başarısız olursa Caddyfile otomatik geri yüklenir.
+
 **Ortam değişkenleri (hepsi opsiyonel, makul varsayılanlar):**
 
 | Değişken | Varsayılan | Açıklama |
