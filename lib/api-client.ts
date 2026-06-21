@@ -40,4 +40,9 @@ export const api = {
   getCaddyConfig: () => request('GET', '/system/caddy/config'),
   getMemoryStats: (hours = 1) => request('GET', `/system/memory-stats?hours=${hours}`),
   getServices: () => request('GET', '/system/services'),
+  getContainers: () => request('GET', '/docker/containers'),
+  startContainer: (id: string) => request('POST', `/docker/containers/${id}/start`),
+  stopContainer: (id: string) => request('POST', `/docker/containers/${id}/stop`),
+  restartContainer: (id: string) => request('POST', `/docker/containers/${id}/restart`),
+  getContainerLogs: (id: string, tail = 200) => request('GET', `/docker/containers/${id}/logs?tail=${tail}`),
 };
