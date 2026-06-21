@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { getUsedPorts } from './portManager';
 import { buildRunArgs, dockerRun, pullImage, removeContainer, listContainers } from './docker';
-import { insertDatabase, getAllDatabases, getDatabaseById, removeDatabase as dbRemove, getDatabaseByPort, type DatabaseDoc } from './db';
+import { insertDatabase, getAllDatabases, getDatabaseById, removeDatabase as dbRemove, type DatabaseDoc } from './db';
 
 type Engine = 'postgres' | 'mysql' | 'redis';
 export const ENGINES: Record<Engine, { image: string; port: number; volumePath: string; basePort: number }> = {
@@ -38,7 +38,7 @@ export async function createDatabase(engine: Engine, displayName?: string): Prom
   const volume = `${name}-data`;
   await pullImage(cfg.image);
   const args = buildRunArgs({ name, image: cfg.image, hostPort, containerPort: cfg.port, env: envFor(engine, password, dbName || 'app', username || 'app'), volume, volumePath: cfg.volumePath });
-  if (engine === 'redis') { args.splice(args.indexOf(cfg.image) + 1, 0, '--requirepass', password); } // imajdan sonra komut argümanı
+  if (engine === 'redis') { args.splice(args.lastIndexOf(cfg.image) + 1, 0, '--requirepass', password); } // imajdan sonra komut argümanı
   const containerId = await dockerRun(args);
   return insertDatabase({ engine, name, dbName, username, password, hostPort, volume, containerId, createdAt: new Date().toISOString() });
 }
