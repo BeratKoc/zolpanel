@@ -49,4 +49,9 @@ export const api = {
   createDatabase: (b: unknown) => request('POST', '/databases', b),
   getDatabase: (id: string) => request('GET', `/databases/${id}`),
   deleteDatabase: (id: string, withVolume?: boolean) => request('DELETE', `/databases/${id}${withVolume ? '?volume=1' : ''}`),
+  getBackups: () => request('GET', '/backups'),
+  createBackup: () => request('POST', '/backups'),
+  deleteBackup: (n: string) => request('DELETE', `/backups/${encodeURIComponent(n)}`),
+  restoreBackup: (n: string) => request('POST', `/backups/${encodeURIComponent(n)}/restore`),
+  backupDownloadUrl: (n: string) => `/api/backups/${encodeURIComponent(n)}/download`,
 };
