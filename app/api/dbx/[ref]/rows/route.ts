@@ -38,7 +38,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ ref: str
     }
 
     const result = await adapter.getRows(ref, db, schema, table, { limit, offset });
-    return Response.json(result);
+
+    let pk: string[] = [];
+    try {
+      pk = await adapter.pkColumns(ref, db, schema, table);
+    } catch {
+      // PK fetch failure must not break row listing
+      pk = [];
+    }
+
+    return Response.json({ ...result, pk });
   } catch (e: unknown) {
     return Response.json({ error: (e as Error).message }, { status: 500 });
   }
