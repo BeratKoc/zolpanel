@@ -17,6 +17,7 @@
     "processes": "Processes",
     "docker": "Docker",
     "databases": "Databases",
+    "backups": "Backups",
     "logs": "Logs",
     "settings": "Settings",
     "logout": "Log out"
@@ -202,6 +203,21 @@
     "confirmDelete": "Delete {name}?",
     "creating": "Creating… (image may be pulling)",
     "dockerRequired": "Docker is required"
+  },
+  "backups": {
+    "title": "Backups",
+    "count": "{n} backups",
+    "backupNow": "Backup now",
+    "emptyTitle": "No backups",
+    "emptySubtitle": "Take a backup of the panel DB + Caddyfile",
+    "download": "Download",
+    "restore": "Restore",
+    "delete": "Delete",
+    "confirmRestore": "Restore {name}? The panel will restart and current data will change.",
+    "confirmDelete": "Delete {name}?",
+    "creating": "Creating backup…",
+    "restoring": "Restoring… panel will restart shortly",
+    "restoreStarted": "Restore started; panel is restarting (a few seconds)"
   },
   "settings": {
     "title": "Settings",

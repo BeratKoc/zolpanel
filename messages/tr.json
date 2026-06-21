@@ -17,6 +17,7 @@
     "processes": "Süreçler",
     "docker": "Docker",
     "databases": "Veritabanları",
+    "backups": "Yedekler",
     "logs": "Loglar",
     "settings": "Ayarlar",
     "logout": "Çıkış"
@@ -202,6 +203,21 @@
     "confirmDelete": "{name} silinsin mi?",
     "creating": "Oluşturuluyor… (imaj indiriliyor olabilir)",
     "dockerRequired": "Docker gerekli"
+  },
+  "backups": {
+    "title": "Yedekler",
+    "count": "{n} yedek",
+    "backupNow": "Şimdi yedekle",
+    "emptyTitle": "Yedek yok",
+    "emptySubtitle": "Panel DB + Caddyfile için yedek al",
+    "download": "İndir",
+    "restore": "Geri yükle",
+    "delete": "Sil",
+    "confirmRestore": "{name} geri yüklensin mi? Panel yeniden başlatılacak ve mevcut veri değişecek.",
+    "confirmDelete": "{name} silinsin mi?",
+    "creating": "Yedekleniyor…",
+    "restoring": "Geri yükleniyor… panel birazdan yeniden başlayacak",
+    "restoreStarted": "Geri yükleme başladı; panel yeniden başlatılıyor (birkaç saniye)"
   },
   "settings": {
     "title": "Ayarlar",

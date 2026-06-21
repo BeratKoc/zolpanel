@@ -17,6 +17,7 @@
     "processes": "Processus",
     "docker": "Docker",
     "databases": "Bases de données",
+    "backups": "Sauvegardes",
     "logs": "Journaux",
     "settings": "Paramètres",
     "logout": "Déconnexion"
@@ -202,6 +203,21 @@
     "confirmDelete": "Supprimer {name} ?",
     "creating": "Création en cours… (l'image est peut-être en cours de téléchargement)",
     "dockerRequired": "Docker est requis"
+  },
+  "backups": {
+    "title": "Sauvegardes",
+    "count": "{n} sauvegardes",
+    "backupNow": "Sauvegarder maintenant",
+    "emptyTitle": "Aucune sauvegarde",
+    "emptySubtitle": "Sauvegarder la BD du panel + Caddyfile",
+    "download": "Télécharger",
+    "restore": "Restaurer",
+    "delete": "Supprimer",
+    "confirmRestore": "Restaurer {name} ? Le panel va redémarrer et les données actuelles seront modifiées.",
+    "confirmDelete": "Supprimer {name} ?",
+    "creating": "Sauvegarde en cours…",
+    "restoring": "Restauration… le panel va redémarrer dans un instant",
+    "restoreStarted": "Restauration lancée ; le panel redémarre (quelques secondes)"
   },
   "settings": {
     "title": "Paramètres",

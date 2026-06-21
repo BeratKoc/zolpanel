@@ -17,6 +17,7 @@
     "processes": "进程",
     "docker": "Docker",
     "databases": "数据库",
+    "backups": "备份",
     "logs": "日志",
     "settings": "设置",
     "logout": "退出"
@@ -202,6 +203,21 @@
     "confirmDelete": "删除 {name}？",
     "creating": "创建中…（可能正在拉取镜像）",
     "dockerRequired": "需要 Docker"
+  },
+  "backups": {
+    "title": "备份",
+    "count": "{n} 个备份",
+    "backupNow": "立即备份",
+    "emptyTitle": "暂无备份",
+    "emptySubtitle": "备份面板数据库和 Caddyfile",
+    "download": "下载",
+    "restore": "恢复",
+    "delete": "删除",
+    "confirmRestore": "恢复 {name}？面板将重启，当前数据将被替换。",
+    "confirmDelete": "删除 {name}？",
+    "creating": "正在创建备份…",
+    "restoring": "正在恢复… 面板即将重启",
+    "restoreStarted": "恢复已开始；面板正在重启（几秒钟）"
   },
   "settings": {
     "title": "设置",

@@ -17,6 +17,7 @@
     "processes": "Procesos",
     "docker": "Docker",
     "databases": "Bases de datos",
+    "backups": "Copias de seguridad",
     "logs": "Registros",
     "settings": "Ajustes",
     "logout": "Salir"
@@ -202,6 +203,21 @@
     "confirmDelete": "¿Eliminar {name}?",
     "creating": "Creando… (puede estar descargando la imagen)",
     "dockerRequired": "Docker es necesario"
+  },
+  "backups": {
+    "title": "Copias de seguridad",
+    "count": "{n} copias de seguridad",
+    "backupNow": "Hacer copia ahora",
+    "emptyTitle": "Sin copias de seguridad",
+    "emptySubtitle": "Realiza una copia de seguridad de la BD del panel + Caddyfile",
+    "download": "Descargar",
+    "restore": "Restaurar",
+    "delete": "Eliminar",
+    "confirmRestore": "¿Restaurar {name}? El panel se reiniciará y los datos actuales cambiarán.",
+    "confirmDelete": "¿Eliminar {name}?",
+    "creating": "Creando copia de seguridad…",
+    "restoring": "Restaurando… el panel se reiniciará en breve",
+    "restoreStarted": "Restauración iniciada; el panel se está reiniciando (unos segundos)"
   },
   "settings": {
     "title": "Ajustes",

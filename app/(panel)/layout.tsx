@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, Globe, Cpu, Container, Database, ScrollText, Settings as SettingsIcon, Menu, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Globe, Cpu, Container, Database, Archive, ScrollText, Settings as SettingsIcon, Menu, type LucideIcon } from 'lucide-react';
 import AuthGate from '@/components/AuthGate';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { id: 'processes', icon: Cpu, href: '/processes' },
   { id: 'docker', icon: Container, href: '/docker' },
   { id: 'databases', icon: Database, href: '/databases' },
+  { id: 'backups', icon: Archive, href: '/backups' },
   { id: 'logs', icon: ScrollText, href: '/logs' },
   { id: 'settings', icon: SettingsIcon, href: '/settings' },
 ];

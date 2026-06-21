@@ -17,6 +17,7 @@
     "processes": "Prozesse",
     "docker": "Docker",
     "databases": "Datenbanken",
+    "backups": "Backups",
     "logs": "Protokolle",
     "settings": "Einstellungen",
     "logout": "Abmelden"
@@ -202,6 +203,21 @@
     "confirmDelete": "{name} löschen?",
     "creating": "Wird erstellt… (Image wird möglicherweise heruntergeladen)",
     "dockerRequired": "Docker ist erforderlich"
+  },
+  "backups": {
+    "title": "Backups",
+    "count": "{n} Backups",
+    "backupNow": "Jetzt sichern",
+    "emptyTitle": "Keine Backups",
+    "emptySubtitle": "Panel-DB + Caddyfile sichern",
+    "download": "Herunterladen",
+    "restore": "Wiederherstellen",
+    "delete": "Löschen",
+    "confirmRestore": "{name} wiederherstellen? Das Panel wird neu gestartet und die aktuellen Daten werden überschrieben.",
+    "confirmDelete": "{name} löschen?",
+    "creating": "Backup wird erstellt…",
+    "restoring": "Wiederherstellung… Panel wird gleich neu gestartet",
+    "restoreStarted": "Wiederherstellung gestartet; Panel wird neu gestartet (wenige Sekunden)"
   },
   "settings": {
     "title": "Einstellungen",
