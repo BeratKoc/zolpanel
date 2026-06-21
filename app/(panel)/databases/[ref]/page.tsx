@@ -8,6 +8,7 @@ import { api } from '@/lib/api-client';
 import { Spinner, EmptyState, useToast } from '@/components/ui';
 import { DbTree } from '@/components/dbexplorer/DbTree';
 import { DataGrid } from '@/components/dbexplorer/DataGrid';
+import { SqlConsole } from '@/components/dbexplorer/SqlConsole';
 
 interface DbxConn {
   ref: string;
@@ -231,17 +232,11 @@ export default function DbEditorPage() {
                     engine={conn.engine}
                   />
                 ) : (
-                  <div style={{
-                    fontSize: '11px',
-                    color: 'var(--text-muted)',
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius)',
-                    padding: '8px 12px',
-                    display: 'inline-block',
-                  }}>
-                    {t('dbx.sqlConsole')}
-                  </div>
+                  <SqlConsole
+                    connRef={ref}
+                    db={selected?.db ?? ''}
+                    canWrite={canWrite}
+                  />
                 )}
               </div>
             </>
