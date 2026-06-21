@@ -51,7 +51,10 @@ export default function Logs() {
   useEffect(() => { load(); }, [filter]);
 
   useEffect(() => {
-    const interval = setInterval(load, 5000);
+    const interval = setInterval(() => {
+      if (document.hidden) return;
+      load();
+    }, 5000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);

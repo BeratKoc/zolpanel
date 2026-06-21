@@ -31,7 +31,10 @@ export default function Processes() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 5000);
+    const interval = setInterval(() => {
+      if (document.hidden) return;
+      load();
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
