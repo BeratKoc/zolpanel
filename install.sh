@@ -215,7 +215,7 @@ PORT=${ZOLPANEL_PORT}
 NODE_ENV=production
 CADDYFILE_PATH=/etc/caddy/Caddyfile
 DB_DIR=${INSTALL_DIR}/data
-PROTECTED_DOMAINS=
+PROTECTED_DOMAINS=${PANEL_DOMAIN}
 EOF
 
   chmod 600 "${INSTALL_DIR}/.env"
@@ -246,9 +246,11 @@ configure_caddy() {
   fi
 
   local caddyfile="/etc/caddy/Caddyfile"
+  local dom_re
+  dom_re="$(_regex_escape "${PANEL_DOMAIN}")"
 
   # Alan adı zaten ekli mi kontrol et
-  if grep -qE "^${PANEL_DOMAIN}[[:space:]]*\{" "${caddyfile}" 2>/dev/null; then
+  if grep -qE "^${dom_re}[[:space:]]*\{" "${caddyfile}" 2>/dev/null; then
     log "Caddy: '${PANEL_DOMAIN}' zaten Caddyfile'da mevcut — atlanıyor"
     return
   fi
@@ -371,10 +373,15 @@ print_summary() {
   echo ""
 }
 
+# ── Yardımcı: regex meta-karakterlerini kaçır ────────────────────────────────
+_regex_escape() { printf '%s' "$1" | sed 's/[][.^$*+?(){}|\\]/\\&/g'; }
+
 # ── Uninstall: Caddy bloğunu brace-farkında awk ile temizle ──────────────────
 remove_caddy_block() {
   local domain="$1"
   local CADDYFILE="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
+  local dom_re
+  dom_re="$(_regex_escape "$domain")"
 
   # Dosya yoksa veya blok yoksa atla
   if [ ! -f "$CADDYFILE" ]; then
@@ -382,7 +389,7 @@ remove_caddy_block() {
     return 0
   fi
 
-  if ! grep -qE "^${domain}[[:space:]]*\{" "$CADDYFILE" 2>/dev/null; then
+  if ! grep -qE "^${dom_re}[[:space:]]*\{" "$CADDYFILE" 2>/dev/null; then
     log "Caddy bloğu yok (${domain}), atlanıyor"
     return 0
   fi
@@ -399,9 +406,10 @@ remove_caddy_block() {
   cp "$CADDYFILE" "$bak"
 
   # Brace-farkında awk ile yalnız hedef bloğu çıkar
+  # index() ile tam literal eşleşme — regex meta-karakterleri (. gibi) güvenli
   awk -v d="$domain" '
     BEGIN{skip=0; depth=0}
-    skip==0 && $0 ~ "^"d"[[:space:]]*\\{" {skip=1; depth=1; next}
+    skip==0 && index($0,d)==1 && substr($0,length(d)+1) ~ /^[[:space:]]*\{/ {skip=1; depth=1; next}
     skip==1 { n=gsub(/\{/,"{"); m=gsub(/\}/,"}"); depth+=n-m; if(depth<=0) skip=0; next }
     {print}
   ' "$CADDYFILE" > "${CADDYFILE}.zolpanel.tmp" && mv "${CADDYFILE}.zolpanel.tmp" "$CADDYFILE"
@@ -430,10 +438,20 @@ do_uninstall() {
   fi
   echo ""
 
-  # Panel domain bilgisini .env'den oku (PANEL_DOMAIN env override yapabilir)
+  # Panel domain bilgisini belirle:
+  #   1. PANEL_DOMAIN ortam değişkeni (override)
+  #   2. Caddyfile'dan otomatik tespit (panel portuna reverse_proxy yapan blok)
   local dom
-  dom="$(grep -E '^PROTECTED_DOMAINS=' "${INSTALL_DIR}/.env" 2>/dev/null | cut -d= -f2- | tr -d ' ')" || dom=""
-  dom="${PANEL_DOMAIN:-$dom}"
+  dom="${PANEL_DOMAIN:-}"
+  if [ -z "${dom}" ]; then
+    local _cf="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
+    if [ -f "${_cf}" ]; then
+      dom="$(awk -v port="${ZOLPANEL_PORT}" '
+        /^[^[:space:]#].*\{[[:space:]]*$/ { hdr=$0; sub(/[[:space:]]*\{.*/,"",hdr) }
+        $0 ~ ("reverse_proxy[[:space:]]+127\\.0\\.0\\.1:" port) { print hdr; exit }
+      ' "${_cf}" | awk '{print $1}' | tr -d ',')" || dom=""
+    fi
+  fi
 
   # PM2 uygulamasını kaldır
   if pm2 describe zolpanel >/dev/null 2>&1; then
