@@ -60,4 +60,20 @@ export const api = {
   deleteApp: (id: string) => request('DELETE', `/apps/${id}`),
   deployApp: (id: string) => request('POST', `/apps/${id}/deploy`),
   getAppLogs: (id: string, tail = 200) => request('GET', `/apps/${id}/logs?tail=${tail}`),
+  // DB Explorer
+  dbxConnections: () => request('GET', '/dbx/connections'),
+  dbxTree: (ref: string, db?: string) =>
+    request('GET', `/dbx/${encodeURIComponent(ref)}/tree${db ? '?db=' + encodeURIComponent(db) : ''}`),
+  dbxRows: (ref: string, q: Record<string, string | number>) =>
+    request('GET', `/dbx/${encodeURIComponent(ref)}/rows?${new URLSearchParams(Object.fromEntries(Object.entries(q).map(([k, v]) => [k, String(v)]))).toString()}`),
+  dbxSql: (ref: string, body: { db: string; sql: string }, opts: { write?: boolean; confirm?: boolean } = {}) => {
+    const qs = [opts.write && 'write=1', opts.confirm && 'confirm=1'].filter(Boolean).join('&');
+    return request('POST', `/dbx/${encodeURIComponent(ref)}/sql${qs ? '?' + qs : ''}`, body);
+  },
+  dbxRowInsert: (ref: string, body: unknown, write?: boolean) =>
+    request('POST', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
+  dbxRowUpdate: (ref: string, body: unknown, write?: boolean) =>
+    request('PATCH', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
+  dbxRowDelete: (ref: string, body: unknown, write?: boolean) =>
+    request('DELETE', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
 };
