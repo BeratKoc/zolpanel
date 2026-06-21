@@ -54,4 +54,10 @@ export const api = {
   deleteBackup: (n: string) => request('DELETE', `/backups/${encodeURIComponent(n)}`),
   restoreBackup: (n: string) => request('POST', `/backups/${encodeURIComponent(n)}/restore`),
   backupDownloadUrl: (n: string) => `/api/backups/${encodeURIComponent(n)}/download`,
+  getApps: () => request('GET', '/apps'),
+  createApp: (b: unknown) => request('POST', '/apps', b),
+  getApp: (id: string) => request('GET', `/apps/${id}`),
+  deleteApp: (id: string) => request('DELETE', `/apps/${id}`),
+  deployApp: (id: string) => request('POST', `/apps/${id}/deploy`),
+  getAppLogs: (id: string, tail = 200) => request('GET', `/apps/${id}/logs?tail=${tail}`),
 };
