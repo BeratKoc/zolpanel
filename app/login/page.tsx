@@ -8,7 +8,7 @@ import { Btn, Spinner } from '@/components/ui';
 
 export default function Login() {
   const router = useRouter();
-  const t = useTranslations('login');
+  const t = useTranslations();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,7 +16,7 @@ export default function Login() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!username || !password) return setError(t('errorEmpty'));
+    if (!username || !password) return setError(t('login.errorEmpty'));
     setError('');
     setLoading(true);
     try {
@@ -26,7 +26,7 @@ export default function Login() {
       router.push('/');
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errorGeneric'));
+      setError(err instanceof Error ? err.message : t('login.errorGeneric'));
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function Login() {
             Zolpanel
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            {t('subtitle')}
+            {t('login.subtitle')}
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default function Login() {
           <div style={{ marginBottom: '12px' }}>
             <input
               type="text"
-              placeholder={t('username')}
+              placeholder={t('login.username')}
               value={username}
               onChange={e => setUsername(e.target.value)}
               autoFocus
@@ -74,7 +74,7 @@ export default function Login() {
           <div style={{ marginBottom: '20px' }}>
             <input
               type="password"
-              placeholder={t('password')}
+              placeholder={t('login.password')}
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
@@ -100,7 +100,7 @@ export default function Login() {
             disabled={loading}
             style={{ width: '100%', justifyContent: 'center', padding: '9px' }}
           >
-            {loading ? <Spinner size={14} /> : t('submit')}
+            {loading ? <Spinner size={14} /> : t('login.submit')}
           </Btn>
         </form>
       </div>
