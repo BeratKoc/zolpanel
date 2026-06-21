@@ -140,6 +140,7 @@ export function removeDomainBlock(content: string, domain: string): string {
   return result.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
 
+/** @deprecated Kullanım dışı — domain route'ları artık syncCaddyConfig(getAllDomains()) kullanıyor. */
 export async function addDomainToConfig(domainConfig: DomainConfig): Promise<void> {
   if (PROTECTED_DOMAINS.includes(domainConfig.domain)) {
     addLog(
@@ -159,6 +160,7 @@ export async function addDomainToConfig(domainConfig: DomainConfig): Promise<voi
   await reloadCaddy();
 }
 
+/** @deprecated Kullanım dışı — domain route'ları artık syncCaddyConfig(getAllDomains()) kullanıyor. */
 export async function removeDomainFromConfig(domain: string): Promise<void> {
   if (PROTECTED_DOMAINS.includes(domain)) {
     addLog(domain, 'warn', "Korumalı domain, Caddyfile'dan kaldırılmadı");

@@ -9,7 +9,7 @@ import {
 } from '@/lib/server/db';
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { createDomainSchema } from '@/lib/validation';
-import { addDomainToConfig, isCaddyRunning } from '@/lib/server/caddy';
+import { syncCaddyConfig, isCaddyRunning } from '@/lib/server/caddy';
 import { findNextAvailablePort } from '@/lib/server/portManager';
 
 export const runtime = 'nodejs';
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   const saved = insertDomain(doc);
   try {
     if (await isCaddyRunning()) {
-      await addDomainToConfig(saved);
+      await syncCaddyConfig(getAllDomains());
       // sslStatus 'pending' kalır; sslTracker gerçek sertifika durumunu (Caddy
       // public CA sertifikası aldığında) ~60sn içinde 'active' yapar.
     } else addLog(input.domain, 'warn', 'Caddy çalışmıyor');

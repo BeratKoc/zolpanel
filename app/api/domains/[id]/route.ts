@@ -1,7 +1,7 @@
-import { addLog, DomainDoc, getDomainById, updateDomain, removeDomain } from '@/lib/server/db';
+import { addLog, DomainDoc, getDomainById, updateDomain, removeDomain, getAllDomains } from '@/lib/server/db';
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { updateDomainSchema } from '@/lib/validation';
-import { addDomainToConfig, removeDomainFromConfig, isCaddyRunning } from '@/lib/server/caddy';
+import { syncCaddyConfig, isCaddyRunning } from '@/lib/server/caddy';
 
 export const runtime = 'nodejs';
 
@@ -35,11 +35,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (status !== undefined) {
     try {
       if (await isCaddyRunning()) {
-        if (status === 'offline') {
-          await removeDomainFromConfig(domain.domain);
-        } else {
-          await addDomainToConfig({ ...domain, ...updates });
-        }
+        await syncCaddyConfig(getAllDomains());
       }
     } catch (e: any) {
       addLog(domain.domain, 'error', 'Caddy güncelleme hatası: ' + e.message);
@@ -61,7 +57,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   try {
     if (await isCaddyRunning()) {
-      await removeDomainFromConfig(domain.domain);
+      await syncCaddyConfig(getAllDomains());
     }
   } catch (e: any) {
     addLog(domain.domain, 'error', 'Caddy config kaldırma hatası: ' + e.message);
