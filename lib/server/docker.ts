@@ -113,3 +113,15 @@ export async function removeContainer(ref: string, withVolume?: string): Promise
   if (withVolume) await dockerExec(['volume', 'rm', withVolume]).catch(() => {});
   addLog(c.name, 'info', 'Docker konteyner silindi');
 }
+
+export function buildArgs(tag: string, dir: string): string[] {
+  return ['build', '-t', tag, dir];
+}
+
+export async function dockerBuild(tag: string, contextDir: string): Promise<void> {
+  await dockerExec(buildArgs(tag, contextDir));
+}
+
+export async function removeImage(tag: string): Promise<void> {
+  await dockerExec(['rmi', '-f', tag]).catch(() => {});
+}

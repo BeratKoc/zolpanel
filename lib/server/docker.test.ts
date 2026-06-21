@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { parsePsLines, assertSafeContainerRef, resolveRef, buildRunArgs } from './docker';
+import { parsePsLines, assertSafeContainerRef, resolveRef, buildRunArgs, buildArgs } from './docker';
 
 const C = (id: string, name: string) => ({ id, name, image: '', state: 'running', status: '' });
 
@@ -56,4 +56,8 @@ test('buildRunArgs: sabit/kontrollü docker run argümanları üretir', () => {
     '-p','5433:5432','-v','zolpanel-db-postgres-ab12-data:/var/lib/postgresql/data',
     '-e','POSTGRES_PASSWORD=p','-e','POSTGRES_DB=app','postgres:16-alpine',
   ]);
+});
+
+test('buildArgs: docker build argümanları', () => {
+  assert.deepStrictEqual(buildArgs('zolpanel-app-foo', '/opt/zolpanel/apps/foo'), ['build', '-t', 'zolpanel-app-foo', '/opt/zolpanel/apps/foo']);
 });
