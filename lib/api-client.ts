@@ -76,4 +76,8 @@ export const api = {
     request('PATCH', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
   dbxRowDelete: (ref: string, body: unknown, write?: boolean) =>
     request('DELETE', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
+  dbxRedisSet: (ref: string, body: { key: string; value: string }, write?: boolean) =>
+    request('POST', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
+  dbxRedisDel: (ref: string, body: { key: string }, write?: boolean) =>
+    request('DELETE', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
 };

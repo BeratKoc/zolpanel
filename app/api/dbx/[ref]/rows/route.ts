@@ -1,8 +1,58 @@
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { getConnection } from '@/lib/server/dbExplorer/discover';
-import { getAdapter } from '@/lib/server/dbExplorer';
+import { getAdapter, redisAdapter } from '@/lib/server/dbExplorer';
 
 export const runtime = 'nodejs';
+
+export async function POST(req: Request, { params }: { params: Promise<{ ref: string }> }) {
+  if (!(await requireAuth(req))) return unauthorized();
+  const { ref } = await params;
+  let conn;
+  try {
+    conn = await getConnection(ref);
+  } catch (e: unknown) {
+    return Response.json({ error: (e as Error).message }, { status: 404 });
+  }
+  if (conn.engine !== 'redis') {
+    return Response.json({ error: 'yalnız redis' }, { status: 400 });
+  }
+  const { searchParams } = new URL(req.url);
+  if (conn.source === 'external' && searchParams.get('write') !== '1') {
+    return Response.json({ error: 'Harici DB salt-okunur — düzenlemeyi etkinleştirin' }, { status: 403 });
+  }
+  try {
+    const { key, value } = await req.json();
+    await redisAdapter.setValue(ref, key, value);
+    return Response.json({ message: 'ok' });
+  } catch (e: unknown) {
+    return Response.json({ error: (e as Error).message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ ref: string }> }) {
+  if (!(await requireAuth(req))) return unauthorized();
+  const { ref } = await params;
+  let conn;
+  try {
+    conn = await getConnection(ref);
+  } catch (e: unknown) {
+    return Response.json({ error: (e as Error).message }, { status: 404 });
+  }
+  if (conn.engine !== 'redis') {
+    return Response.json({ error: 'yalnız redis' }, { status: 400 });
+  }
+  const { searchParams } = new URL(req.url);
+  if (conn.source === 'external' && searchParams.get('write') !== '1') {
+    return Response.json({ error: 'Harici DB salt-okunur — düzenlemeyi etkinleştirin' }, { status: 403 });
+  }
+  try {
+    const { key } = await req.json();
+    await redisAdapter.deleteKey(ref, key);
+    return Response.json({ message: 'ok' });
+  } catch (e: unknown) {
+    return Response.json({ error: (e as Error).message }, { status: 500 });
+  }
+}
 
 export async function GET(req: Request, { params }: { params: Promise<{ ref: string }> }) {
   if (!(await requireAuth(req))) return unauthorized();
