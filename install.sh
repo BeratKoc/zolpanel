@@ -6,8 +6,9 @@
 #   sudo bash install.sh --check              # preflight (yan-etki yok)
 #   sudo bash install.sh --update             # kodu çek, build et, pm2 restart
 #   sudo bash install.sh --update --check     # güncelleme önizleme (yan-etki yok)
-#   sudo bash install.sh --uninstall          # kaldır (henüz yok — Task 2'de gelir)
-#   sudo bash install.sh --uninstall --purge  # kaldır + veri sil (Task 2'de gelir)
+#   sudo bash install.sh --uninstall          # kaldır (pm2 + Caddy bloğu; veri korunur)
+#   sudo bash install.sh --uninstall --purge  # kaldır + INSTALL_DIR'i (veri dahil) sil
+#   herhangi bir mod + --check                # yan-etkisiz önizleme
 #
 # Ortam değişkenleri (isteğe bağlı, varsayılanlar aşağıda):
 #   INSTALL_DIR     — kurulum dizini (varsayılan: /opt/zolpanel)
@@ -410,8 +411,9 @@ remove_caddy_block() {
   # index() ile tam literal eşleşme — regex meta-karakterleri (. gibi) güvenli
   awk -v d="$domain" '
     BEGIN{skip=0; depth=0}
-    skip==0 && index($0,d)==1 && substr($0,length(d)+1) ~ /^[[:space:]]*\{/ {skip=1; depth=1; next}
-    skip==1 { n=gsub(/\{/,"{"); m=gsub(/\}/,"}"); depth+=n-m; if(depth<=0) skip=0; next }
+    skip==0 && index($0,d)==1 && substr($0,length(d)+1) ~ /^[[:space:]]*\{/ {
+      depth = gsub(/\{/,"{") - gsub(/\}/,"}"); skip=(depth>0); next }
+    skip==1 { depth += gsub(/\{/,"{") - gsub(/\}/,"}"); if(depth<=0) skip=0; next }
     {print}
   ' "$CADDYFILE" > "${CADDYFILE}.zolpanel.tmp" && mv "${CADDYFILE}.zolpanel.tmp" "$CADDYFILE"
 
@@ -449,7 +451,7 @@ do_uninstall() {
     if [ -f "${_cf}" ]; then
       dom="$(awk -v port="${ZOLPANEL_PORT}" '
         /^[^[:space:]#].*\{[[:space:]]*$/ { hdr=$0; sub(/[[:space:]]*\{.*/,"",hdr) }
-        $0 ~ ("reverse_proxy[[:space:]]+127\\.0\\.0\\.1:" port) { print hdr; exit }
+        $0 ~ ("reverse_proxy[[:space:]]+127\\.0\\.0\\.1:" port "([^0-9]|$)") { print hdr; exit }
       ' "${_cf}" | awk '{print $1}' | tr -d ',')" || dom=""
     fi
   fi
