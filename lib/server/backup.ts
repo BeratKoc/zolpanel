@@ -71,14 +71,13 @@ export async function restoreBackup(name: string): Promise<void> {
   fs.mkdirSync(staging, { recursive: true });
   await exec('tar', ['-xzf', file, '-C', staging]);
 
-  // Caddyfile: yedekle → yaz → validate → başarısızsa geri al → reload
+  // Caddyfile: STAGED kopyayı ÖNCE validate et (canlı dosyayı asla geçersiz bırakma),
+  // ancak geçerliyse canlıya yaz + reload. (syncCaddyConfig ile aynı güvenli desen.)
   const stagedCaddy = path.join(staging, path.basename(CADDYFILE));
   if (fs.existsSync(stagedCaddy)) {
-    const bak = `${CADDYFILE}.zolpanel-restore.bak`;
-    if (fs.existsSync(CADDYFILE)) fs.copyFileSync(CADDYFILE, bak);
+    try { await exec('caddy', ['validate', '--config', stagedCaddy, '--adapter', 'caddyfile']); }
+    catch (e) { throw new Error('Yedekteki Caddyfile geçersiz — geri yükleme iptal (canlı dosyaya dokunulmadı)'); }
     fs.copyFileSync(stagedCaddy, CADDYFILE);
-    try { await exec('caddy', ['validate', '--config', CADDYFILE, '--adapter', 'caddyfile']); }
-    catch (e) { if (fs.existsSync(bak)) fs.copyFileSync(bak, CADDYFILE); throw new Error('Caddyfile doğrulama başarısız, geri alındı'); }
     await reloadCaddy().catch(() => {});
   }
   // DB: atomik değişim (çalışan bağlantı eski inode'da kalır; restart yeni dosyayı açar)
