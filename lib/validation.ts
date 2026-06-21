@@ -68,6 +68,7 @@ export const updateDomainSchema = z.object({
 });
 
 export const processNameSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);
+export const containerRefSchema = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/);
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
   newPassword: z.string().min(12).regex(/[A-Z]/, 'En az bir büyük harf').regex(/[0-9]/, 'En az bir rakam'),
