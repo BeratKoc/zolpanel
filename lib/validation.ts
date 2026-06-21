@@ -74,3 +74,4 @@ export const changePasswordSchema = z.object({
   newPassword: z.string().min(12).regex(/[A-Z]/, 'En az bir büyük harf').regex(/[0-9]/, 'En az bir rakam'),
 });
 export const loginSchema = z.object({ username: z.string().min(1).max(100), password: z.string().min(1) });
+export const createDatabaseSchema = z.object({ engine: z.enum(['postgres','mysql','redis']), name: z.string().regex(/^[a-z0-9-]{0,30}$/).optional() });
