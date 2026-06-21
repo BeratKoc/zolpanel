@@ -52,8 +52,13 @@ export function isCaddyRunning(): Promise<boolean> {
 export function buildDomainBlock(domainConfig: DomainConfig): string {
   const { domain, type, port, rootPath, aliases, routes } = domainConfig;
 
+  // Bare alias'ı (nokta içermeyen, ör. "www") FQDN'e genişlet: "www" -> "www.<domain>".
+  // Aksi halde Caddy "www"yu ayrı/anlamsız bir host sayar ve alt-alan adı servis edilmez.
+  const expandedAliases = (aliases || []).map((a) =>
+    a.includes('.') ? a : `${a}.${domain}`
+  );
   const allDomains =
-    aliases && aliases.length > 0 ? [domain, ...aliases].join(', ') : domain;
+    expandedAliases.length > 0 ? [domain, ...expandedAliases].join(', ') : domain;
 
   if (type === 'static') {
     return `${allDomains} {\n    root * ${rootPath || '/var/www/' + domain}\n    file_server\n    encode gzip\n}\n\n`;
