@@ -115,7 +115,7 @@ export default function Settings() {
                   [t('settings.operatingSystem'), `${metrics.os?.distro} ${metrics.os?.release}`],
                   [t('settings.hostname'), metrics.os?.hostname],
                   ['CPU', t('settings.cpuUsage', { load: metrics.cpu?.load, cores: metrics.cpu?.cores })],
-                  ['RAM', `${formatBytes(metrics.memory?.active)} aktif / ${formatBytes(metrics.memory?.total)}`],
+                  ['RAM', `${formatBytes(metrics.memory?.realUsed)} / ${formatBytes(metrics.memory?.effectiveTotal)}${metrics.memory?.balloon > 1073741824 ? ` (balloon: ${formatBytes(metrics.memory?.balloon)})` : ''}`],
                   ['Disk', `${formatBytes(metrics.disk?.used)} / ${formatBytes(metrics.disk?.total)} (${metrics.disk?.percent}%)`],
                   ['Caddy', metrics.caddy?.running
                     ? <><CheckCircle2 size={14} strokeWidth={1.75} style={{ color: 'var(--green)', verticalAlign: '-2px', marginRight: 4 }} />{t('settings.running')}</>

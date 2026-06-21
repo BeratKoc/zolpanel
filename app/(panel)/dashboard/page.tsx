@@ -184,10 +184,15 @@ export default function Dashboard() {
         <div className="grid-5">
           <MetricCard label="CPU" value={`${metrics?.cpu?.load ?? '–'}%`} sub={`${metrics?.cpu?.cores ?? '?'} ${t('dashboard.cores')}`}
             color={metrics?.cpu?.load > 80 ? 'var(--red)' : metrics?.cpu?.load > 50 ? 'var(--yellow)' : 'var(--text-primary)'} />
-          <MetricCard label={t('dashboard.ramTotal')} value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
-            color={metrics?.memory?.percent > 80 ? 'var(--red)' : 'var(--text-primary)'} />
-          <MetricCard label={t('dashboard.ramReal')} value={formatBytes(metrics?.memory?.active)} sub={`% ${metrics?.memory?.activePercent ?? '–'} ${t('dashboard.active')}`}
-            color={metrics?.memory?.activePercent > 80 ? 'var(--red)' : 'var(--green)'} />
+          <MetricCard label={t('dashboard.ramReal')} value={formatBytes(metrics?.memory?.realUsed)} sub={`/ ${formatBytes(metrics?.memory?.effectiveTotal)} · %${metrics?.memory?.realPercent ?? '–'}`}
+            color={metrics?.memory?.realPercent > 80 ? 'var(--red)' : 'var(--green)'} />
+          {metrics?.memory?.balloon > 1073741824 ? (
+            <MetricCard label={t('dashboard.ramBalloon')} value={formatBytes(metrics?.memory?.balloon)} sub={t('dashboard.balloonReserved')}
+              color="var(--text-muted)" />
+          ) : (
+            <MetricCard label={t('dashboard.ramTotal')} value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
+              color={metrics?.memory?.percent > 80 ? 'var(--red)' : 'var(--text-primary)'} />
+          )}
           <MetricCard label="Disk" value={`${metrics?.disk?.percent ?? '–'}%`}
             sub={`${formatBytes(metrics?.disk?.used)} / ${formatBytes(metrics?.disk?.total)}`} />
           <MetricCard label="Caddy" value={metrics?.caddy?.running ? t('dashboard.running') : t('dashboard.stopped')}

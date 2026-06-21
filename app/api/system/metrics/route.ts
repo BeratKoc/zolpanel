@@ -1,6 +1,7 @@
 import si from 'systeminformation';
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { isCaddyRunning } from '@/lib/server/caddy';
+import { getMemoryInfo } from '@/lib/server/mem';
 
 export const runtime = 'nodejs';
 
@@ -10,7 +11,7 @@ export async function GET(req: Request) {
   try {
     const [cpu, mem, disk, osInfo] = await Promise.all([
       si.currentLoad(),
-      si.mem(),
+      getMemoryInfo(),
       si.fsSize(),
       si.osInfo(),
     ]);
@@ -23,14 +24,7 @@ export async function GET(req: Request) {
         load: Math.round(cpu.currentLoad),
         cores: cpu.cpus?.length || 1,
       },
-      memory: {
-        total: mem.total,
-        used: mem.used,
-        active: mem.active,
-        free: mem.free,
-        percent: Math.round((mem.used / mem.total) * 100),
-        activePercent: Math.round((mem.active / mem.total) * 100),
-      },
+      memory: mem,
       disk: mainDisk
         ? {
             total: mainDisk.size,
