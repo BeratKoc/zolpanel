@@ -1,11 +1,13 @@
 import fs from 'fs';
 import { exec, execFile } from 'child_process';
 import { addLog } from './db';
-import type { DomainDoc, DomainRoute } from './db';
+import type { DomainDoc, DomainRoute, CaddyExtras } from './db';
 
 // buildDomainBlock için girdi tipi: domain ve type zorunlu, gerisi opsiyonel.
 export type DomainConfig = Pick<DomainDoc, 'domain' | 'type'> &
-  Partial<Pick<DomainDoc, 'port' | 'rootPath' | 'aliases' | 'routes'>>;
+  Partial<Pick<DomainDoc, 'port' | 'rootPath' | 'aliases' | 'routes'>> & {
+    caddyExtras?: CaddyExtras;
+  };
 
 // CADDYFILE_PATH'i çağrı anında çöz: test, import'tan SONRA env'i set ediyor.
 // Davranış aynı (env || varsayılan), sadece okuma zamanı geç bağlanıyor.
@@ -49,6 +51,30 @@ export function isCaddyRunning(): Promise<boolean> {
   });
 }
 
+function caddyExtrasBody(x?: CaddyExtras): string {
+  if (!x) return '';
+  const lines: string[] = [];
+  if (x.ipRules && x.ipRules.cidrs.length > 0) {
+    const cidrs = x.ipRules.cidrs.map((c) => c.trim()).filter(Boolean).join(' ');
+    lines.push(x.ipRules.mode === 'deny'
+      ? `@zolpanel_ipblock remote_ip ${cidrs}`
+      : `@zolpanel_ipblock not remote_ip ${cidrs}`);
+    lines.push('respond @zolpanel_ipblock 403');
+  }
+  if (x.basicAuth && x.basicAuth.length > 0) {
+    const users = x.basicAuth.map((u) => `        ${u.username} ${u.passwordHash}`).join('\n');
+    lines.push(`basic_auth {\n${users}\n    }`);
+  }
+  if (x.headers && x.headers.length > 0) {
+    const hs = x.headers.map((h) => `        ${h.key} "${h.value.replace(/"/g, '\\"')}"`).join('\n');
+    lines.push(`header {\n${hs}\n    }`);
+  }
+  if (x.redirects && x.redirects.length > 0) {
+    for (const r of x.redirects) lines.push(`redir ${r.from} ${r.to} ${r.permanent ? 301 : 302}`);
+  }
+  return lines.map((l) => '    ' + l).join('\n');
+}
+
 export function buildDomainBlock(domainConfig: DomainConfig): string {
   const { domain, type, port, rootPath, aliases, routes } = domainConfig;
 
@@ -60,12 +86,15 @@ export function buildDomainBlock(domainConfig: DomainConfig): string {
   const allDomains =
     expandedAliases.length > 0 ? [domain, ...expandedAliases].join(', ') : domain;
 
+  const extra = caddyExtrasBody(domainConfig.caddyExtras);
+  const extraLine = extra ? extra + '\n' : '';
+
   if (type === 'static') {
-    return `${allDomains} {\n    root * ${rootPath || '/var/www/' + domain}\n    file_server\n    encode gzip\n}\n\n`;
+    return `${allDomains} {\n${extraLine}    root * ${rootPath || '/var/www/' + domain}\n    file_server\n    encode gzip\n}\n\n`;
   }
 
   if (type === 'proxy') {
-    return `${allDomains} {\n    reverse_proxy localhost:${port}\n    encode gzip\n}\n\n`;
+    return `${allDomains} {\n${extraLine}    reverse_proxy localhost:${port}\n    encode gzip\n}\n\n`;
   }
 
   if (type === 'advanced' && routes && routes.length > 0) {
@@ -85,7 +114,7 @@ export function buildDomainBlock(domainConfig: DomainConfig): string {
         return `    handle ${r.path} {\n        reverse_proxy localhost:${r.port}\n    }`;
       })
       .join('\n');
-    return `${allDomains} {\n${handles}\n    encode gzip\n}\n\n`;
+    return `${allDomains} {\n${extraLine}${handles}\n    encode gzip\n}\n\n`;
   }
 
   return '';
