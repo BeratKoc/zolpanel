@@ -1,6 +1,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { parsePsLines, assertSafeContainerRef } from './docker';
+import { parsePsLines, assertSafeContainerRef, resolveRef } from './docker';
+
+const C = (id: string, name: string) => ({ id, name, image: '', state: 'running', status: '' });
+
+test('resolveRef: tam id/ad eşleşmesi', () => {
+  const all = [C('abc123', 'api'), C('def456', 'db')];
+  assert.strictEqual(resolveRef(all, 'abc123').name, 'api');
+  assert.strictEqual(resolveRef(all, 'db').id, 'def456');
+});
+
+test('resolveRef: tek kısa-id öneki çözülür', () => {
+  assert.strictEqual(resolveRef([C('abc123', 'api'), C('xyz789', 'db')], 'abc').name, 'api');
+});
+
+test('resolveRef: belirsiz önek (çok eşleşme) reddedilir', () => {
+  assert.throws(() => resolveRef([C('abc123', 'api'), C('abc999', 'db')], 'abc'), /Belirsiz/);
+});
+
+test('resolveRef: eşleşme yoksa bulunamadı', () => {
+  assert.throws(() => resolveRef([C('abc123', 'api')], 'zzz'), /bulunamadı/);
+});
 
 test('parsePsLines: docker ps --format json satırlarını ayrıştırır', () => {
   const out = [

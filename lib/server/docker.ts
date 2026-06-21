@@ -53,13 +53,22 @@ export async function listContainers(): Promise<DockerContainer[]> {
   }
 }
 
+// Ref'i konteyner listesinde çöz (saf, test edilebilir). Önce tam id/ad eşleşmesi;
+// yoksa kısa-id öneki — birden fazla eşleşirse BELİRSİZ sayar (yanlış konteynere
+// işlem yapmamak için), hiç eşleşmezse bulunamadı.
+export function resolveRef(all: DockerContainer[], ref: string): DockerContainer {
+  const exact = all.find((c) => c.id === ref || c.name === ref);
+  if (exact) return exact;
+  const prefix = all.filter((c) => c.id.startsWith(ref));
+  if (prefix.length > 1) throw new Error('Belirsiz konteyner referansı');
+  if (prefix.length === 1) return prefix[0];
+  throw new Error('Konteyner bulunamadı');
+}
+
 // İşlemden önce ref'in GERÇEK bir konteynerle eşleştiğini doğrula (defense-in-depth).
 async function resolveContainer(ref: string): Promise<DockerContainer> {
   assertSafeContainerRef(ref);
-  const all = await listContainers();
-  const found = all.find((c) => c.id === ref || c.id.startsWith(ref) || c.name === ref);
-  if (!found) throw new Error('Konteyner bulunamadı');
-  return found;
+  return resolveRef(await listContainers(), ref);
 }
 
 export async function startContainer(ref: string): Promise<void> {
@@ -79,6 +88,6 @@ export async function restartContainer(ref: string): Promise<void> {
 }
 export async function getContainerLogs(ref: string, tail = 200): Promise<string> {
   const c = await resolveContainer(ref);
-  const n = Math.max(1, Math.min(2000, Math.floor(tail)));
+  const n = Math.max(1, Math.min(2000, Math.floor(Number(tail) || 200)));
   return dockerExec(['logs', '--tail', String(n), c.id]);
 }
