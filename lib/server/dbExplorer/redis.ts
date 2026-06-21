@@ -1,5 +1,25 @@
+import { execFile } from 'child_process';
 import { dbExec } from './exec';
 import { getAllDatabases } from '../db';
+
+/** Konteyner komut argümanlarından `--requirepass <pw>` değerini çıkarır (saf). */
+export function parseRequirepass(args: string[]): string | null {
+  const i = args.indexOf('--requirepass');
+  if (i >= 0 && i + 1 < args.length) return args[i + 1];
+  return null;
+}
+
+/** docker inspect ile konteynerin başlangıç argümanlarından redis şifresini okur.
+ *  (Şifre genelde compose'da `redis-server --requirepass <pw>` komutundadır; env/conf'ta
+ *  olmayabilir. Admin zaten docker erişimine sahip — bu yalnız görüneni okur.) */
+function passwordFromInspect(ref: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    execFile('docker', ['inspect', '--format', '{{json .Args}}', ref], (e, out) => {
+      if (e) return resolve(null);
+      try { resolve(parseRequirepass(JSON.parse(out.trim()))); } catch { resolve(null); }
+    });
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for testing)
@@ -65,6 +85,10 @@ export async function redisAuthArgs(ref: string): Promise<string[]> {
   } catch {
     // env var not set; fall through.
   }
+
+  // 3. `--requirepass` from the container's startup command (compose pattern).
+  const inspectPw = await passwordFromInspect(ref);
+  if (inspectPw) return ['-a', inspectPw, '--no-auth-warning'];
 
   throw new Error('Redis kimlik bilgisi bulunamadı');
 }
