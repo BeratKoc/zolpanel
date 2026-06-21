@@ -295,6 +295,38 @@ start_pm2() {
   log "pm2 hazır"
 }
 
+# ── Step 10b: Sağlık kontrolü ─────────────────────────────────────────────────
+wait_for_health() {
+  if [ "$CHECK_ONLY" = "1" ]; then
+    info "[DRY-RUN] Kurulum sonrası sağlık kontrolü yapılacak (http://127.0.0.1:3999/api/health)"
+    return 0
+  fi
+
+  local max_attempts=20
+  local attempt=1
+  local wait_seconds=2
+
+  log "Panel sağlık kontrolü başlatılıyor (max ${max_attempts} deneme)…"
+
+  while [ "$attempt" -le "$max_attempts" ]; do
+    if curl -fsS --max-time 3 "http://127.0.0.1:3999/api/health" 2>/dev/null | grep -q '"status":"ok"'; then
+      log "Panel ayakta — sağlık kontrolü OK"
+      return 0
+    fi
+
+    if [ "$attempt" -lt "$max_attempts" ]; then
+      echo -n "."
+      sleep "$wait_seconds"
+    fi
+    attempt=$((attempt + 1))
+  done
+
+  echo ""
+  warn "Panel sağlık kontrolü ${max_attempts} deneme içinde geçemedi"
+  warn "Panel başlamaya devam ediyor — durumu kontrol etmek için: pm2 logs zolpanel"
+  return 0
+}
+
 # ── Step 11: Özet ─────────────────────────────────────────────────────────────
 print_summary() {
   local server_ip
@@ -349,6 +381,7 @@ main() {
   build_app
   configure_caddy
   start_pm2
+  wait_for_health
 
   if [ "$CHECK_ONLY" = "1" ]; then
     echo ""
