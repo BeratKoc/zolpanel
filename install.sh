@@ -4,6 +4,10 @@
 # Kullanım:
 #   sudo bash install.sh                      # tam kurulum
 #   sudo bash install.sh --check              # preflight (yan-etki yok)
+#   sudo bash install.sh --update             # kodu çek, build et, pm2 restart
+#   sudo bash install.sh --update --check     # güncelleme önizleme (yan-etki yok)
+#   sudo bash install.sh --uninstall          # kaldır (henüz yok — Task 2'de gelir)
+#   sudo bash install.sh --uninstall --purge  # kaldır + veri sil (Task 2'de gelir)
 #
 # Ortam değişkenleri (isteğe bağlı, varsayılanlar aşağıda):
 #   INSTALL_DIR     — kurulum dizini (varsayılan: /opt/zolpanel)
@@ -36,10 +40,15 @@ info() { echo -e "${CYAN}[ZP INFO]${RESET} $*"; }
 
 # ── Argüman parse ─────────────────────────────────────────────────────────────
 CHECK_ONLY=0
+MODE="install"
+PURGE=0
 for arg in "$@"; do
   case "$arg" in
-    --check) CHECK_ONLY=1 ;;
-    *) err "Bilinmeyen argüman: $arg" ;;
+    --check)     CHECK_ONLY=1 ;;
+    --update)    MODE="update" ;;
+    --uninstall) MODE="uninstall" ;;
+    --purge)     PURGE=1 ;;
+    *) err "Bilinmeyen argüman: ${arg}" ;;
   esac
 done
 
@@ -362,24 +371,21 @@ print_summary() {
   echo ""
 }
 
-# ── Step 12: Ana fonksiyon ────────────────────────────────────────────────────
-main() {
+# ── Update: kodu tazele, build et, pm2 restart ────────────────────────────────
+do_update() {
+  need_root
+  [ -d "${INSTALL_DIR}" ] || err "kurulum yok: ${INSTALL_DIR}"
+
   echo ""
-  log "Zolpanel kurucusu başlatılıyor…"
+  log "Zolpanel güncelleniyor…"
   if [ "$CHECK_ONLY" = "1" ]; then
     warn "PREFLIGHT modu: değişiklik yapılmayacak"
   fi
   echo ""
 
-  need_root
-  detect_os
-  ensure_node
-  ensure_caddy
-  ensure_pm2
   fetch_code
   ensure_env
   build_app
-  configure_caddy
   start_pm2
   wait_for_health
 
@@ -389,7 +395,47 @@ main() {
     exit 0
   fi
 
-  print_summary
+  log "Güncelleme tamam."
+}
+
+# ── Step 12: Ana fonksiyon ────────────────────────────────────────────────────
+main() {
+  case "$MODE" in
+    install)
+      echo ""
+      log "Zolpanel kurucusu başlatılıyor…"
+      if [ "$CHECK_ONLY" = "1" ]; then
+        warn "PREFLIGHT modu: değişiklik yapılmayacak"
+      fi
+      echo ""
+
+      need_root
+      detect_os
+      ensure_node
+      ensure_caddy
+      ensure_pm2
+      fetch_code
+      ensure_env
+      build_app
+      configure_caddy
+      start_pm2
+      wait_for_health
+
+      if [ "$CHECK_ONLY" = "1" ]; then
+        echo ""
+        log "DRY-RUN: değişiklik yapılmadı"
+        exit 0
+      fi
+
+      print_summary
+      ;;
+    update)
+      do_update
+      ;;
+    uninstall)
+      err "uninstall bu sürümde henüz yok"
+      ;;
+  esac
 }
 
 main "$@"

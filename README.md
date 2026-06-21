@@ -23,6 +23,26 @@ Hiçbir şey değiştirmeden ne yapılacağını **önizle** (salt-okunur, kurul
 sudo bash install.sh --check
 ```
 
+### Güncelleme
+
+Kurulu paneli en son sürüme günceller (git pull + npm install + build + pm2 restart). `.env` ve `db/` verileri korunur:
+
+```bash
+sudo bash install.sh --update
+```
+
+Önce ne yapılacağını **önizle** (yan-etki yok, güvenli):
+
+```bash
+sudo bash install.sh --update --check
+```
+
+Curl ile doğrudan (local `install.sh` dosyası gerekmez):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh | sudo bash -s -- --update
+```
+
 **Ortam değişkenleri (hepsi opsiyonel, makul varsayılanlar):**
 
 | Değişken | Varsayılan | Açıklama |
