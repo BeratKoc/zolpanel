@@ -72,18 +72,13 @@ async function listDatabases(ref: string): Promise<string[]> {
 
 /** Lists tables in a database, excluding system schemas. */
 async function listTables(ref: string, db: string): Promise<{ schema: string; table: string }[]> {
+  // CSV ile şema+tablo'yu AYRI kolon al — nokta içeren adlar bozulmasın.
   const out = await dbExec(ref, [
-    'psql', '-U', 'postgres', '-d', db, '-tAc',
-    "SELECT table_schema||'.'||table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') ORDER BY 1",
+    'psql', '-U', 'postgres', '-d', db, '--csv', '-c',
+    "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') ORDER BY 1, 2",
   ]);
-  return out
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length > 0)
-    .map(l => {
-      const dot = l.indexOf('.');
-      return { schema: l.slice(0, dot), table: l.slice(dot + 1) };
-    });
+  const rows = parseCsv(out);
+  return rows.slice(1).filter(r => r.length >= 2).map(r => ({ schema: r[0], table: r[1] }));
 }
 
 /** Fetches rows from a table with pagination. */
@@ -144,8 +139,8 @@ async function pkColumns(
     '  AND tc.table_schema = kcu.table_schema',
     '  AND tc.table_name = kcu.table_name',
     `WHERE tc.constraint_type = 'PRIMARY KEY'`,
-    `  AND tc.table_schema = '${schema.replace(/'/g, "''")}'`,
-    `  AND tc.table_name = '${table.replace(/'/g, "''")}'`,
+    `  AND tc.table_schema = ${pgLiteral(schema)}`,
+    `  AND tc.table_name = ${pgLiteral(table)}`,
     'ORDER BY kcu.ordinal_position',
   ].join(' ');
 
