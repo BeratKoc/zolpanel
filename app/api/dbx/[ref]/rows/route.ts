@@ -30,8 +30,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ ref: str
     const table = searchParams.get('table') ?? '';
     const limitParam = searchParams.get('limit');
     const offsetParam = searchParams.get('offset');
-    const limit = Math.max(1, Math.min(500, limitParam ? parseInt(limitParam, 10) : 50));
-    const offset = Math.max(0, offsetParam ? parseInt(offsetParam, 10) : 0);
+    const limit = Math.max(1, Math.min(500, (limitParam && parseInt(limitParam, 10)) || 50));
+    const offset = Math.max(0, (offsetParam && parseInt(offsetParam, 10)) || 0);
 
     if (!db || !table) {
       return Response.json({ error: 'db ve table parametreleri zorunlu' }, { status: 400 });

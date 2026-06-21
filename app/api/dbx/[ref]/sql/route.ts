@@ -14,6 +14,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ ref: st
   } catch (e: unknown) {
     return Response.json({ error: (e as Error).message }, { status: 404 });
   }
+  if (conn.engine === 'redis') {
+    return Response.json(
+      { error: 'Redis SQL konsolunu desteklemez; anahtar tarayıcıyı kullanın' },
+      { status: 400 }
+    );
+  }
   try {
     const { searchParams } = new URL(req.url);
     const writeFlag = searchParams.get('write');

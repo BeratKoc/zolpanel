@@ -36,11 +36,17 @@ export function isWriteSql(sql: string): boolean {
 
   const firstKeyword = match[2];
 
-  // Read-only keywords
-  const readOnlyKeywords = ['select', 'show', 'explain', 'with', 'desc', 'describe'];
+  // Yazma anahtar kelimeleri (gövdede herhangi bir yerde aranır).
+  const writeKw = /\b(insert|update|delete|merge|replace|drop|truncate|alter|create|grant|revoke|call|do|set|copy|comment|vacuum|reindex)\b/;
 
-  if (readOnlyKeywords.includes(firstKeyword)) {
+  // Kesin salt-okunur: bu ifadeler veri değiştiremez.
+  if (['select', 'show', 'desc', 'describe'].includes(firstKeyword)) {
     return false;
+  }
+  // WITH (CTE) ve EXPLAIN ANALYZE veriyi DEĞİŞTİREBİLİR (data-modifying CTE,
+  // EXPLAIN ANALYZE INSERT). Gövdede yazma anahtar kelimesi yoksa salt-okunur say.
+  if (firstKeyword === 'with' || firstKeyword === 'explain') {
+    return writeKw.test(normalized);
   }
 
   return true;

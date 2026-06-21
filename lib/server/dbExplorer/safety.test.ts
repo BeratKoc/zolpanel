@@ -20,3 +20,10 @@ test('isWriteSql: SELECT/SHOW okuma, diğerleri yazma', () => {
   assert.strictEqual(isWriteSql('INSERT INTO t VALUES(1)'), true);
   assert.strictEqual(isWriteSql('EXPLAIN ANALYZE SELECT 1'), false);
 });
+
+test('isWriteSql: WITH/EXPLAIN içinde yazma → write (gate atlatılamaz)', () => {
+  assert.strictEqual(isWriteSql('WITH x AS (SELECT 1) SELECT * FROM x'), false);
+  assert.strictEqual(isWriteSql('WITH x AS (SELECT 1) INSERT INTO t VALUES(1)'), true);
+  assert.strictEqual(isWriteSql('with t as (select 1) delete from u'), true);
+  assert.strictEqual(isWriteSql('EXPLAIN ANALYZE INSERT INTO t VALUES(1)'), true);
+});
