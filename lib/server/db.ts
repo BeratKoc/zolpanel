@@ -58,6 +58,18 @@ export interface MemorySnapshotDoc {
   restarts: number | null;
   timestamp: string;
 }
+export interface DatabaseDoc {
+  _id?: string;
+  engine: 'postgres' | 'mysql' | 'redis';
+  name: string;
+  dbName: string;
+  username: string;
+  password: string;
+  hostPort: number;
+  volume: string;
+  containerId: string;
+  createdAt: string;
+}
 
 // better-sqlite3 SENKRON çalışır → NeDB'nin async autoload/teardown derdi yok.
 // db, TÜM Next bundle'ları (instrumentation + her route handler) arasında TEK
@@ -129,6 +141,18 @@ function createTables(conn: DB): void {
       timestamp TEXT
     );
     CREATE INDEX IF NOT EXISTS idx_mem_name_ts ON memory_snapshots(name, timestamp);
+    CREATE TABLE IF NOT EXISTS databases (
+      id TEXT PRIMARY KEY,
+      engine TEXT,
+      name TEXT UNIQUE,
+      dbName TEXT,
+      username TEXT,
+      password TEXT,
+      hostPort INTEGER,
+      volume TEXT,
+      containerId TEXT,
+      createdAt TEXT
+    );
   `);
 }
 
@@ -387,6 +411,59 @@ export function getSnapshotsForName(name: string, sinceIso: string): MemorySnaps
 
 export function pruneSnapshots(beforeIso: string): void {
   getDb().prepare('DELETE FROM memory_snapshots WHERE timestamp < ?').run(beforeIso);
+}
+
+// ---- databases ----------------------------------------------------------
+
+interface DatabaseRow {
+  id: string; engine: string; name: string; dbName: string;
+  username: string; password: string; hostPort: number; volume: string;
+  containerId: string; createdAt: string;
+}
+function rowToDatabase(r: DatabaseRow): DatabaseDoc {
+  return {
+    _id: r.id,
+    engine: r.engine as DatabaseDoc['engine'],
+    name: r.name,
+    dbName: r.dbName,
+    username: r.username,
+    password: r.password,
+    hostPort: r.hostPort,
+    volume: r.volume,
+    containerId: r.containerId,
+    createdAt: r.createdAt,
+  };
+}
+
+export function insertDatabase(d: Omit<DatabaseDoc, '_id'>): DatabaseDoc {
+  const id = genId();
+  getDb()
+    .prepare(
+      `INSERT INTO databases
+        (id, engine, name, dbName, username, password, hostPort, volume, containerId, createdAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(id, d.engine, d.name, d.dbName, d.username, d.password, d.hostPort, d.volume, d.containerId, d.createdAt);
+  return { _id: id, ...d };
+}
+
+export function getAllDatabases(): DatabaseDoc[] {
+  const rows = getDb().prepare('SELECT * FROM databases ORDER BY createdAt DESC').all() as DatabaseRow[];
+  return rows.map(rowToDatabase);
+}
+
+export function getDatabaseById(id: string): DatabaseDoc | undefined {
+  const r = getDb().prepare('SELECT * FROM databases WHERE id = ?').get(id) as DatabaseRow | undefined;
+  return r ? rowToDatabase(r) : undefined;
+}
+
+export function getDatabaseByPort(port: number): DatabaseDoc | undefined {
+  const r = getDb().prepare('SELECT * FROM databases WHERE hostPort = ?').get(port) as DatabaseRow | undefined;
+  return r ? rowToDatabase(r) : undefined;
+}
+
+export function removeDatabase(id: string): void {
+  getDb().prepare('DELETE FROM databases WHERE id = ?').run(id);
 }
 
 // İlk kurulumda admin oluştur — sabit şifre YOK, rastgele üret ve bir kez logla.
