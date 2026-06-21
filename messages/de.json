@@ -30,6 +30,8 @@
     "cores": "Kerne",
     "ramTotal": "RAM (gesamt)",
     "ramReal": "RAM (tatsächlich)",
+    "ramBalloon": "Balloon (Hypervisor)",
+    "balloonReserved": "vom Hypervisor reserviert",
     "active": "aktiv",
     "running": "Läuft",
     "stopped": "Gestoppt",

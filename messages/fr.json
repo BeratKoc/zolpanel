@@ -30,6 +30,8 @@
     "cores": "cœurs",
     "ramTotal": "RAM (total)",
     "ramReal": "RAM (réelle)",
+    "ramBalloon": "Balloon (hyperviseur)",
+    "balloonReserved": "réservé par l'hyperviseur",
     "active": "active",
     "running": "En cours",
     "stopped": "Arrêté",

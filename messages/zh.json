@@ -30,6 +30,8 @@
     "cores": "核心",
     "ramTotal": "内存（总计）",
     "ramReal": "内存（实际）",
+    "ramBalloon": "气球内存（虚拟化）",
+    "balloonReserved": "由虚拟机管理程序占用",
     "active": "活动",
     "running": "运行中",
     "stopped": "已停止",

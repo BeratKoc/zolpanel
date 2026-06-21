@@ -30,6 +30,8 @@
     "cores": "çekirdek",
     "ramTotal": "RAM (toplam)",
     "ramReal": "RAM (gerçek)",
+    "ramBalloon": "Balloon (hipervizör)",
+    "balloonReserved": "hipervizöre ayrıldı",
     "active": "aktif",
     "running": "Çalışıyor",
     "stopped": "Durdu",
