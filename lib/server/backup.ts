@@ -1,7 +1,7 @@
 import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { addLog } from './db';
+import { addLog, checkpointDb } from './db';
 import { reloadCaddy } from './caddy';
 
 declare global { // eslint-disable-next-line no-var
@@ -49,6 +49,9 @@ export async function createBackup(): Promise<BackupInfo> {
   fs.mkdirSync(BACKUP_DIR, { recursive: true });
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const name = `zolpanel-backup-${ts}.tar.gz`;
+  // WAL'ı ana dosyaya yaz ki commit'lenmiş tüm veri zolpanel.db'de olsun
+  // (yedek -wal/-shm içermiyor). TRUNCATE sonrası ana dosya tutarlı.
+  checkpointDb();
   // tar -C ile dosyaları köke göre ekle (mutlak yol uyarısından kaçın)
   const args = ['-czf', path.join(BACKUP_DIR, name)];
   const dbFile = path.join(DB_DIR, 'zolpanel.db');
@@ -78,7 +81,7 @@ export async function restoreBackup(name: string): Promise<void> {
     try { await exec('caddy', ['validate', '--config', stagedCaddy, '--adapter', 'caddyfile']); }
     catch (e) { throw new Error('Yedekteki Caddyfile geçersiz — geri yükleme iptal (canlı dosyaya dokunulmadı)'); }
     fs.copyFileSync(stagedCaddy, CADDYFILE);
-    await reloadCaddy().catch(() => {});
+    await reloadCaddy().catch((e) => console.error('[backup] restore caddy reload hata:', e));
   }
   // DB: atomik değişim (çalışan bağlantı eski inode'da kalır; restart yeni dosyayı açar)
   const stagedDb = path.join(staging, 'zolpanel.db');
@@ -87,6 +90,12 @@ export async function restoreBackup(name: string): Promise<void> {
     const tmp = path.join(DB_DIR, 'zolpanel.db.restoring');
     fs.copyFileSync(stagedDb, tmp);
     fs.renameSync(tmp, path.join(DB_DIR, 'zolpanel.db'));
+    // Eski WAL/SHM'yi sil — restart'ta restore edilmiş ana dosyanın üstüne
+    // bayat wal replay olmasın (WAL modunda kritik). Çalışan süreç kendi
+    // inode handle'larını tutar; dosya girdilerini silmek onu bozmaz.
+    for (const sfx of ['-wal', '-shm']) {
+      try { fs.rmSync(path.join(DB_DIR, `zolpanel.db${sfx}`), { force: true }); } catch { /* yoksay */ }
+    }
   }
   fs.rmSync(staging, { recursive: true, force: true });
   addLog('system', 'warn', `Geri yükleme yapıldı: ${name} — panel yeniden başlatılıyor`);

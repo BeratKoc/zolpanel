@@ -97,6 +97,13 @@ function getDb(): DB {
   return (g.__zolpanelSqlite ??= open());
 }
 
+// WAL'ı ana dosyaya yaz + wal'ı boşalt. Yedek almadan önce çağrılır ki tüm
+// commit'lenmiş veri zolpanel.db içinde olsun (WAL yedeğe dahil edilmiyor).
+// TRUNCATE sonrası eşzamanlı yazımlar YENİ wal'a gider, ana dosya tutarlı kalır.
+export function checkpointDb(): void {
+  try { getDb().pragma('wal_checkpoint(TRUNCATE)'); } catch { /* yoksay */ }
+}
+
 function createTables(conn: DB): void {
   conn.exec(`
     CREATE TABLE IF NOT EXISTS users (
