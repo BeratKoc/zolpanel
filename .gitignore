@@ -6,7 +6,7 @@ node_modules
 *.bak
 *.bak-*
 db/data
-backups/
+/backups/
 tsconfig.tsbuildinfo
 _pull.tgz
 e2e/.tmpdb
