@@ -8,6 +8,16 @@ import bcrypt from 'bcryptjs';
 const DB_DIR = process.env.DB_DIR || path.join(process.cwd(), 'db', 'data');
 
 export interface DomainRoute { path: string; port: number; type: 'http' | 'websocket'; }
+export interface CaddyHeader { key: string; value: string; }
+export interface CaddyRedirect { from: string; to: string; permanent: boolean; }
+export interface CaddyBasicAuth { username: string; passwordHash: string; }
+export interface CaddyIpRules { mode: 'allow' | 'deny'; cidrs: string[]; }
+export interface CaddyExtras {
+  headers?: CaddyHeader[];
+  redirects?: CaddyRedirect[];
+  basicAuth?: CaddyBasicAuth[];
+  ipRules?: CaddyIpRules | null;
+}
 export interface DomainDoc {
   _id?: string;
   domain: string;
@@ -22,6 +32,7 @@ export interface DomainDoc {
   sslStatus: 'pending' | 'active';
   createdAt: string;
   updatedAt: string;
+  caddyExtras?: CaddyExtras;
 }
 export interface UserDoc {
   _id?: string;
@@ -57,11 +68,16 @@ export interface MemorySnapshotDoc {
 type DB = Database.Database;
 const g = globalThis as unknown as { __zolpanelSqlite?: DB };
 
+function migrate(conn: DB): void {
+  try { conn.exec('ALTER TABLE domains ADD COLUMN caddyExtras TEXT'); } catch { /* kolon zaten var */ }
+}
+
 function open(): DB {
   fs.mkdirSync(DB_DIR, { recursive: true });
   const conn = new Database(path.join(DB_DIR, 'zolpanel.db'));
   conn.pragma('journal_mode = WAL');
   createTables(conn);
+  migrate(conn);
   return conn;
 }
 
@@ -91,7 +107,8 @@ function createTables(conn: DB): void {
       status TEXT,
       sslStatus TEXT,
       createdAt TEXT,
-      updatedAt TEXT
+      updatedAt TEXT,
+      caddyExtras TEXT
     );
     CREATE TABLE IF NOT EXISTS logs (
       id TEXT PRIMARY KEY,
@@ -131,7 +148,7 @@ interface DomainRow {
   id: string; domain: string; type: string; port: number | null;
   rootPath: string | null; routes: string | null; aliases: string | null;
   appType: string; notes: string; status: string; sslStatus: string;
-  createdAt: string; updatedAt: string;
+  createdAt: string; updatedAt: string; caddyExtras: string | null;
 }
 function rowToDomain(r: DomainRow): DomainDoc {
   return {
@@ -148,6 +165,7 @@ function rowToDomain(r: DomainRow): DomainDoc {
     sslStatus: r.sslStatus as DomainDoc['sslStatus'],
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
+    caddyExtras: r.caddyExtras ? (JSON.parse(r.caddyExtras) as CaddyExtras) : undefined,
   };
 }
 
@@ -237,14 +255,15 @@ export function insertDomain(d: Omit<DomainDoc, '_id'>): DomainDoc {
   getDb()
     .prepare(
       `INSERT INTO domains
-        (id, domain, type, port, rootPath, routes, aliases, appType, notes, status, sslStatus, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, domain, type, port, rootPath, routes, aliases, appType, notes, status, sslStatus, createdAt, updatedAt, caddyExtras)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id, d.domain, d.type, d.port, d.rootPath,
       d.routes ? JSON.stringify(d.routes) : null,
       JSON.stringify(d.aliases ?? []),
       d.appType, d.notes, d.status, d.sslStatus, d.createdAt, d.updatedAt,
+      d.caddyExtras ? JSON.stringify(d.caddyExtras) : null,
     );
   return { _id: id, ...d };
 }
@@ -266,6 +285,7 @@ export function updateDomain(id: string, patch: Partial<DomainDoc>): void {
   if (patch.sslStatus !== undefined) set('sslStatus', patch.sslStatus);
   if (patch.createdAt !== undefined) set('createdAt', patch.createdAt);
   if (patch.updatedAt !== undefined) set('updatedAt', patch.updatedAt);
+  if (patch.caddyExtras !== undefined) set('caddyExtras', patch.caddyExtras ? JSON.stringify(patch.caddyExtras) : null);
 
   if (!cols.length) return;
   vals.push(id);
