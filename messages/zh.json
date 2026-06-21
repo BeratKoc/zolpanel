@@ -15,6 +15,7 @@
     "dashboard": "仪表盘",
     "domains": "域名",
     "processes": "进程",
+    "docker": "Docker",
     "logs": "日志",
     "settings": "设置",
     "logout": "退出"
@@ -171,6 +172,17 @@
     "autoScroll": "自动滚动",
     "clear": "清除",
     "noLogs": "未找到日志"
+  },
+  "docker": {
+    "title": "Docker",
+    "registered": "{n} 个容器",
+    "emptyTitle": "没有容器",
+    "emptySubtitle": "未找到 Docker 或没有容器",
+    "start": "启动",
+    "stop": "停止",
+    "restart": "重启",
+    "viewLogs": "日志",
+    "logsTitle": "容器日志"
   },
   "settings": {
     "title": "设置",

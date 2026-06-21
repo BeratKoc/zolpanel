@@ -15,6 +15,7 @@
     "dashboard": "Tableau de bord",
     "domains": "Domaines",
     "processes": "Processus",
+    "docker": "Docker",
     "logs": "Journaux",
     "settings": "Paramètres",
     "logout": "Déconnexion"
@@ -171,6 +172,17 @@
     "autoScroll": "Défilement automatique",
     "clear": "Effacer",
     "noLogs": "Aucun journal trouvé"
+  },
+  "docker": {
+    "title": "Docker",
+    "registered": "{n} conteneurs",
+    "emptyTitle": "Aucun conteneur",
+    "emptySubtitle": "Docker introuvable ou aucun conteneur",
+    "start": "Démarrer",
+    "stop": "Arrêter",
+    "restart": "Redémarrer",
+    "viewLogs": "Journaux",
+    "logsTitle": "Journaux du conteneur"
   },
   "settings": {
     "title": "Paramètres",

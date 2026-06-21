@@ -15,6 +15,7 @@
     "dashboard": "Panel",
     "domains": "Domainler",
     "processes": "Süreçler",
+    "docker": "Docker",
     "logs": "Loglar",
     "settings": "Ayarlar",
     "logout": "Çıkış"
@@ -171,6 +172,17 @@
     "autoScroll": "Otomatik scroll",
     "clear": "Temizle",
     "noLogs": "Log bulunamadı"
+  },
+  "docker": {
+    "title": "Docker",
+    "registered": "{n} konteyner",
+    "emptyTitle": "Konteyner yok",
+    "emptySubtitle": "Docker bulunamadı ya da konteyner yok",
+    "start": "Başlat",
+    "stop": "Durdur",
+    "restart": "Yeniden başlat",
+    "viewLogs": "Loglar",
+    "logsTitle": "Konteyner logları"
   },
   "settings": {
     "title": "Ayarlar",

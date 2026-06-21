@@ -15,6 +15,7 @@
     "dashboard": "Dashboard",
     "domains": "Domains",
     "processes": "Processes",
+    "docker": "Docker",
     "logs": "Logs",
     "settings": "Settings",
     "logout": "Log out"
@@ -171,6 +172,17 @@
     "autoScroll": "Auto scroll",
     "clear": "Clear",
     "noLogs": "No logs found"
+  },
+  "docker": {
+    "title": "Docker",
+    "registered": "{n} containers",
+    "emptyTitle": "No containers",
+    "emptySubtitle": "Docker not found or no containers",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "viewLogs": "Logs",
+    "logsTitle": "Container logs"
   },
   "settings": {
     "title": "Settings",

@@ -15,6 +15,7 @@
     "dashboard": "Panel",
     "domains": "Dominios",
     "processes": "Procesos",
+    "docker": "Docker",
     "logs": "Registros",
     "settings": "Ajustes",
     "logout": "Salir"
@@ -171,6 +172,17 @@
     "autoScroll": "Desplazamiento automático",
     "clear": "Borrar",
     "noLogs": "No se encontraron registros"
+  },
+  "docker": {
+    "title": "Docker",
+    "registered": "{n} contenedores",
+    "emptyTitle": "Sin contenedores",
+    "emptySubtitle": "Docker no encontrado o sin contenedores",
+    "start": "Iniciar",
+    "stop": "Detener",
+    "restart": "Reiniciar",
+    "viewLogs": "Registros",
+    "logsTitle": "Registros del contenedor"
   },
   "settings": {
     "title": "Ajustes",

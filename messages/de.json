@@ -15,6 +15,7 @@
     "dashboard": "Übersicht",
     "domains": "Domains",
     "processes": "Prozesse",
+    "docker": "Docker",
     "logs": "Protokolle",
     "settings": "Einstellungen",
     "logout": "Abmelden"
@@ -171,6 +172,17 @@
     "autoScroll": "Automatisch scrollen",
     "clear": "Löschen",
     "noLogs": "Keine Protokolle gefunden"
+  },
+  "docker": {
+    "title": "Docker",
+    "registered": "{n} Container",
+    "emptyTitle": "Keine Container",
+    "emptySubtitle": "Docker nicht gefunden oder keine Container vorhanden",
+    "start": "Starten",
+    "stop": "Stoppen",
+    "restart": "Neu starten",
+    "viewLogs": "Protokolle",
+    "logsTitle": "Container-Protokolle"
   },
   "settings": {
     "title": "Einstellungen",
