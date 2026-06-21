@@ -12,6 +12,11 @@ const RETENTION_HOURS = 24;           // 24 saatlik geçmiş tut
 const ANOMALY_MULTIPLIER = 2.0;       // baseline'ın 2x'i → anomali
 const ANOMALY_WINDOW_MINUTES = 30;    // 30 dk içinde sürekli artış → leak şüphesi
 const ANOMALY_GROWTH_MB = 200;        // 30 dk'da 200 MB+ artış → uyarı
+// Pencerenin SON YARISINDA da bu kadar artış olmalı. Tek seferlik sıçrayıp
+// plato yapan (ör. warmup) servisi leak sanmamak için: gerçek leak hâlâ artar.
+const ANOMALY_RECENT_GROWTH_MB = 100;
+// Aynı servis için tekrar uyarı arası minimum süre (log spam'ini engeller).
+const ANOMALY_COOLDOWN_MS = 60 * 60 * 1000; // 1 saat
 
 declare global {
   // eslint-disable-next-line no-var
@@ -117,32 +122,72 @@ async function takeSnapshot(): Promise<void> {
   }
 }
 
+// Bir servis için son uyarı durumu (cooldown + dedup).
+interface LeakState { at: number; growth: number; }
+const leakState = new Map<string, LeakState>();
+
+// Saf leak değerlendirmesi (test edilebilir). mems = pencere içi kronolojik MB serisi.
+// Leak SAYILMASI için: toplam artış eşik üstü + SON YARI da hâlâ artıyor + büyük düşüş yok.
+// Uyarı BASILMASI için ayrıca cooldown geçmeli ya da bir önceki uyarıdan beri belirgin
+// (bir eşik kadar) daha büyümüş olmalı.
+export function evaluateLeak(
+  mems: number[],
+  prev: LeakState | undefined,
+  now: number,
+): { isLeak: boolean; warn: boolean; growth: number; first: number; last: number } {
+  if (mems.length < 3) return { isLeak: false, warn: false, growth: 0, first: 0, last: 0 };
+  const first = mems[0];
+  const last = mems[mems.length - 1];
+  const growth = last - first;
+
+  let alwaysGrowing = true;
+  for (let i = 1; i < mems.length; i++) {
+    if (mems[i] < mems[i - 1] - 5) { alwaysGrowing = false; break; }
+  }
+
+  // Pencerenin son yarısındaki artış — plato (warmup) burada ~0 olur.
+  const midValue = mems[Math.floor(mems.length / 2)];
+  const recentGrowth = last - midValue;
+
+  const isLeak =
+    growth > ANOMALY_GROWTH_MB &&
+    recentGrowth > ANOMALY_RECENT_GROWTH_MB &&
+    alwaysGrowing;
+
+  if (!isLeak) return { isLeak: false, warn: false, growth, first, last };
+
+  const warn =
+    !prev ||
+    now - prev.at > ANOMALY_COOLDOWN_MS ||
+    growth - prev.growth > ANOMALY_GROWTH_MB;
+
+  return { isLeak: true, warn, growth, first, last };
+}
+
 // Anomali tespiti
 function checkAnomalies(currentServices: ServiceMem[]): void {
   const windowStart = new Date(Date.now() - ANOMALY_WINDOW_MINUTES * 60 * 1000).toISOString();
+  const now = Date.now();
 
   for (const svc of currentServices) {
     // Son X dakikadaki snapshot'ları al
     const snapshots = getSnapshotsForName(svc.name, windowStart);
     if (snapshots.length < 3) continue;
 
-    const first = snapshots[0].memoryMB;
-    const last = snapshots[snapshots.length - 1].memoryMB;
-    const growth = last - first;
+    const mems = snapshots.map((s) => s.memoryMB);
+    const r = evaluateLeak(mems, leakState.get(svc.name), now);
 
-    // Sürekli artış mı? (snapshots hep artıyor mu)
-    let alwaysGrowing = true;
-    for (let i = 1; i < snapshots.length; i++) {
-      if (snapshots[i].memoryMB < snapshots[i - 1].memoryMB - 5) {
-        alwaysGrowing = false;
-        break;
-      }
+    if (!r.isLeak) {
+      // Toparladı / plato → durumu sıfırla ki ileride gerçek leak yeniden uyarsın.
+      leakState.delete(svc.name);
+      continue;
     }
 
-    if (growth > ANOMALY_GROWTH_MB && alwaysGrowing) {
+    if (r.warn) {
       addLog(svc.name, 'warn',
-        `⚠️ Memory leak şüphesi: Son ${ANOMALY_WINDOW_MINUTES} dakikada ${growth} MB artış (${first} → ${last} MB)`
+        `⚠️ Memory leak şüphesi: Son ${ANOMALY_WINDOW_MINUTES} dakikada ${r.growth} MB artış (${r.first} → ${r.last} MB)`
       );
+      leakState.set(svc.name, { at: now, growth: r.growth });
     }
   }
 }
