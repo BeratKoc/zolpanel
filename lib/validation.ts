@@ -75,3 +75,10 @@ export const changePasswordSchema = z.object({
 });
 export const loginSchema = z.object({ username: z.string().min(1).max(100), password: z.string().min(1) });
 export const createDatabaseSchema = z.object({ engine: z.enum(['postgres','mysql','redis']), name: z.string().regex(/^[a-z0-9-]{0,30}$/).optional() });
+export const createAppSchema = z.object({
+  name: z.string().regex(/^[a-z0-9-]{1,30}$/),
+  repoUrl: z.string().regex(/^https:\/\/[\w.@:/~-]+$/),
+  branch: z.string().regex(/^[\w./-]{1,100}$/).default('main'),
+  domain: z.string().regex(/^[a-z0-9.-]+$/).optional(),
+  containerPort: z.number().int().min(1).max(65535),
+});

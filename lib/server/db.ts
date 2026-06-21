@@ -70,6 +70,19 @@ export interface DatabaseDoc {
   containerId: string;
   createdAt: string;
 }
+export interface AppDoc {
+  _id?: string;
+  name: string;
+  repoUrl: string;
+  branch: string;
+  domain: string | null;
+  containerPort: number;
+  hostPort: number;
+  status: 'new' | 'deploying' | 'running' | 'stopped' | 'error';
+  image: string;
+  lastDeployedAt: string | null;
+  createdAt: string;
+}
 
 // better-sqlite3 SENKRON çalışır → NeDB'nin async autoload/teardown derdi yok.
 // db, TÜM Next bundle'ları (instrumentation + her route handler) arasında TEK
@@ -158,6 +171,19 @@ function createTables(conn: DB): void {
       hostPort INTEGER,
       volume TEXT,
       containerId TEXT,
+      createdAt TEXT
+    );
+    CREATE TABLE IF NOT EXISTS apps (
+      id TEXT PRIMARY KEY,
+      name TEXT UNIQUE,
+      repoUrl TEXT,
+      branch TEXT,
+      domain TEXT,
+      containerPort INTEGER,
+      hostPort INTEGER,
+      status TEXT,
+      image TEXT,
+      lastDeployedAt TEXT,
       createdAt TEXT
     );
   `);
@@ -471,6 +497,81 @@ export function getDatabaseByPort(port: number): DatabaseDoc | undefined {
 
 export function removeDatabase(id: string): void {
   getDb().prepare('DELETE FROM databases WHERE id = ?').run(id);
+}
+
+// ---- apps ---------------------------------------------------------------
+
+interface AppRow {
+  id: string; name: string; repoUrl: string; branch: string;
+  domain: string | null; containerPort: number; hostPort: number;
+  status: string; image: string; lastDeployedAt: string | null; createdAt: string;
+}
+function rowToApp(r: AppRow): AppDoc {
+  return {
+    _id: r.id,
+    name: r.name,
+    repoUrl: r.repoUrl,
+    branch: r.branch,
+    domain: r.domain,
+    containerPort: r.containerPort,
+    hostPort: r.hostPort,
+    status: r.status as AppDoc['status'],
+    image: r.image,
+    lastDeployedAt: r.lastDeployedAt,
+    createdAt: r.createdAt,
+  };
+}
+
+export function insertApp(a: Omit<AppDoc, '_id'>): AppDoc {
+  const id = genId();
+  getDb()
+    .prepare(
+      `INSERT INTO apps
+        (id, name, repoUrl, branch, domain, containerPort, hostPort, status, image, lastDeployedAt, createdAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(id, a.name, a.repoUrl, a.branch, a.domain, a.containerPort, a.hostPort, a.status, a.image, a.lastDeployedAt, a.createdAt);
+  return { _id: id, ...a };
+}
+
+export function getAllApps(): AppDoc[] {
+  const rows = getDb().prepare('SELECT * FROM apps ORDER BY createdAt DESC').all() as AppRow[];
+  return rows.map(rowToApp);
+}
+
+export function getAppById(id: string): AppDoc | null {
+  const r = getDb().prepare('SELECT * FROM apps WHERE id = ?').get(id) as AppRow | undefined;
+  return r ? rowToApp(r) : null;
+}
+
+export function getAppByPort(port: number): AppDoc | null {
+  const r = getDb().prepare('SELECT * FROM apps WHERE hostPort = ?').get(port) as AppRow | undefined;
+  return r ? rowToApp(r) : null;
+}
+
+export function updateApp(id: string, patch: Partial<AppDoc>): void {
+  const cols: string[] = [];
+  const vals: unknown[] = [];
+  const set = (col: string, val: unknown) => { cols.push(`${col} = ?`); vals.push(val); };
+
+  if (patch.name !== undefined) set('name', patch.name);
+  if (patch.repoUrl !== undefined) set('repoUrl', patch.repoUrl);
+  if (patch.branch !== undefined) set('branch', patch.branch);
+  if (patch.domain !== undefined) set('domain', patch.domain);
+  if (patch.containerPort !== undefined) set('containerPort', patch.containerPort);
+  if (patch.hostPort !== undefined) set('hostPort', patch.hostPort);
+  if (patch.status !== undefined) set('status', patch.status);
+  if (patch.image !== undefined) set('image', patch.image);
+  if (patch.lastDeployedAt !== undefined) set('lastDeployedAt', patch.lastDeployedAt);
+  if (patch.createdAt !== undefined) set('createdAt', patch.createdAt);
+
+  if (!cols.length) return;
+  vals.push(id);
+  getDb().prepare(`UPDATE apps SET ${cols.join(', ')} WHERE id = ?`).run(...(vals as never[]));
+}
+
+export function removeApp(id: string): void {
+  getDb().prepare('DELETE FROM apps WHERE id = ?').run(id);
 }
 
 // İlk kurulumda admin oluştur — sabit şifre YOK, rastgele üret ve bir kez logla.
