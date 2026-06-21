@@ -15,19 +15,19 @@ interface DbNode {
 }
 
 interface DbTreeProps {
-  ref: string;
+  connRef: string;
   engine: string;
   onSelectTable: (db: string, schema: string, table: string) => void;
 }
 
-export function DbTree({ ref, engine, onSelectTable }: DbTreeProps) {
+export function DbTree({ connRef, engine, onSelectTable }: DbTreeProps) {
   const t = useTranslations();
   const [rootLoading, setRootLoading] = useState(true);
   const [dbs, setDbs] = useState<DbNode[]>([]);
 
   useEffect(() => {
     setRootLoading(true);
-    api.dbxTree(ref)
+    api.dbxTree(connRef)
       .then((res: { databases: string[] }) => {
         setDbs((res.databases || []).map(name => ({
           name,
@@ -39,7 +39,7 @@ export function DbTree({ ref, engine, onSelectTable }: DbTreeProps) {
       })
       .catch(() => {})
       .finally(() => setRootLoading(false));
-  }, [ref]);
+  }, [connRef]);
 
   async function toggleDb(idx: number) {
     const db = dbs[idx];
@@ -53,7 +53,7 @@ export function DbTree({ ref, engine, onSelectTable }: DbTreeProps) {
     }
     setDbs(prev => prev.map((d, i) => i === idx ? { ...d, expanded: true, loading: true } : d));
     try {
-      const res: { tables: { schema: string; table: string }[] } = await api.dbxTree(ref, db.name);
+      const res: { tables: { schema: string; table: string }[] } = await api.dbxTree(connRef, db.name);
       setDbs(prev => prev.map((d, i) =>
         i === idx ? { ...d, loading: false, loaded: true, tables: res.tables || [] } : d,
       ));

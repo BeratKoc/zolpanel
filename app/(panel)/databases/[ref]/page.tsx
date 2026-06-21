@@ -154,7 +154,7 @@ export default function DbEditorPage() {
           padding: '8px',
         }}>
           <DbTree
-            ref={ref}
+            connRef={ref}
             engine={conn.engine}
             onSelectTable={(db, schema, table) => {
               setSelected({ db, schema, table });
