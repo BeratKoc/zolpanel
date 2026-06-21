@@ -2,6 +2,28 @@ import { dbExec } from './exec';
 import { parseCsv, type QueryResult } from './types';
 
 // ---------------------------------------------------------------------------
+// Bağlantı kullanıcısı/DB'si — harici (compose) konteynerlerde superuser
+// 'postgres' OLMAYABİLİR (POSTGRES_USER). Konteyner env'inden çöz, cache'le.
+// ---------------------------------------------------------------------------
+const userCache = new Map<string, string>();
+async function pgUser(ref: string): Promise<string> {
+  const cached = userCache.get(ref);
+  if (cached) return cached;
+  let u = 'postgres';
+  try { const o = (await dbExec(ref, ['printenv', 'POSTGRES_USER'])).trim(); if (o) u = o; } catch { /* fallback */ }
+  userCache.set(ref, u);
+  return u;
+}
+async function pgDefaultDb(ref: string): Promise<string> {
+  try { const o = (await dbExec(ref, ['printenv', 'POSTGRES_DB'])).trim(); if (o) return o; } catch { /* fallback */ }
+  return pgUser(ref); // POSTGRES_DB varsayılanı POSTGRES_USER'dır
+}
+// Temel psql argümanları: çözülen kullanıcı + (verilirse) db, yoksa varsayılan db.
+async function psqlBase(ref: string, db?: string): Promise<string[]> {
+  return ['psql', '-U', await pgUser(ref), '-d', db || (await pgDefaultDb(ref))];
+}
+
+// ---------------------------------------------------------------------------
 // Pure SQL escape helpers (exported for testing)
 // ---------------------------------------------------------------------------
 
@@ -63,8 +85,9 @@ export function buildDelete(
 
 /** Lists all non-template, connectable databases in the Postgres instance. */
 async function listDatabases(ref: string): Promise<string[]> {
+  const base = await psqlBase(ref);
   const out = await dbExec(ref, [
-    'psql', '-U', 'postgres', '-tAc',
+    ...base, '-tAc',
     'SELECT datname FROM pg_database WHERE datistemplate=false AND datallowconn',
   ]);
   return out.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -73,8 +96,9 @@ async function listDatabases(ref: string): Promise<string[]> {
 /** Lists tables in a database, excluding system schemas. */
 async function listTables(ref: string, db: string): Promise<{ schema: string; table: string }[]> {
   // CSV ile şema+tablo'yu AYRI kolon al — nokta içeren adlar bozulmasın.
+  const base = await psqlBase(ref, db);
   const out = await dbExec(ref, [
-    'psql', '-U', 'postgres', '-d', db, '--csv', '-c',
+    ...base, '--csv', '-c',
     "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') ORDER BY 1, 2",
   ]);
   const rows = parseCsv(out);
@@ -94,7 +118,7 @@ async function getRows(
   const clampedOffset = Math.max(0, offset);
 
   const sql = `SELECT * FROM ${pgIdent(schema)}.${pgIdent(table)} LIMIT ${clampedLimit} OFFSET ${clampedOffset}`;
-  const out = await dbExec(ref, ['psql', '-U', 'postgres', '-d', db, '--csv', '-c', sql]);
+  const out = await dbExec(ref, [...(await psqlBase(ref, db)), '--csv', '-c', sql]);
   const rows = parseCsv(out.trim());
   if (rows.length === 0) {
     return { columns: [], rows: [], rowCount: 0 };
@@ -108,7 +132,7 @@ async function getRows(
 
 /** Runs arbitrary SQL and returns results in QueryResult format. */
 async function runSql(ref: string, db: string, sql: string): Promise<QueryResult> {
-  const out = await dbExec(ref, ['psql', '-U', 'postgres', '-d', db, '--csv', '-c', sql]);
+  const out = await dbExec(ref, [...(await psqlBase(ref, db)), '--csv', '-c', sql]);
   const rows = parseCsv(out.trim());
   if (rows.length === 0) {
     return { columns: [], rows: [], rowCount: 0 };
@@ -144,7 +168,7 @@ async function pkColumns(
     'ORDER BY kcu.ordinal_position',
   ].join(' ');
 
-  const out = await dbExec(ref, ['psql', '-U', 'postgres', '-d', db, '-tAc', sql]);
+  const out = await dbExec(ref, [...(await psqlBase(ref, db)), '-tAc', sql]);
   return out.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 }
 
