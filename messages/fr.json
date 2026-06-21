@@ -20,7 +20,8 @@
     "backups": "Sauvegardes",
     "logs": "Journaux",
     "settings": "Paramètres",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "apps": "Applications"
   },
   "login": {
     "subtitle": "Connectez-vous pour continuer",
@@ -218,6 +219,29 @@
     "creating": "Sauvegarde en cours…",
     "restoring": "Restauration… le panel va redémarrer dans un instant",
     "restoreStarted": "Restauration lancée ; le panel redémarre (quelques secondes)"
+  },
+  "apps": {
+    "title": "Applications",
+    "registered": "{n} applications",
+    "create": "Ajouter une application",
+    "nameLabel": "Nom",
+    "repoUrl": "Dépôt Git (https)",
+    "branch": "Branche",
+    "domainOptional": "Domaine (facultatif)",
+    "containerPort": "Port du conteneur",
+    "deploy": "Déployer",
+    "redeploy": "Redéployer",
+    "deploying": "Déploiement… (la compilation peut prendre du temps)",
+    "viewLogs": "Journaux",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer {name} ? Le conteneur, l'image et le domaine seront supprimés.",
+    "emptyTitle": "Aucune application",
+    "emptySubtitle": "Déployez depuis un dépôt Git (avec Dockerfile)",
+    "statusRunning": "En cours",
+    "statusError": "Erreur",
+    "statusDeploying": "Déploiement",
+    "statusNew": "Nouveau",
+    "statusStopped": "Arrêté"
   },
   "settings": {
     "title": "Paramètres",

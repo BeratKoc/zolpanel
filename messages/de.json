@@ -20,7 +20,8 @@
     "backups": "Backups",
     "logs": "Protokolle",
     "settings": "Einstellungen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "apps": "Apps"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -218,6 +219,29 @@
     "creating": "Backup wird erstellt…",
     "restoring": "Wiederherstellung… Panel wird gleich neu gestartet",
     "restoreStarted": "Wiederherstellung gestartet; Panel wird neu gestartet (wenige Sekunden)"
+  },
+  "apps": {
+    "title": "Apps",
+    "registered": "{n} Apps",
+    "create": "App hinzufügen",
+    "nameLabel": "Name",
+    "repoUrl": "Git-Repository (https)",
+    "branch": "Branch",
+    "domainOptional": "Domain (optional)",
+    "containerPort": "Container-Port",
+    "deploy": "Deployen",
+    "redeploy": "Neu deployen",
+    "deploying": "Wird deployed… (Build kann dauern)",
+    "viewLogs": "Protokolle",
+    "delete": "Löschen",
+    "confirmDelete": "{name} löschen? Container, Image und Domain werden entfernt.",
+    "emptyTitle": "Keine Apps",
+    "emptySubtitle": "Aus einem Git-Repository (mit Dockerfile) deployen",
+    "statusRunning": "Läuft",
+    "statusError": "Fehler",
+    "statusDeploying": "Wird deployed",
+    "statusNew": "Neu",
+    "statusStopped": "Gestoppt"
   },
   "settings": {
     "title": "Einstellungen",

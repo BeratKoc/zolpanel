@@ -20,7 +20,8 @@
     "backups": "Yedekler",
     "logs": "Loglar",
     "settings": "Ayarlar",
-    "logout": "Çıkış"
+    "logout": "Çıkış",
+    "apps": "Uygulamalar"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -218,6 +219,29 @@
     "creating": "Yedekleniyor…",
     "restoring": "Geri yükleniyor… panel birazdan yeniden başlayacak",
     "restoreStarted": "Geri yükleme başladı; panel yeniden başlatılıyor (birkaç saniye)"
+  },
+  "apps": {
+    "title": "Uygulamalar",
+    "registered": "{n} uygulama",
+    "create": "Uygulama ekle",
+    "nameLabel": "Ad",
+    "repoUrl": "Git repo (https)",
+    "branch": "Dal",
+    "domainOptional": "Alan adı (opsiyonel)",
+    "containerPort": "Konteyner portu",
+    "deploy": "Deploy",
+    "redeploy": "Yeniden deploy",
+    "deploying": "Deploy ediliyor… (build sürebilir)",
+    "viewLogs": "Loglar",
+    "delete": "Sil",
+    "confirmDelete": "{name} silinsin mi? Konteyner+imaj+domain kaldırılır.",
+    "emptyTitle": "Uygulama yok",
+    "emptySubtitle": "Git repo'sundan (Dockerfile'lı) deploy et",
+    "statusRunning": "Çalışıyor",
+    "statusError": "Hata",
+    "statusDeploying": "Deploy ediliyor",
+    "statusNew": "Yeni",
+    "statusStopped": "Durduruldu"
   },
   "settings": {
     "title": "Ayarlar",

@@ -20,7 +20,8 @@
     "backups": "Copias de seguridad",
     "logs": "Registros",
     "settings": "Ajustes",
-    "logout": "Salir"
+    "logout": "Salir",
+    "apps": "Aplicaciones"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -218,6 +219,29 @@
     "creating": "Creando copia de seguridad…",
     "restoring": "Restaurando… el panel se reiniciará en breve",
     "restoreStarted": "Restauración iniciada; el panel se está reiniciando (unos segundos)"
+  },
+  "apps": {
+    "title": "Aplicaciones",
+    "registered": "{n} aplicaciones",
+    "create": "Añadir aplicación",
+    "nameLabel": "Nombre",
+    "repoUrl": "Repositorio Git (https)",
+    "branch": "Rama",
+    "domainOptional": "Dominio (opcional)",
+    "containerPort": "Puerto del contenedor",
+    "deploy": "Desplegar",
+    "redeploy": "Redesplegar",
+    "deploying": "Desplegando… (la compilación puede tardar)",
+    "viewLogs": "Registros",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar {name}? Se eliminarán el contenedor, la imagen y el dominio.",
+    "emptyTitle": "Sin aplicaciones",
+    "emptySubtitle": "Despliega desde un repositorio Git (con Dockerfile)",
+    "statusRunning": "En ejecución",
+    "statusError": "Error",
+    "statusDeploying": "Desplegando",
+    "statusNew": "Nuevo",
+    "statusStopped": "Detenido"
   },
   "settings": {
     "title": "Ajustes",

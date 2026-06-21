@@ -20,7 +20,8 @@
     "backups": "备份",
     "logs": "日志",
     "settings": "设置",
-    "logout": "退出"
+    "logout": "退出",
+    "apps": "应用"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -218,6 +219,29 @@
     "creating": "正在创建备份…",
     "restoring": "正在恢复… 面板即将重启",
     "restoreStarted": "恢复已开始；面板正在重启（几秒钟）"
+  },
+  "apps": {
+    "title": "应用",
+    "registered": "{n} 个应用",
+    "create": "添加应用",
+    "nameLabel": "名称",
+    "repoUrl": "Git 仓库（https）",
+    "branch": "分支",
+    "domainOptional": "域名（可选）",
+    "containerPort": "容器端口",
+    "deploy": "部署",
+    "redeploy": "重新部署",
+    "deploying": "部署中…（构建可能需要一些时间）",
+    "viewLogs": "日志",
+    "delete": "删除",
+    "confirmDelete": "删除 {name}？容器、镜像和域名将被移除。",
+    "emptyTitle": "暂无应用",
+    "emptySubtitle": "从 Git 仓库（含 Dockerfile）进行部署",
+    "statusRunning": "运行中",
+    "statusError": "错误",
+    "statusDeploying": "部署中",
+    "statusNew": "新建",
+    "statusStopped": "已停止"
   },
   "settings": {
     "title": "设置",
