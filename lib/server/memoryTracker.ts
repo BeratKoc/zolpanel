@@ -67,12 +67,13 @@ function getDockerMemory(): Promise<ServiceMem[]> {
         const containers = lines.map((line) => {
           const [name, memUsage, memPerc] = line.split('|');
           // "256MiB / 31.3GiB" formatını parse et
-          const match = memUsage?.match(/([\d.]+)([KMG]iB)/);
+          const match = memUsage?.match(/([\d.]+)(B|[KMG]iB)/);
           let memoryMB = 0;
           if (match) {
             const val = parseFloat(match[1]);
             const unit = match[2];
-            if (unit === 'KiB') memoryMB = val / 1024;
+            if (unit === 'B') memoryMB = val / (1024 * 1024);
+            else if (unit === 'KiB') memoryMB = val / 1024;
             else if (unit === 'MiB') memoryMB = val;
             else if (unit === 'GiB') memoryMB = val * 1024;
           }
