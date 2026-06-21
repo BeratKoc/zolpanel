@@ -7,6 +7,7 @@ import { Database } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Spinner, EmptyState, useToast } from '@/components/ui';
 import { DbTree } from '@/components/dbexplorer/DbTree';
+import { DataGrid } from '@/components/dbexplorer/DataGrid';
 
 interface DbxConn {
   ref: string;
@@ -215,22 +216,33 @@ export default function DbEditorPage() {
                 ))}
               </div>
 
-              {/* Tab content area — Task 4/5 will mount DataGrid/SqlConsole here */}
-              <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              {/* Tab content area */}
+              <div style={{ flex: 1, padding: '16px 20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
                   {selected.db} / {selected.schema !== 'public' && selected.schema ? `${selected.schema}.` : ''}{selected.table}
                 </div>
-                <div style={{
-                  fontSize: '11px',
-                  color: 'var(--text-muted)',
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius)',
-                  padding: '8px 12px',
-                  display: 'inline-block',
-                }}>
-                  {activeTab === 'data' ? t('dbx.data') : t('dbx.sqlConsole')}
-                </div>
+                {activeTab === 'data' ? (
+                  <DataGrid
+                    connRef={ref}
+                    db={selected.db}
+                    schema={selected.schema}
+                    table={selected.table}
+                    canWrite={canWrite}
+                    engine={conn.engine}
+                  />
+                ) : (
+                  <div style={{
+                    fontSize: '11px',
+                    color: 'var(--text-muted)',
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)',
+                    padding: '8px 12px',
+                    display: 'inline-block',
+                  }}>
+                    {t('dbx.sqlConsole')}
+                  </div>
+                )}
               </div>
             </>
           )}
