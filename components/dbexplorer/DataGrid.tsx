@@ -310,8 +310,8 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
             </tr>
           </thead>
           <tbody>
-            {/* New row inputs */}
-            {addingRow && (
+            {/* New row inputs — canWrite kapanırsa formu da gizle (salt-okunur tutarlılığı) */}
+            {addingRow && canWrite && (
               <tr style={{ background: 'rgba(59,130,246,0.04)' }}>
                 {canWrite && (
                   <td style={{ padding: '4px 6px', borderBottom: '1px solid var(--border)', verticalAlign: 'middle' }}>
