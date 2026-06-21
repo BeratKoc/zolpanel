@@ -58,6 +58,15 @@ test('buildRunArgs: sabit/kontrollü docker run argümanları üretir', () => {
   ]);
 });
 
+test('buildRunArgs: volume boşsa -v bayrağı üretilmez', () => {
+  const a = buildRunArgs({ name: 'zolpanel-app-myapp', image: 'zolpanel-app-myapp', hostPort: 7001, containerPort: 3000, env: {}, volume: '', volumePath: '' });
+  assert.deepStrictEqual(a, [
+    'run', '-d', '--name', 'zolpanel-app-myapp', '--restart', 'unless-stopped',
+    '-p', '7001:3000', 'zolpanel-app-myapp',
+  ]);
+  assert.ok(!a.includes('-v'), '-v bayrağı bulunmamalı');
+});
+
 test('buildArgs: docker build argümanları', () => {
   assert.deepStrictEqual(buildArgs('zolpanel-app-foo', '/opt/zolpanel/apps/foo'), ['build', '-t', 'zolpanel-app-foo', '/opt/zolpanel/apps/foo']);
 });

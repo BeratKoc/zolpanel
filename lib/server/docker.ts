@@ -98,7 +98,8 @@ export interface RunSpec {
 }
 export function buildRunArgs(s: RunSpec): string[] {
   const args = ['run', '-d', '--name', s.name, '--restart', 'unless-stopped',
-    '-p', `${s.hostPort}:${s.containerPort}`, '-v', `${s.volume}:${s.volumePath}`];
+    '-p', `${s.hostPort}:${s.containerPort}`];
+  if (s.volume) args.push('-v', `${s.volume}:${s.volumePath}`);
   for (const [k, v] of Object.entries(s.env)) args.push('-e', `${k}=${v}`);
   args.push(s.image);
   return args;
