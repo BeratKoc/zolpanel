@@ -32,6 +32,7 @@
     "ramReal": "RAM (gerçek)",
     "ramBalloon": "Balloon (hipervizör)",
     "balloonReserved": "hipervizöre ayrıldı",
+    "balloonInfo": "Balloon, VMware hipervizörünün bu sanal makineden geri aldığı bellektir; misafir içinde 'kullanılmış' görünür ama hiçbir uygulamaya ait değildir. Asıl sebep host tarafındadır (bellek reservation yok). Kalıcı olarak tamamen gidermek için sağlayıcıdan VM'e bellek reservation isteyin. Panel gerçek kullanımı (balloon hariç) gösterir; yanlış alarm vermez.",
     "active": "aktif",
     "running": "Çalışıyor",
     "stopped": "Durdu",

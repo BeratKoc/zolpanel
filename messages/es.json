@@ -32,6 +32,7 @@
     "ramReal": "RAM (real)",
     "ramBalloon": "Balloon (hipervisor)",
     "balloonReserved": "reservado por el hipervisor",
+    "balloonInfo": "Balloon es memoria que el hipervisor de VMware recuperó de esta VM; aparece como 'usada' dentro del invitado pero no pertenece a ninguna aplicación. La causa está en el lado del host (sin reserva de memoria). Para eliminarla de forma permanente, solicita a tu proveedor una reserva de memoria para la VM. El panel muestra el uso real (sin balloon) y no genera falsas alarmas.",
     "active": "activa",
     "running": "En ejecución",
     "stopped": "Detenido",

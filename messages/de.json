@@ -32,6 +32,7 @@
     "ramReal": "RAM (tatsächlich)",
     "ramBalloon": "Balloon (Hypervisor)",
     "balloonReserved": "vom Hypervisor reserviert",
+    "balloonInfo": "Balloon ist Speicher, den der VMware-Hypervisor von dieser VM zurückgefordert hat; im Gast erscheint er als 'belegt', gehört aber zu keiner Anwendung. Die Ursache liegt auf der Host-Seite (keine Speicherreservierung). Um ihn dauerhaft zu beseitigen, fordern Sie beim Anbieter eine Speicherreservierung für die VM an. Das Panel zeigt die tatsächliche Nutzung (ohne Balloon) und löst keine Fehlalarme aus.",
     "active": "aktiv",
     "running": "Läuft",
     "stopped": "Gestoppt",

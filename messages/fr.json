@@ -32,6 +32,7 @@
     "ramReal": "RAM (réelle)",
     "ramBalloon": "Balloon (hyperviseur)",
     "balloonReserved": "réservé par l'hyperviseur",
+    "balloonInfo": "Balloon est la mémoire que l'hyperviseur VMware a récupérée de cette VM ; elle apparaît comme « utilisée » dans l'invité mais n'appartient à aucune application. La cause est côté hôte (pas de réservation de mémoire). Pour l'éliminer définitivement, demandez à votre fournisseur une réservation de mémoire pour la VM. Le panneau affiche l'utilisation réelle (hors balloon) et ne déclenche pas de fausses alertes.",
     "active": "active",
     "running": "En cours",
     "stopped": "Arrêté",

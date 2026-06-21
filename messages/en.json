@@ -32,6 +32,7 @@
     "ramReal": "RAM (actual)",
     "ramBalloon": "Balloon (hypervisor)",
     "balloonReserved": "reserved by hypervisor",
+    "balloonInfo": "Balloon is memory the VMware hypervisor reclaimed from this VM; it appears as 'used' inside the guest but belongs to no application. The root cause is on the host side (no memory reservation). To remove it permanently, ask your provider for a memory reservation on the VM. The panel reports real usage (excluding balloon) and won't raise false alarms.",
     "active": "active",
     "running": "Running",
     "stopped": "Stopped",
