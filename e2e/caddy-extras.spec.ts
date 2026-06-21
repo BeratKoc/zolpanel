@@ -26,7 +26,7 @@ test('caddy advanced: header eklenip kaydedilir ve düzenlemede görünür', asy
   await expect(page.getByText('Domain Ekle', { exact: true })).toBeVisible();
 
   // Domain adı + port doldur (proxy tipi varsayılan).
-  await page.getByPlaceholder('ornek.com').fill(DOMAIN);
+  await page.getByPlaceholder('example.com').fill(DOMAIN);
   await page.getByPlaceholder('3000').fill('3090');
 
   // Caddy advanced / Headers: "+ Header ekle" butonuna tıkla.

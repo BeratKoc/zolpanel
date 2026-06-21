@@ -113,8 +113,8 @@ export default function Processes() {
             <span>{t('processes.colStatus')}</span>
             <span>CPU</span>
             <span>RAM</span>
-            <span>Restart</span>
-            <span>Uptime</span>
+            <span>{t('processes.colRestarts')}</span>
+            <span>{t('processes.colUptime')}</span>
             <span style={{ textAlign: 'right' }}>{t('processes.colAction')}</span>
           </div>
 

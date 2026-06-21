@@ -9,8 +9,8 @@ test.describe('i18n', () => {
     await expect(page.getByRole('link', { name: 'Domainler' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Ayarlar' })).toBeVisible();
 
-    // LanguageSwitcher select'i (aria-label="language") → English.
-    const switcher = page.getByLabel('language');
+    // LanguageSwitcher select'i (aria-label="Dil" in Turkish) → English.
+    const switcher = page.getByLabel('Dil');
     await switcher.selectOption('en');
 
     // Nav İngilizce olmalı.
@@ -18,7 +18,7 @@ test.describe('i18n', () => {
     await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
 
     // Geri tr.
-    await page.getByLabel('language').selectOption('tr');
+    await page.getByLabel('Language').selectOption('tr');
     await expect(page.getByRole('link', { name: 'Domainler' })).toBeVisible({ timeout: 10_000 });
   });
 });

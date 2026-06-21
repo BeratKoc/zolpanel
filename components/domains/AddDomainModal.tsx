@@ -114,7 +114,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
       <form onSubmit={handleSubmit}>
         <FormField label={t('domains.domainName')} error={domainErr}>
           <input
-            placeholder="ornek.com"
+            placeholder="example.com"
             value={form.domain}
             onChange={e => update('domain', e.target.value)}
             onBlur={e => {
@@ -250,7 +250,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
 
         <FormField label={t('domains.aliasDomains')} hint={t('domains.aliasHintAdd')}>
           <input
-            placeholder="ornek.net, ornek.org"
+            placeholder="example.net, example.org"
             value={form.aliases}
             onChange={e => update('aliases', e.target.value)}
           />

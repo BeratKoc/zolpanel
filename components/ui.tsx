@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type React from 'react';
 import { X, Info } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 // Button
 type BtnVariant = 'default' | 'primary' | 'danger' | 'ghost';
@@ -177,6 +178,7 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children, width = 480 }: ModalProps) {
+  const t = useTranslations();
   return (
     <div
       style={{
@@ -203,7 +205,7 @@ export function Modal({ title, onClose, children, width = 480 }: ModalProps) {
           borderBottom: '1px solid var(--border)',
         }}>
           <span style={{ fontWeight: 500, fontSize: '14px', color: 'var(--text-primary)' }}>{title}</span>
-          <Btn variant="ghost" size="sm" onClick={onClose} style={{ padding: '4px 6px' }} aria-label="kapat"><X size={16} strokeWidth={1.75} /></Btn>
+          <Btn variant="ghost" size="sm" onClick={onClose} style={{ padding: '4px 6px' }} aria-label={t('common.close')}><X size={16} strokeWidth={1.75} /></Btn>
         </div>
         <div style={{ padding: '20px' }}>
           {children}

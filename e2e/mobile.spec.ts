@@ -6,7 +6,7 @@ test.use({ viewport: { width: 393, height: 851 } });
 
 test('mobil: hamburger görünür, sidebar drawer olarak açılır/kapanır', async ({ page }) => {
   await login(page);
-  const burger = page.getByRole('button', { name: 'menu' });
+  const burger = page.getByRole('button', { name: 'Menü' });
   await expect(burger).toBeVisible();
   await burger.click();
   await expect(page.getByRole('link', { name: /Domainler|Domains/ })).toBeVisible();

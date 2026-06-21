@@ -1,12 +1,13 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { locales, localeNames, type Locale } from '@/i18n/config';
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
   const router = useRouter();
+  const t = useTranslations();
 
   function change(e: React.ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value;
@@ -18,7 +19,7 @@ export default function LanguageSwitcher() {
     <select
       value={locale}
       onChange={change}
-      aria-label="language"
+      aria-label={t('common.language')}
       style={{
         background: 'transparent',
         border: '1px solid var(--border)',

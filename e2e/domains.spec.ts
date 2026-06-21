@@ -22,7 +22,7 @@ test.describe('domains', () => {
     await expect(page.getByText('Domain Ekle', { exact: true })).toBeVisible();
 
     // Proxy tipi varsayılan; domain adı + port doldur.
-    await page.getByPlaceholder('ornek.com').fill(DOMAIN);
+    await page.getByPlaceholder('example.com').fill(DOMAIN);
     await page.getByPlaceholder('3000').fill('3070');
 
     // Modal içindeki "Ekle" submit butonu.
@@ -54,7 +54,7 @@ test.describe('domains', () => {
     await page.getByRole('button', { name: '+ Domain Ekle' }).first().click();
     await expect(page.getByText('Domain Ekle', { exact: true })).toBeVisible();
 
-    await page.getByPlaceholder('ornek.com').fill(SSL_DOMAIN);
+    await page.getByPlaceholder('example.com').fill(SSL_DOMAIN);
     await page.getByPlaceholder('3000').fill('3091');
 
     await page.getByRole('button', { name: 'Ekle', exact: true }).click();

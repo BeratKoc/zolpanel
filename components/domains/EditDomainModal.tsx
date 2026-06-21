@@ -85,7 +85,7 @@ export function EditDomainModal({ domain, onClose, onSuccess, onError }: {
 
         <FormField label={t('domains.aliasDomains')} hint={t('domains.aliasHintEdit')}>
           <input
-            placeholder="ornek.net, ornek.org"
+            placeholder="example.net, example.org"
             value={form.aliases}
             onChange={e => update('aliases', e.target.value)}
           />

@@ -120,7 +120,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
           }}>
             <button
               className="hamburger"
-              aria-label="menu"
+              aria-label={t('common.menu')}
               onClick={() => setDrawerOpen(true)}
               style={{ marginRight: 12 }}
             >

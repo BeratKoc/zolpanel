@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { RotateCw } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, Spinner, useToast } from '@/components/ui';
@@ -15,6 +15,7 @@ const LEVEL_COLORS: Record<string, string> = {
 
 export default function Logs() {
   const t = useTranslations();
+  const locale = useLocale();
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [domains, setDomains] = useState<any[]>([]);
@@ -74,12 +75,12 @@ export default function Logs() {
 
   function formatTime(ts: string | number) {
     const d = new Date(ts);
-    return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
   function formatDate(ts: string | number) {
     const d = new Date(ts);
-    return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
+    return d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' });
   }
 
   return (
