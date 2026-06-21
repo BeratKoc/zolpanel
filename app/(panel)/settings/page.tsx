@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { CheckCircle2, XCircle, RotateCw } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, FormField, Spinner, useToast } from '@/components/ui';
 
@@ -16,7 +16,6 @@ export default function Settings() {
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
   const [pwLoading, setPwLoading] = useState(false);
   const [pwErr, setPwErr] = useState<{ next?: string; confirm?: string }>({});
-  const [reloading, setReloading] = useState(false);
   const { show, ToastContainer } = useToast();
 
   useEffect(() => {
@@ -45,20 +44,6 @@ export default function Settings() {
       show(e.message, 'error');
     } finally {
       setPwLoading(false);
-    }
-  }
-
-  async function handleReloadCaddy() {
-    setReloading(true);
-    try {
-      await api.reloadCaddy();
-      show(t('settings.caddyReloaded'), 'success');
-      const d = await api.getCaddyConfig();
-      setCaddyConfig(d.content);
-    } catch (e: any) {
-      show(e.message, 'error');
-    } finally {
-      setReloading(false);
     }
   }
 
@@ -150,11 +135,6 @@ export default function Settings() {
 
         {/* Caddy config */}
         <Section title="Caddyfile" style={{ gridColumn: '1 / -1' }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-            <Btn variant="default" size="sm" onClick={handleReloadCaddy} disabled={reloading}>
-              {reloading ? <Spinner size={12} /> : <RotateCw size={12} strokeWidth={1.75} />} {t('settings.reloadCaddy')}
-            </Btn>
-          </div>
           <pre style={{
             background: 'var(--bg-base)',
             borderRadius: 'var(--radius)',

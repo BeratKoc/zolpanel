@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { AlertTriangle, TrendingUp, Check, RotateCw, Clock, Lock } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Check, Clock, Lock } from 'lucide-react';
 import { api } from '@/lib/api-client';
-import { MetricCard, StatusDot, Badge, Spinner, Btn } from '@/components/ui';
+import { MetricCard, StatusDot, Badge, Spinner } from '@/components/ui';
 
 function formatBytes(bytes?: number): string {
   if (!bytes) return '0 B';
@@ -124,7 +124,6 @@ export default function Dashboard() {
   const [memoryStats, setMemoryStats] = useState<any[]>([]);
   const [memHours, setMemHours] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [reloading, setReloading] = useState(false);
 
   async function loadData() {
     try {
@@ -165,11 +164,6 @@ export default function Dashboard() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadMemoryStats(); }, [memHours]);
-
-  async function handleReloadCaddy() {
-    setReloading(true);
-    try { await api.reloadCaddy(); } finally { setReloading(false); }
-  }
 
   const anomalyCount = memoryStats.filter(s => s.anomaly).length;
 
@@ -268,14 +262,9 @@ export default function Dashboard() {
 
       {/* Son domainler */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            {t('dashboard.recentDomains')}
-          </p>
-          <Btn variant="ghost" size="sm" onClick={handleReloadCaddy} disabled={reloading}>
-            {reloading ? <Spinner size={12} /> : <RotateCw size={12} strokeWidth={1.75} />} {t('dashboard.caddyReload')}
-          </Btn>
-        </div>
+        <p style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
+          {t('dashboard.recentDomains')}
+        </p>
         {domains.length === 0 ? (
           <div style={{
             background: 'var(--bg-surface)', border: '1px solid var(--border)',

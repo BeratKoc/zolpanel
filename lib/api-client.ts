@@ -36,7 +36,6 @@ export const api = {
   getStats: () => request('GET', '/system/stats'),
   getLogs: (p: Record<string, string> = {}) => request('GET', `/system/logs${Object.keys(p).length ? '?' + new URLSearchParams(p) : ''}`),
   clearLogs: (d?: string) => request('DELETE', `/system/logs${d ? '?domain=' + d : ''}`),
-  reloadCaddy: () => request('POST', '/system/caddy/reload'),
   getCaddyConfig: () => request('GET', '/system/caddy/config'),
   getMemoryStats: (hours = 1) => request('GET', `/system/memory-stats?hours=${hours}`),
   getServices: () => request('GET', '/system/services'),
