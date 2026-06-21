@@ -25,7 +25,13 @@ export default function Domains() {
   async function load() {
     try {
       const data = await api.getDomains();
-      setDomains(data);
+      setDomains(prev => data.map((fresh: any) => {
+        const old = prev.find((p: any) => p._id === fresh._id);
+        if (old?.sslStatus === 'error' && fresh.sslStatus !== 'active') {
+          return { ...fresh, sslStatus: 'error', sslIssuer: old.sslIssuer, sslValidTo: old.sslValidTo };
+        }
+        return fresh;
+      }));
     } catch (e: any) {
       show(e.message, 'error');
     } finally {

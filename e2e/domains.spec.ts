@@ -43,7 +43,7 @@ test.describe('domains', () => {
     await expect(page.getByText(DOMAIN, { exact: true })).toHaveCount(0, { timeout: 10_000 });
   });
 
-  test('SSL durumu: yeni domain pending başlar, recheck sonrası error gösterir', async ({ page }) => {
+  test('SSL durumu: yeni domain pending başlar, recheck sonrası error gösterir ve polling sonrası korunur', async ({ page }) => {
     await page.getByRole('link', { name: 'Domainler' }).click();
     await page.waitForURL('**/domains');
 
@@ -80,6 +80,11 @@ test.describe('domains', () => {
 
     // Hata durumunda da recheck butonu görünür kalır.
     await expect(domainRow.getByLabel("SSL'i yeniden kontrol et")).toBeVisible();
+
+    // Polling clobber testi: bir poll aralığı (~8s) bekle ve "SSL Hatası" badge'inin
+    // hâlâ görünür olduğunu doğrula — load() artık client-side 'error' durumunu koruyor.
+    await page.waitForTimeout(9000);
+    await expect(domainRow.getByText('SSL Hatası', { exact: true })).toBeVisible();
 
     // Temizlik: domain'i sil.
     await domainRow.getByTitle('Sil', { exact: true }).click();
