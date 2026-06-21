@@ -2,8 +2,8 @@
 # Zolpanel (Next.js) deploy: local repo -> sunucu /opt/zolpanel
 # Kullanım: bash deploy.sh
 #
-# Gönderir: app/, lib/, components/, instrumentation.ts, next.config.ts,
-#           tsconfig.json, package.json, package-lock.json, ecosystem.config.cjs
+# Gönderir: app/, lib/, components/, i18n/, messages/, instrumentation.ts,
+#           next.config.ts, tsconfig.json, package.json, package-lock.json, ecosystem.config.cjs
 # Göndermez/ezmez: .env, db/data, node_modules, .next, eski backend/ + frontend/, docs/
 # Sunucuda: npm install + npm run build + pm2 (ilk seferde ecosystem ile start,
 #           sonra restart). Sonunda health + caddy validate.
@@ -26,7 +26,7 @@ tar czf - -C "$LOCAL" \
   --exclude=.env --exclude='.env.local' --exclude='db/data' \
   --exclude=backend --exclude=frontend --exclude=docs \
   --exclude='*.bak' --exclude='tsconfig.tsbuildinfo' \
-  app lib components instrumentation.ts next.config.ts tsconfig.json \
+  app lib components i18n messages instrumentation.ts next.config.ts tsconfig.json \
   package.json package-lock.json ecosystem.config.cjs next-env.d.ts \
   | ssh "$SRV" "cd $DEST && tar xzf -"
 
