@@ -188,7 +188,7 @@ export default function Dashboard() {
             color={metrics?.memory?.realPercent > 80 ? 'var(--red)' : 'var(--green)'} />
           {metrics?.memory?.balloon > 1073741824 ? (
             <MetricCard label={t('dashboard.ramBalloon')} value={formatBytes(metrics?.memory?.balloon)} sub={t('dashboard.balloonReserved')}
-              color="var(--text-muted)" />
+              color="var(--text-muted)" info={t('dashboard.balloonInfo')} />
           ) : (
             <MetricCard label={t('dashboard.ramTotal')} value={formatBytes(metrics?.memory?.used)} sub={`/ ${formatBytes(metrics?.memory?.total)}`}
               color={metrics?.memory?.percent > 80 ? 'var(--red)' : 'var(--text-primary)'} />

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type React from 'react';
-import { X } from 'lucide-react';
+import { X, Info } from 'lucide-react';
 
 // Button
 type BtnVariant = 'default' | 'primary' | 'danger' | 'ghost';
@@ -322,17 +322,59 @@ interface MetricCardProps {
   value?: React.ReactNode;
   sub?: React.ReactNode;
   color?: string;
+  // Verilirse sağ üstte bir (i) ikonu çıkar; tıklayınca açıklama pop-up'ı açılır.
+  info?: string;
 }
 
-export function MetricCard({ label, value, sub, color }: MetricCardProps) {
+export function MetricCard({ label, value, sub, color, info }: MetricCardProps) {
+  const [infoOpen, setInfoOpen] = useState(false);
   return (
     <div style={{
       background: 'var(--bg-surface)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--radius-lg)',
       padding: '16px 18px',
+      position: 'relative',
     }}>
-      <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
+      {info && (
+        <>
+          <button
+            type="button"
+            aria-label={info}
+            title={info}
+            aria-expanded={infoOpen}
+            onClick={() => setInfoOpen(o => !o)}
+            className="icon-btn"
+            style={{
+              position: 'absolute', top: 10, right: 10,
+              width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'transparent', border: 'none', borderRadius: '50%',
+              color: infoOpen ? 'var(--text-secondary)' : 'var(--text-muted)', cursor: 'pointer', padding: 0,
+            }}
+          >
+            <Info size={15} strokeWidth={1.75} />
+          </button>
+          {infoOpen && (
+            <>
+              {/* dışarı tıklayınca kapat */}
+              <div onClick={() => setInfoOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+              <div role="tooltip" style={{
+                position: 'absolute', top: 36, right: 8, zIndex: 41,
+                width: 260, maxWidth: '80vw',
+                background: 'var(--bg-base)', border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius)', padding: '12px 14px',
+                fontSize: '12px', lineHeight: 1.55, color: 'var(--text-secondary)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+                textAlign: 'left', textTransform: 'none', letterSpacing: 'normal', fontWeight: 400,
+                whiteSpace: 'normal',
+              }}>
+                {info}
+              </div>
+            </>
+          )}
+        </>
+      )}
+      <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px', paddingRight: info ? '24px' : 0 }}>
         {label}
       </p>
       <p className="tabular" style={{ fontSize: '24px', fontWeight: 500, color: color || 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
