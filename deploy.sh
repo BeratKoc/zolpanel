@@ -33,6 +33,10 @@ tar czf - -C "$LOCAL" \
 echo ">> [server] npm install + build..."
 ssh "$SRV" "cd $DEST && npm install --no-audit --no-fund && npm run build"
 
+echo ">> [ön-kontrol] JWT_SECRET ve better-sqlite3 doğrulanıyor..."
+ssh "$SRV" "grep -q '^JWT_SECRET=.\+' $DEST/.env" || { echo "HATA: $DEST/.env içinde JWT_SECRET tanımlı değil veya boş. Deploy durduruluyor."; exit 1; }
+ssh "$SRV" "cd $DEST && node -e \"require('better-sqlite3')\"" || { echo "HATA: better-sqlite3 native modülü yüklenemedi. Deploy durduruluyor."; exit 1; }
+
 echo ">> [server] pm2 (start/restart)..."
 ssh "$SRV" "cd $DEST && (pm2 describe zolpanel >/dev/null 2>&1 && pm2 restart zolpanel --update-env || pm2 start ecosystem.config.cjs) && pm2 save"
 

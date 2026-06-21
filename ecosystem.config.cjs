@@ -13,7 +13,7 @@ if (fs.existsSync(ENV_PATH)) {
     .filter((l) => l && !l.startsWith('#'))
     .forEach((l) => {
       const [k, ...v] = l.split('=');
-      if (k) env[k.trim()] = v.join('=').trim();
+      if (k) env[k.trim()] = v.join('=').trim().replace(/^["']|["']$/g, '');
     });
 }
 
