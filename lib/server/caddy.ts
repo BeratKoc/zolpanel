@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { addLog } from './db';
 import type { DomainDoc, DomainRoute } from './db';
 
@@ -235,6 +235,85 @@ export function parseCaddyfile(): ParsedDomain[] {
     });
   }
   return domains;
+}
+
+// ─── Managed-region sentinels ────────────────────────────────────────────────
+// Caddyfile içinde otomatik üretilen bölgeyi işaretlemek için kullanılan sabit satırlar.
+export const MANAGED_START = '# >>> zolpanel-managed (otomatik üretildi — elle düzenleme) >>>';
+export const MANAGED_END = '# <<< zolpanel-managed <<<';
+
+// Mevcut Caddyfile içeriğinden managed bölgeyi ve managedNames listesindeki
+// tüm domain bloklarını çıkarır; korunması gereken (unmanaged) içeriği döndürür.
+export function extractUnmanaged(content: string, managedNames: string[]): string {
+  const s = content.indexOf(MANAGED_START);
+  const e = content.indexOf(MANAGED_END);
+  let base = content;
+  if (s !== -1 && e !== -1 && e > s) {
+    base = (content.slice(0, s) + content.slice(e + MANAGED_END.length)).trim() + '\n';
+  }
+  for (const name of managedNames) base = removeDomainBlock(base, name);
+  return base.trim() ? base.trim() + '\n' : '';
+}
+
+// Emit edilecek domain listesinden managed bölge metnini üretir.
+export function buildManagedRegion(domainsToEmit: DomainConfig[]): string {
+  const blocks = domainsToEmit.map((d) => buildDomainBlock(d)).filter(Boolean).join('');
+  return `${MANAGED_START}\n${blocks.trimEnd()}\n${MANAGED_END}\n`;
+}
+
+// Unmanaged kısmı ile managed bölgeyi birleştirerek tam Caddyfile metnini oluşturur.
+export function composeCaddyfile(unmanaged: string, managedRegion: string): string {
+  const u = unmanaged.trim();
+  return (u ? u + '\n\n' : '') + managedRegion;
+}
+
+// ─── Caddy validate yardımcısı ───────────────────────────────────────────────
+function caddyValidate(path: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    execFile('caddy', ['validate', '--adapter', 'caddyfile', '--config', path], (err, _o, stderr) =>
+      err ? reject(new Error('caddy validate: ' + (stderr || err.message))) : resolve());
+  });
+}
+
+// ─── Transactional syncCaddyConfig ───────────────────────────────────────────
+// Tüm DB domain'lerini (active+offline) alır; PROTECTED dışındakileri managed
+// bölgeden siler ve yalnızca active+unprotected olanları yeniden yazar.
+// Geçersiz config → throw, live dosya değişmez.
+// Reload başarısız → backup'tan geri yükle.
+export async function syncCaddyConfig(allDomains: DomainDoc[]): Promise<void> {
+  const path = CADDYFILE_PATH();
+  const managedNames = allDomains
+    .map((d) => d.domain)
+    .filter((n) => !PROTECTED_DOMAINS.includes(n));
+  const toEmit = allDomains.filter(
+    (d) => d.status === 'active' && !PROTECTED_DOMAINS.includes(d.domain)
+  );
+  const current = readCaddyfile();
+  const unmanaged = extractUnmanaged(current, managedNames);
+  const next = composeCaddyfile(unmanaged, buildManagedRegion(toEmit));
+  if (next.trim() === current.trim()) return;
+
+  const tmp = path + '.zolpanel.tmp';
+  const bak = path + '.zolpanel.bak';
+  fs.writeFileSync(tmp, next, 'utf-8');
+  try {
+    await caddyValidate(tmp);
+  } catch (e) {
+    try { fs.unlinkSync(tmp); } catch { /* yoksay */ }
+    addLog('system', 'error', 'Caddy config geçersiz, uygulanmadı: ' + (e as Error).message);
+    throw e;
+  }
+  fs.copyFileSync(path, bak);
+  fs.renameSync(tmp, path);
+  try {
+    await reloadCaddy();
+  } catch (e) {
+    fs.copyFileSync(bak, path);
+    await reloadCaddy().catch(() => {});
+    addLog('system', 'error', 'Reload başarısız, önceki config geri yüklendi');
+    throw e;
+  }
+  addLog('system', 'info', 'Caddy config senkronize edildi (managed bölge)');
 }
 
 // DomainRoute db.ts'den re-export edilir (girdi tiplerinde kullanılabilir).
