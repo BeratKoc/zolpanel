@@ -5,6 +5,12 @@ import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { Btn, Modal, FormField, Spinner } from '@/components/ui';
 import { APP_TYPES } from '@/components/domains/shared';
+import {
+  CaddyExtrasEditor,
+  CaddyExtrasValue,
+  fromDomainCaddyExtras,
+  toCaddyExtrasPayload,
+} from '@/components/domains/CaddyExtrasEditor';
 
 export function EditDomainModal({ domain, onClose, onSuccess, onError }: {
   domain: any;
@@ -19,6 +25,9 @@ export function EditDomainModal({ domain, onClose, onSuccess, onError }: {
     notes: domain.notes || '',
     status: domain.status,
   });
+  const [extras, setExtras] = useState<CaddyExtrasValue>(() =>
+    fromDomainCaddyExtras(domain.caddyExtras)
+  );
   const [submitting, setSubmitting] = useState(false);
 
   function update(key: string, val: string) { setForm(prev => ({ ...prev, [key]: val })); }
@@ -32,6 +41,7 @@ export function EditDomainModal({ domain, onClose, onSuccess, onError }: {
         appType: form.appType,
         notes: form.notes,
         status: form.status,
+        caddyExtras: toCaddyExtrasPayload(extras) ?? {},
       });
       onSuccess();
     } catch (e: any) {
@@ -90,7 +100,9 @@ export function EditDomainModal({ domain, onClose, onSuccess, onError }: {
           />
         </FormField>
 
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
+        <CaddyExtrasEditor value={extras} onChange={setExtras} />
+
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
           <Btn type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Btn>
           <Btn type="submit" variant="primary" disabled={submitting}>
             {submitting ? <Spinner size={13} /> : t('common.save')}

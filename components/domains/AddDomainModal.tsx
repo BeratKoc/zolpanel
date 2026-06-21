@@ -6,6 +6,12 @@ import { Shuffle, Folder, SlidersHorizontal, X } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, Modal, FormField, Spinner } from '@/components/ui';
 import { APP_TYPES, Route } from '@/components/domains/shared';
+import {
+  CaddyExtrasEditor,
+  CaddyExtrasValue,
+  emptyCaddyExtras,
+  toCaddyExtrasPayload,
+} from '@/components/domains/CaddyExtrasEditor';
 
 export function AddDomainModal({ onClose, onSuccess, onError }: {
   onClose: () => void;
@@ -32,6 +38,7 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
     notes: '',
     routes: [{ path: '/api/*', port: '', type: 'http' }],
   });
+  const [extras, setExtras] = useState<CaddyExtrasValue>(emptyCaddyExtras);
   const [loadingPort, setLoadingPort] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [domainErr, setDomainErr] = useState<string | undefined>(undefined);
@@ -89,6 +96,9 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
         }
         payload.routes = routes;
       }
+
+      const caddyExtras = toCaddyExtrasPayload(extras);
+      if (caddyExtras) payload.caddyExtras = caddyExtras;
 
       await api.createDomain(payload);
       onSuccess();
@@ -256,7 +266,9 @@ export function AddDomainModal({ onClose, onSuccess, onError }: {
           />
         </FormField>
 
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
+        <CaddyExtrasEditor value={extras} onChange={setExtras} />
+
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '16px' }}>
           <Btn type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Btn>
           <Btn type="submit" variant="primary" disabled={submitting}>
             {submitting ? <Spinner size={13} /> : t('common.add')}
