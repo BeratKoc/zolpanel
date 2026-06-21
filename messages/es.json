@@ -265,7 +265,16 @@
     "rowsShown": "{n} filas",
     "prev": "Anterior",
     "next": "Siguiente",
-    "redisSoon": "Navegador de Redis próximamente"
+    "redisSoon": "Navegador de Redis próximamente",
+    "keys": "Claves",
+    "keySearch": "Buscar clave (ej: user:*)",
+    "keyType": "Tipo",
+    "value": "Valor",
+    "noKeys": "Sin claves",
+    "selectKey": "Selecciona una clave",
+    "saveValue": "Guardar valor",
+    "deleteKey": "Eliminar clave",
+    "confirmDeleteKey": "¿Eliminar {key}?"
   },
   "settings": {
     "title": "Ajustes",

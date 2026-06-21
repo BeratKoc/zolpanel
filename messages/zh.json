@@ -265,7 +265,16 @@
     "rowsShown": "{n} 行",
     "prev": "上一页",
     "next": "下一页",
-    "redisSoon": "Redis 浏览器即将推出"
+    "redisSoon": "Redis 浏览器即将推出",
+    "keys": "键",
+    "keySearch": "搜索键（例如：user:*）",
+    "keyType": "类型",
+    "value": "值",
+    "noKeys": "无键",
+    "selectKey": "选择一个键",
+    "saveValue": "保存值",
+    "deleteKey": "删除键",
+    "confirmDeleteKey": "删除 {key}？"
   },
   "settings": {
     "title": "设置",

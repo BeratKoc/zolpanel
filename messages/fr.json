@@ -265,7 +265,16 @@
     "rowsShown": "{n} lignes",
     "prev": "Précédent",
     "next": "Suivant",
-    "redisSoon": "Navigateur Redis bientôt disponible"
+    "redisSoon": "Navigateur Redis bientôt disponible",
+    "keys": "Clés",
+    "keySearch": "Rechercher une clé (ex : user:*)",
+    "keyType": "Type",
+    "value": "Valeur",
+    "noKeys": "Aucune clé",
+    "selectKey": "Sélectionner une clé",
+    "saveValue": "Enregistrer la valeur",
+    "deleteKey": "Supprimer la clé",
+    "confirmDeleteKey": "Supprimer {key} ?"
   },
   "settings": {
     "title": "Paramètres",

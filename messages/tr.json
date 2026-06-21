@@ -265,7 +265,16 @@
     "rowsShown": "{n} satır",
     "prev": "Önceki",
     "next": "Sonraki",
-    "redisSoon": "Redis tarayıcı yakında"
+    "redisSoon": "Redis tarayıcı yakında",
+    "keys": "Anahtarlar",
+    "keySearch": "Anahtar ara (örn: user:*)",
+    "keyType": "Tür",
+    "value": "Değer",
+    "noKeys": "Anahtar yok",
+    "selectKey": "Bir anahtar seç",
+    "saveValue": "Değeri kaydet",
+    "deleteKey": "Anahtarı sil",
+    "confirmDeleteKey": "{key} silinsin mi?"
   },
   "settings": {
     "title": "Ayarlar",

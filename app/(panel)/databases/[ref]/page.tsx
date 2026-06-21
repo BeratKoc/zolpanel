@@ -9,6 +9,7 @@ import { Spinner, EmptyState, useToast } from '@/components/ui';
 import { DbTree } from '@/components/dbexplorer/DbTree';
 import { DataGrid } from '@/components/dbexplorer/DataGrid';
 import { SqlConsole } from '@/components/dbexplorer/SqlConsole';
+import { RedisBrowser } from '@/components/dbexplorer/RedisBrowser';
 
 interface DbxConn {
   ref: string;
@@ -71,26 +72,55 @@ export default function DbEditorPage() {
     );
   }
 
-  // Redis: scaffold placeholder until Plan C
+  // Redis: full browser with header + read-only toggle
   if (conn.engine === 'redis') {
     return (
-      <div className="page" style={{ animation: 'fadeIn 0.2s ease' }}>
+      <div className="page" style={{ animation: 'fadeIn 0.2s ease', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
         <ToastContainer />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('dbx.editorTitle')}</h2>
-          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{ref}</span>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('dbx.editorTitle')}</h2>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{ref}</span>
+          </div>
+
+          {/* Read-only toggle */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              {canWrite ? t('dbx.enableEdit') : t('dbx.readOnly')}
+            </span>
+            <div
+              role="switch"
+              aria-checked={canWrite}
+              onClick={() => setCanWrite(v => !v)}
+              style={{
+                position: 'relative',
+                width: '36px',
+                height: '20px',
+                borderRadius: '10px',
+                background: canWrite ? 'var(--accent)' : 'var(--border-light)',
+                transition: 'background 0.2s',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: 'absolute',
+                top: '3px',
+                left: canWrite ? '19px' : '3px',
+                width: '14px',
+                height: '14px',
+                borderRadius: '50%',
+                background: '#fff',
+                transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }} />
+            </div>
+          </label>
         </div>
-        <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '40px 24px',
-          textAlign: 'center',
-          color: 'var(--text-muted)',
-          fontSize: '13px',
-        }}>
-          {t('dbx.redisSoon')}
-        </div>
+
+        <RedisBrowser connRef={ref} canWrite={canWrite} />
       </div>
     );
   }

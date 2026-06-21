@@ -62,8 +62,13 @@ export const api = {
   getAppLogs: (id: string, tail = 200) => request('GET', `/apps/${id}/logs?tail=${tail}`),
   // DB Explorer
   dbxConnections: () => request('GET', '/dbx/connections'),
-  dbxTree: (ref: string, db?: string) =>
-    request('GET', `/dbx/${encodeURIComponent(ref)}/tree${db ? '?db=' + encodeURIComponent(db) : ''}`),
+  dbxTree: (ref: string, db?: string, match?: string) => {
+    const qs = new URLSearchParams();
+    if (db) qs.set('db', db);
+    if (match !== undefined) qs.set('match', match);
+    const q = qs.toString();
+    return request('GET', `/dbx/${encodeURIComponent(ref)}/tree${q ? '?' + q : ''}`);
+  },
   dbxRows: (ref: string, q: Record<string, string | number>) =>
     request('GET', `/dbx/${encodeURIComponent(ref)}/rows?${new URLSearchParams(Object.fromEntries(Object.entries(q).map(([k, v]) => [k, String(v)]))).toString()}`),
   dbxSql: (ref: string, body: { db: string; sql: string }, opts: { write?: boolean; confirm?: boolean } = {}) => {

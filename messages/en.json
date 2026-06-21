@@ -265,7 +265,16 @@
     "rowsShown": "{n} rows",
     "prev": "Previous",
     "next": "Next",
-    "redisSoon": "Redis browser coming soon"
+    "redisSoon": "Redis browser coming soon",
+    "keys": "Keys",
+    "keySearch": "Search key (e.g. user:*)",
+    "keyType": "Type",
+    "value": "Value",
+    "noKeys": "No keys",
+    "selectKey": "Select a key",
+    "saveValue": "Save value",
+    "deleteKey": "Delete key",
+    "confirmDeleteKey": "Delete {key}?"
   },
   "settings": {
     "title": "Settings",

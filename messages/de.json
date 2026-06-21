@@ -265,7 +265,16 @@
     "rowsShown": "{n} Zeilen",
     "prev": "Zurück",
     "next": "Weiter",
-    "redisSoon": "Redis-Browser demnächst"
+    "redisSoon": "Redis-Browser demnächst",
+    "keys": "Schlüssel",
+    "keySearch": "Schlüssel suchen (z.B. user:*)",
+    "keyType": "Typ",
+    "value": "Wert",
+    "noKeys": "Keine Schlüssel",
+    "selectKey": "Schlüssel auswählen",
+    "saveValue": "Wert speichern",
+    "deleteKey": "Schlüssel löschen",
+    "confirmDeleteKey": "{key} löschen?"
   },
   "settings": {
     "title": "Einstellungen",
