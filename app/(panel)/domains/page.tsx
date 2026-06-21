@@ -35,16 +35,19 @@ export default function Domains() {
 
   useEffect(() => { load(); }, []);
 
+  const anyPending = domains.some(d => d.sslStatus !== 'active');
+
   // Polling: while any domain is not active, refresh every 8s (up to 18 ticks)
+  // Depends on anyPending (not domains) so recheck merges don't reset the tick clock.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    const hasPending = domains.some(d => d.sslStatus !== 'active');
-    if (!hasPending) return;
+    if (!anyPending) return;
 
     let ticks = 0;
     const id = setInterval(() => {
       if (document.hidden) return;
       ticks++;
-      if (ticks >= MAX_POLL_TICKS) {
+      if (ticks > MAX_POLL_TICKS) {
         clearInterval(id);
         return;
       }
@@ -52,7 +55,7 @@ export default function Domains() {
     }, POLL_INTERVAL_MS);
 
     return () => clearInterval(id);
-  }, [domains]);
+  }, [anyPending]);
 
   async function handleRecheck(domainId: string) {
     setRecheckingIds(prev => new Set(prev).add(domainId));
