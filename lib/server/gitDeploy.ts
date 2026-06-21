@@ -8,7 +8,7 @@ import {
 } from './db';
 import { dockerBuild, dockerRun, buildRunArgs, removeContainer, removeImage, listContainers } from './docker';
 import { getUsedPorts } from './portManager';
-import { syncCaddyConfig } from './caddy';
+import { syncCaddyConfig, PROTECTED_DOMAINS } from './caddy';
 
 export function isSafeRepoUrl(url: string): boolean {
   return typeof url === 'string' && /^https:\/\/[\w.@:/~-]+$/.test(url) && !url.includes(' ');
@@ -39,6 +39,10 @@ export async function createApp(i: {
   containerPort: number;
 }): Promise<AppDoc> {
   if (!isSafeRepoUrl(i.repoUrl)) throw new Error('Geçersiz repo URL (yalnız https)');
+  if (i.domain) {
+    if (PROTECTED_DOMAINS.includes(i.domain)) throw new Error('Korumalı domain kullanılamaz');
+    if (getDomainByName(i.domain)) throw new Error('Bu domain zaten kullanımda');
+  }
   const hostPort = await pickPort();
   return insertApp({
     name: i.name,
