@@ -11,6 +11,7 @@ import { requireAuth, unauthorized } from '@/lib/auth';
 import { createDomainSchema } from '@/lib/validation';
 import { syncCaddyConfig, isCaddyRunning } from '@/lib/server/caddy';
 import { findNextAvailablePort } from '@/lib/server/portManager';
+import { normalizeCaddyExtras } from '@/lib/server/caddyExtras';
 
 export const runtime = 'nodejs';
 
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
     }
   }
   const now = new Date().toISOString();
+  const caddyExtras = await normalizeCaddyExtras((input as any).caddyExtras, undefined);
   const doc: Omit<DomainDoc, '_id'> = {
     domain: input.domain, type: input.type,
     port: input.type === 'proxy' ? assignedPort : null,
@@ -47,6 +49,7 @@ export async function POST(req: Request) {
     routes: input.type === 'advanced' ? (input as any).routes : null,
     aliases: input.aliases, appType: input.appType || 'other', notes: input.notes || '',
     status: 'active', sslStatus: 'pending', createdAt: now, updatedAt: now,
+    caddyExtras,
   };
   const saved = insertDomain(doc);
   try {

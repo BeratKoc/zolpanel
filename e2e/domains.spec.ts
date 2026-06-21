@@ -16,7 +16,8 @@ test.describe('domains', () => {
     page.on('dialog', (d) => d.accept());
 
     // + Domain Ekle modalını aç. (Modal başlığı <span>, role=heading değil.)
-    await page.getByRole('button', { name: '+ Domain Ekle' }).click();
+    // Header ve boş-liste action butonu ikisi de aynı adı taşıyabilir; ilkini kullan.
+    await page.getByRole('button', { name: '+ Domain Ekle' }).first().click();
     await expect(page.getByText('Domain Ekle', { exact: true })).toBeVisible();
 
     // Proxy tipi varsayılan; domain adı + port doldur.

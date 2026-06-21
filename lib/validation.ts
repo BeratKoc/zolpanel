@@ -11,6 +11,24 @@ export const routeSchema = z.object({
   type: z.enum(['http', 'websocket']),
 });
 
+const headerKey = z.string().regex(/^[A-Za-z0-9-]+$/, 'Geçersiz header adı').max(100);
+const headerVal = z.string().max(500).regex(/^[^\n\r{}]*$/, 'Geçersiz değer');
+const caddyPath = z.string().regex(/^\/[A-Za-z0-9._*/-]*$/, 'Geçersiz path').max(200);
+const redirectTo = z.string().min(1).max(300).regex(/^[^\n\r{}\s]+$/, 'Geçersiz hedef');
+const cidr = z.string().regex(/^[0-9a-fA-F:.]+(\/\d{1,3})?$/, 'Geçersiz IP/CIDR').max(64);
+const baUsername = z.string().regex(/^[A-Za-z0-9._-]+$/, 'Geçersiz kullanıcı adı').max(50);
+
+export const caddyExtrasSchema = z.object({
+  headers: z.array(z.object({ key: headerKey, value: headerVal })).max(30).optional(),
+  redirects: z.array(z.object({ from: caddyPath, to: redirectTo, permanent: z.boolean() })).max(30).optional(),
+  basicAuth: z.array(z.object({
+    username: baUsername,
+    password: z.string().min(1).max(200).optional(),
+    passwordHash: z.string().max(120).optional(),
+  })).max(20).optional(),
+  ipRules: z.object({ mode: z.enum(['allow', 'deny']), cidrs: z.array(cidr).max(100) }).nullable().optional(),
+}).optional();
+
 export const createDomainSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('proxy'),
@@ -19,6 +37,7 @@ export const createDomainSchema = z.discriminatedUnion('type', [
     port: port.optional(),
     appType: z.string().max(40).optional(),
     notes: z.string().max(2000).optional(),
+    caddyExtras: caddyExtrasSchema,
   }),
   z.object({
     type: z.literal('static'),
@@ -27,6 +46,7 @@ export const createDomainSchema = z.discriminatedUnion('type', [
     rootPath: safeAbsPath.optional(),
     appType: z.string().max(40).optional(),
     notes: z.string().max(2000).optional(),
+    caddyExtras: caddyExtrasSchema,
   }),
   z.object({
     type: z.literal('advanced'),
@@ -35,6 +55,7 @@ export const createDomainSchema = z.discriminatedUnion('type', [
     routes: z.array(routeSchema).min(1),
     appType: z.string().max(40).optional(),
     notes: z.string().max(2000).optional(),
+    caddyExtras: caddyExtrasSchema,
   }),
 ]);
 
@@ -43,6 +64,7 @@ export const updateDomainSchema = z.object({
   aliases: z.array(hostname).optional(),
   status: z.enum(['active', 'offline']).optional(),
   appType: z.string().max(40).optional(),
+  caddyExtras: caddyExtrasSchema,
 });
 
 export const processNameSchema = z.string().regex(/^[A-Za-z0-9._-]{1,100}$/);

@@ -2,6 +2,7 @@ import { addLog, DomainDoc, getDomainById, updateDomain, removeDomain, getAllDom
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { updateDomainSchema } from '@/lib/validation';
 import { syncCaddyConfig, isCaddyRunning } from '@/lib/server/caddy';
+import { normalizeCaddyExtras } from '@/lib/server/caddyExtras';
 
 export const runtime = 'nodejs';
 
@@ -28,6 +29,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (aliases !== undefined) updates.aliases = aliases;
   if (status !== undefined) updates.status = status;
   if (appType !== undefined) updates.appType = appType;
+  if (parsed.data.caddyExtras !== undefined) {
+    updates.caddyExtras = await normalizeCaddyExtras(parsed.data.caddyExtras as any, domain.caddyExtras);
+  }
 
   updateDomain(id, updates);
 
