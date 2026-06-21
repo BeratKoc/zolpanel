@@ -81,7 +81,15 @@ ensure_node() {
     node_version="$(node -v)"
     local major
     major="$(echo "$node_version" | sed 's/v\([0-9]*\).*/\1/')"
-    if [ "$major" -ge 20 ]; then
+    # Guard: default to 0 if extraction returned empty or non-numeric
+    major="${major:-0}"
+    if ! echo "$major" | grep -qE '^[0-9]+$'; then
+      if [ "$CHECK_ONLY" = "1" ]; then
+        info "[DRY-RUN] Node sürümü belirlenemedi → kurulacak (NodeSource 22.x)"
+        return
+      fi
+      warn "Node sürümü belirlenemedi ('$node_version') — yeniden kurulacak"
+    elif [ "$major" -ge 20 ]; then
       log "Node mevcut: $node_version — atlanıyor"
       return
     else
@@ -143,13 +151,28 @@ ensure_pm2() {
 # ── Step 6: Kaynak kod ────────────────────────────────────────────────────────
 fetch_code() {
   if [ -d "${INSTALL_DIR}/.git" ]; then
+    # Branch 1: Already a git repo — fast-forward pull
     if [ "$CHECK_ONLY" = "1" ]; then
       info "[DRY-RUN] Mevcut repo güncellecek: git -C \"${INSTALL_DIR}\" pull --ff-only"
       return
     fi
     log "Mevcut repo güncelleniyor: ${INSTALL_DIR}"
     git -C "${INSTALL_DIR}" pull --ff-only
+  elif [ -d "${INSTALL_DIR}" ] && [ -n "$(ls -A "${INSTALL_DIR}" 2>/dev/null)" ]; then
+    # Branch 2: Dir exists, non-empty, but no .git — adopt as git repo
+    # checkout -f overwrites only tracked files; untracked .env / db/ / node_modules/ survive
+    if [ "$CHECK_ONLY" = "1" ]; then
+      info "[DRY-RUN] Mevcut dizin git deposuna dönüştürülecek (.env/db korunur): ${INSTALL_DIR}"
+      return
+    fi
+    log "Mevcut dizin git deposuna dönüştürülüyor (.env/db korunur): ${INSTALL_DIR}"
+    git -C "${INSTALL_DIR}" init -q
+    git -C "${INSTALL_DIR}" remote add origin "${ZOLPANEL_REPO}" 2>/dev/null \
+      || git -C "${INSTALL_DIR}" remote set-url origin "${ZOLPANEL_REPO}"
+    git -C "${INSTALL_DIR}" fetch -q origin "${ZOLPANEL_BRANCH}"
+    git -C "${INSTALL_DIR}" checkout -f -B "${ZOLPANEL_BRANCH}" "origin/${ZOLPANEL_BRANCH}"
   else
+    # Branch 3: Dir absent or empty — fresh clone
     if [ "$CHECK_ONLY" = "1" ]; then
       info "[DRY-RUN] Repo klonlanacak: ${ZOLPANEL_REPO} (dal: ${ZOLPANEL_BRANCH}) → ${INSTALL_DIR}"
       return
