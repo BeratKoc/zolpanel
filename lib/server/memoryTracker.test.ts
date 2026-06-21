@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { evaluateLeak } from './memoryTracker';
+import { evaluateLeak, isLeakSuspect } from './memoryTracker';
 
 const NOW = 1_700_000_000_000;
 const HOUR = 60 * 60 * 1000;
@@ -46,4 +46,13 @@ test('arada büyük düşüş varsa (dalgalı) leak sayılmaz', () => {
 test('3 noktadan az veri leak sayılmaz', () => {
   const r = evaluateLeak([241, 560], undefined, NOW);
   assert.strictEqual(r.isLeak, false);
+});
+
+// isLeakSuspect: dashboard rozeti ile log dedektörü AYNI mantığı kullanmalı.
+test('isLeakSuspect: plato dashboard rozetinde de leak sayılmaz', () => {
+  assert.strictEqual(isLeakSuspect([241, 511, 511, 511, 511]), false);
+});
+
+test('isLeakSuspect: gerçek sürekli artış leak sayılır', () => {
+  assert.strictEqual(isLeakSuspect([241, 320, 400, 480, 560]), true);
 });

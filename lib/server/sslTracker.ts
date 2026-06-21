@@ -23,9 +23,9 @@ async function refreshAll(): Promise<void> {
 export function startSslTracker(): void {
   if (globalThis.__zolpanelSslTracker) return;
   globalThis.__zolpanelSslTracker = true;
-  refreshAll().catch(() => { /* yoksay */ });
+  refreshAll().catch((e) => console.error('[sslTracker] refreshAll hata:', e));
   setInterval(() => {
-    refreshAll().catch(() => { /* yoksay */ });
+    refreshAll().catch((e) => console.error('[sslTracker] refreshAll hata:', e));
   }, SSL_INTERVAL);
   console.log('🔒 SSL durum takipçisi başlatıldı (60sn interval)');
 }

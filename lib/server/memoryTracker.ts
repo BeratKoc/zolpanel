@@ -118,7 +118,7 @@ async function takeSnapshot(): Promise<void> {
     // Anomali kontrolü
     checkAnomalies(services);
   } catch (e) {
-    // sessizce geç
+    console.error('[memoryTracker] snapshot hata:', e);
   }
 }
 
@@ -126,8 +126,24 @@ async function takeSnapshot(): Promise<void> {
 interface LeakState { at: number; growth: number; }
 const leakState = new Map<string, LeakState>();
 
+// Bir MB serisinin "leak şüphesi" taşıyıp taşımadığı (saf, paylaşılan predicate).
+// Hem log dedektörü (checkAnomalies) hem dashboard rozeti (getMemoryStats) bunu
+// kullanır → tutarlı. Şart: toplam artış eşik üstü + SON YARI da hâlâ artıyor
+// (plato/warmup elenir) + büyük düşüş yok.
+export function isLeakSuspect(mems: number[]): boolean {
+  if (mems.length < 3) return false;
+  const first = mems[0];
+  const last = mems[mems.length - 1];
+  const growth = last - first;
+  let alwaysGrowing = true;
+  for (let i = 1; i < mems.length; i++) {
+    if (mems[i] < mems[i - 1] - 5) { alwaysGrowing = false; break; }
+  }
+  const recentGrowth = last - mems[Math.floor(mems.length / 2)];
+  return growth > ANOMALY_GROWTH_MB && recentGrowth > ANOMALY_RECENT_GROWTH_MB && alwaysGrowing;
+}
+
 // Saf leak değerlendirmesi (test edilebilir). mems = pencere içi kronolojik MB serisi.
-// Leak SAYILMASI için: toplam artış eşik üstü + SON YARI da hâlâ artıyor + büyük düşüş yok.
 // Uyarı BASILMASI için ayrıca cooldown geçmeli ya da bir önceki uyarıdan beri belirgin
 // (bir eşik kadar) daha büyümüş olmalı.
 export function evaluateLeak(
@@ -140,19 +156,7 @@ export function evaluateLeak(
   const last = mems[mems.length - 1];
   const growth = last - first;
 
-  let alwaysGrowing = true;
-  for (let i = 1; i < mems.length; i++) {
-    if (mems[i] < mems[i - 1] - 5) { alwaysGrowing = false; break; }
-  }
-
-  // Pencerenin son yarısındaki artış — plato (warmup) burada ~0 olur.
-  const midValue = mems[Math.floor(mems.length / 2)];
-  const recentGrowth = last - midValue;
-
-  const isLeak =
-    growth > ANOMALY_GROWTH_MB &&
-    recentGrowth > ANOMALY_RECENT_GROWTH_MB &&
-    alwaysGrowing;
+  const isLeak = isLeakSuspect(mems);
 
   if (!isLeak) return { isLeak: false, warn: false, growth, first, last };
 
@@ -246,8 +250,9 @@ function getMemoryStats(hours = 1): MemoryStat[] {
   return Object.values(grouped).map((svc) => {
     const mems = svc.snapshots.map((s) => s.m);
     const current = mems[mems.length - 1] || 0;
-    const min = Math.min(...mems);
-    const max = Math.max(...mems);
+    // Boş dizide Math.min/max → ±Infinity (JSON'da null olur, UI'da "null MB" gösterir).
+    const min = mems.length ? Math.min(...mems) : 0;
+    const max = mems.length ? Math.max(...mems) : 0;
     const first = mems[0] || 0;
     const growth = current - first;
 
@@ -256,9 +261,9 @@ function getMemoryStats(hours = 1): MemoryStat[] {
     if (growth > 50) trend = 'growing';
     else if (growth < -50) trend = 'decreasing';
 
-    // Anomali skoru
+    // Anomali skoru — log dedektörüyle AYNI mantık (plato/warmup leak sayılmaz).
     let anomaly: MemoryStatAnomaly | null = null;
-    if (growth > ANOMALY_GROWTH_MB) {
+    if (isLeakSuspect(mems)) {
       anomaly = {
         type: 'leak_suspect',
         growthMB: growth,

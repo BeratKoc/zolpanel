@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertTriangle, TrendingUp, Check, Clock, Lock } from 'lucide-react';
 import { api } from '@/lib/api-client';
@@ -124,6 +124,10 @@ export default function Dashboard() {
   const [memoryStats, setMemoryStats] = useState<any[]>([]);
   const [memHours, setMemHours] = useState(1);
   const [loading, setLoading] = useState(true);
+  // 30sn interval kapanışı eski memHours'u yakalamasın diye ref ile oku;
+  // aksi halde kullanıcı 6s/24s seçse de tik 1s'e geri döndürür.
+  const memHoursRef = useRef(memHours);
+  useEffect(() => { memHoursRef.current = memHours; }, [memHours]);
 
   async function loadData() {
     try {
@@ -144,7 +148,7 @@ export default function Dashboard() {
 
   async function loadMemoryStats() {
     try {
-      const data = await api.getMemoryStats(memHours);
+      const data = await api.getMemoryStats(memHoursRef.current);
       setMemoryStats(data);
     } catch (e) {
       console.error(e);
