@@ -27,7 +27,7 @@
 - Create: `lib/server/caddy-sync.test.ts`
 
 **Interfaces:**
-- Produces: `export async function syncCaddyConfig(domains: DomainDoc[]): Promise<void>` — verilen domain listesinden (genelde tüm aktif domainler) Caddyfile'ı transactional yeniden üretir. Saf yardımcılar: `extractUnmanaged(content, managedDomains): string`, `buildManagedRegion(activeDomains): string`, `composeCaddyfile(unmanaged, managed): string` (test edilebilir, fs/exec'siz).
+- Produces: `export async function syncCaddyConfig(allDomains: DomainDoc[]): Promise<void>` — **TÜM DB domainlerini** (aktif+offline) alır; hepsinin adıyla eski blokları strip eder (offline edilen domain Caddy'den çıkar), yalnız **aktif** olanları yeniden yazar. Saf yardımcılar: `extractUnmanaged(content, managedNames): string`, `buildManagedRegion(domainsToEmit): string`, `composeCaddyfile(unmanaged, managed): string` (test edilebilir, fs/exec'siz).
 - Consumes: mevcut `buildDomainBlock`, `removeDomainBlock`, `PROTECTED_DOMAINS`, `readCaddyfile`/`writeCaddyfile`/`reloadCaddy`.
 
 - [ ] **Step 1: Failing testler** — `lib/server/caddy-sync.test.ts` (db.ts stub'lanır, fs/exec yok — saf composer fonksiyonları test edilir):
@@ -129,13 +129,20 @@ function caddyValidate(path: string): Promise<void> {
   });
 }
 
-export async function syncCaddyConfig(domains: DomainConfig[]): Promise<void> {
+export async function syncCaddyConfig(allDomains: DomainDoc[]): Promise<void> {
   const path = CADDYFILE_PATH();
-  const active = domains.filter((d) => !PROTECTED_DOMAINS.includes(d.domain));
+  // managedNames = TÜM DB domainleri (PROTECTED hariç) → eski blokları strip etmek için
+  // (offline edilen bir domain de strip edilir, böylece Caddy'den çıkar).
+  const managedNames = allDomains
+    .map((d) => d.domain)
+    .filter((name) => !PROTECTED_DOMAINS.includes(name));
+  // Yeniden yazılacaklar = yalnız AKTİF (ve PROTECTED olmayan) domainler.
+  const toEmit = allDomains.filter(
+    (d) => d.status === 'active' && !PROTECTED_DOMAINS.includes(d.domain)
+  );
   const current = readCaddyfile();
-  const unmanaged = extractUnmanaged(current, active.map((d) => d.domain).concat(PROTECTED_DOMAINS.length ? [] : []));
-  // NOT: PROTECTED bloklar unmanaged'da kalır (managedNames'e dahil edilmez).
-  const next = composeCaddyfile(unmanaged, buildManagedRegion(active));
+  const unmanaged = extractUnmanaged(current, managedNames); // PROTECTED bloklar unmanaged'da KALIR
+  const next = composeCaddyfile(unmanaged, buildManagedRegion(toEmit));
   if (next.trim() === current.trim()) return; // değişiklik yok
 
   const tmp = path + '.zolpanel.tmp';
@@ -161,7 +168,7 @@ export async function syncCaddyConfig(domains: DomainConfig[]): Promise<void> {
   addLog('system', 'info', 'Caddy config senkronize edildi (managed bölge)');
 }
 ```
-> ÖNEMLİ: `extractUnmanaged`'a `managedNames` olarak SADECE DB domainlerinin adlarını ver (PROTECTED_DOMAINS'i VERME — onlar unmanaged kalmalı). `active` zaten PROTECTED'ı filtreler.
+> ÖNEMLİ: `extractUnmanaged`'a `managedNames` = TÜM DB domain adları (PROTECTED hariç). PROTECTED_DOMAINS verilmez → onların blokları unmanaged'da korunur. Offline domainler de managedNames'te olduğu için strip edilir ama `toEmit`'te olmadığından yeniden yazılmaz = Caddy'den çıkar (doğru davranış).
 
 - [ ] **Step 4:** `npm test` → 3 yeni test PASS + mevcut caddy/pm2/validation/portManager testleri PASS. `npx tsc --noEmit` temiz.
 
@@ -179,10 +186,10 @@ git commit -m "feat(caddy): transactional syncCaddyConfig (managed region regen 
 - Modify: `app/api/domains/route.ts`, `app/api/domains/[id]/route.ts`, `lib/server/sslTracker.ts`
 - Modify: `lib/server/db.ts` (gerekiyorsa `getActiveDomains` zaten var)
 
-**Interfaces:** Consumes `syncCaddyConfig` + `getActiveDomains` (db.ts'te mevcut).
+**Interfaces:** Consumes `syncCaddyConfig` + `getAllDomains` (db.ts'te mevcut — aktif+offline tümü; syncCaddyConfig içeride filtreler).
 
-- [ ] **Step 1:** `app/api/domains/route.ts` POST: domain insert sonrası `addDomainToConfig(saved)` ÇAĞRISINI `if (await isCaddyRunning()) await syncCaddyConfig(getActiveDomains());` ile değiştir (DB'den tüm aktif domainleri çekip senkronize et). SSL 'pending' yorumu korunur.
-- [ ] **Step 2:** `app/api/domains/[id]/route.ts` PUT (status değişimi) ve DELETE: `addDomainToConfig`/`removeDomainFromConfig` çağrılarını, DB güncellemesi/silmesi SONRASI `if (await isCaddyRunning()) await syncCaddyConfig(getActiveDomains());` ile değiştir. (Artık tek yol: DB'yi değiştir → tam senkron.)
+- [ ] **Step 1:** `app/api/domains/route.ts` POST: domain insert sonrası `addDomainToConfig(saved)` ÇAĞRISINI `if (await isCaddyRunning()) await syncCaddyConfig(getAllDomains());` ile değiştir (DB'den TÜM domainleri çekip senkronize et; syncCaddyConfig aktif/offline'ı içeride ayırır). SSL 'pending' yorumu korunur.
+- [ ] **Step 2:** `app/api/domains/[id]/route.ts` PUT (status değişimi) ve DELETE: `addDomainToConfig`/`removeDomainFromConfig` çağrılarını, DB güncellemesi/silmesi SONRASI `if (await isCaddyRunning()) await syncCaddyConfig(getAllDomains());` ile değiştir. (Artık tek yol: DB'yi değiştir → tam senkron.)
 - [ ] **Step 3:** `sslTracker.ts`: değişmez (sadece DB sslStatus yazıyor, Caddy'ye dokunmuyor) — DOKUNMA.
 - [ ] **Step 4:** Eski `addDomainToConfig`/`removeDomainFromConfig` artık kullanılmıyorsa: `@deprecated` yorumu bırak veya kaldır (kullanım kalmadıysa kaldır; testte referans yoksa). `buildDomainBlock`/`removeDomainBlock`/`parseCaddyfile` KALIR.
 - [ ] **Step 5:** `npx tsc --noEmit` temiz; `npm run build` başarılı; `npm run e2e` → mevcut tüm e2e PASS (domains CRUD desktop/mobil — test ortamında Caddy yok, `isCaddyRunning()` false → syncCaddyConfig çağrılmaz, DB davranışı aynı; testler etkilenmez).
