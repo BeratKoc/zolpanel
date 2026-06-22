@@ -276,7 +276,10 @@
     "selectKey": "Bir anahtar seç",
     "saveValue": "Değeri kaydet",
     "deleteKey": "Anahtarı sil",
-    "confirmDeleteKey": "{key} silinsin mi?"
+    "confirmDeleteKey": "{key} silinsin mi?",
+    "setNull": "NULL ata",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı"
   },
   "settings": {
     "title": "Ayarlar",

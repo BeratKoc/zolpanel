@@ -47,6 +47,7 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
   const [debouncedFilters, setDebouncedFilters] = useState<Record<string, string>>({});
 
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
+  const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
   const [savingCell, setSavingCell] = useState(false);
 
   const [addingRow, setAddingRow] = useState(false);
@@ -85,6 +86,7 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
   useEffect(() => {
     setOffset(0);
     setEditingCell(null);
+    setSelectedCell(null);
     setAddingRow(false);
     setNewRow({});
     setSort(null);
@@ -120,12 +122,6 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
       if (idx !== -1) pk[pkCol] = rowData[idx] ?? '';
     }
     return pk;
-  }
-
-  function handleCellClick(rowIdx: number, colIdx: number, value: string) {
-    if (!canWrite || !data || data.pk.length === 0) return;
-    if (savingCell) return;
-    setEditingCell({ rowIdx, colIdx, value });
   }
 
   async function commitCellEdit() {
@@ -164,6 +160,55 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
       if (prev.dir === 'asc') return { col, dir: 'desc' };
       return null;
     });
+  }
+
+  function beginEdit(row: number, col: number, initial?: string) {
+    if (!canEdit || !data || data.pk.length === 0 || savingCell) return;
+    setEditingCell({ rowIdx: row, colIdx: col, value: initial ?? (data.rows[row][col] ?? '') });
+  }
+
+  function copyCell(row: number, col: number) {
+    if (!data) return;
+    const v = data.rows[row][col] ?? '';
+    navigator.clipboard?.writeText(v).then(() => show(t('dbx.copied'), 'success')).catch(() => {});
+  }
+
+  async function setCellNull(row: number, col: number) {
+    if (!canEdit || !data || data.pk.length === 0) return;
+    const colName = data.columns[col];
+    const pkObj = buildPk(data.rows[row], data.columns, data.pk);
+    setSavingCell(true);
+    try {
+      await api.dbxRowUpdate(connRef, { db, schema, table, values: { [colName]: null }, pk: pkObj }, canWrite);
+      setData(prev => {
+        if (!prev) return prev;
+        const updated = prev.rows.map((r, ri) =>
+          ri === row ? r.map((c, ci) => (ci === col ? (null as unknown as string) : c)) : r,
+        );
+        return { ...prev, rows: updated };
+      });
+      show(t('dbx.save'), 'success');
+    } catch (e: unknown) {
+      show(e instanceof Error ? e.message : String(e), 'error');
+    } finally {
+      setSavingCell(false);
+    }
+  }
+
+  function handleGridKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (editingCell || !data || !selectedCell) return;
+    const { row, col } = selectedCell;
+    const maxRow = data.rows.length - 1;
+    const maxCol = data.columns.length - 1;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedCell({ row: Math.min(maxRow, row + 1), col }); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedCell({ row: Math.max(0, row - 1), col }); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); setSelectedCell({ row, col: Math.max(0, col - 1) }); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); setSelectedCell({ row, col: Math.min(maxCol, col + 1) }); }
+    else if (e.key === 'F2' || e.key === 'Enter') { e.preventDefault(); beginEdit(row, col); }
+    else if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); copyCell(row, col); }
+    else if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'n' || e.key === 'N')) { e.preventDefault(); setCellNull(row, col); }
+    else if (e.key === 'Delete' && canEdit) { e.preventDefault(); setCellNull(row, col); }
+    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { beginEdit(row, col, e.key); }
   }
 
   function handleCellKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -305,15 +350,20 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
       {loading && data && <div className="progress-indeterminate" aria-hidden="true" />}
 
       {/* Table */}
-      <div style={{
-        flex: 1,
-        overflowX: 'auto',
-        overflowY: 'auto',
-        minHeight: 0,
-        opacity: loading && data ? 0.55 : 1,
-        pointerEvents: loading && data ? 'none' : 'auto',
-        transition: 'opacity 0.15s',
-      }}>
+      <div
+        tabIndex={0}
+        onKeyDown={handleGridKeyDown}
+        style={{
+          flex: 1,
+          overflowX: 'auto',
+          overflowY: 'auto',
+          minHeight: 0,
+          opacity: loading && data ? 0.55 : 1,
+          pointerEvents: loading && data ? 'none' : 'auto',
+          transition: 'opacity 0.15s',
+          outline: 'none',
+        }}
+      >
         <table style={{
           width: '100%',
           borderCollapse: 'collapse',
@@ -493,15 +543,17 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
                   return (
                     <td
                       key={colIdx}
-                      onClick={() => handleCellClick(rowIdx, colIdx, cell ?? '')}
+                      onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
+                      onDoubleClick={() => beginEdit(rowIdx, colIdx)}
                       style={{
                         padding: isEditing ? '2px 4px' : '5px 10px',
                         borderBottom: '1px solid var(--border)',
-                        color: cell === null || cell === undefined
-                          ? 'var(--text-muted)'
-                          : 'var(--text-primary)',
+                        outline: selectedCell?.row === rowIdx && selectedCell?.col === colIdx && !isEditing
+                          ? '2px solid var(--accent)' : 'none',
+                        outlineOffset: '-2px',
+                        color: cell === null || cell === undefined ? 'var(--text-muted)' : 'var(--text-primary)',
                         fontStyle: cell === null || cell === undefined ? 'italic' : 'normal',
-                        cursor: canEdit ? 'text' : 'default',
+                        cursor: canEdit ? 'pointer' : 'default',
                         maxWidth: '280px',
                         verticalAlign: 'middle',
                         whiteSpace: isEditing ? 'normal' : 'nowrap',

@@ -276,7 +276,10 @@
     "selectKey": "Schlüssel auswählen",
     "saveValue": "Wert speichern",
     "deleteKey": "Schlüssel löschen",
-    "confirmDeleteKey": "{key} löschen?"
+    "confirmDeleteKey": "{key} löschen?",
+    "setNull": "Auf NULL setzen",
+    "copy": "Kopieren",
+    "copied": "Kopiert"
   },
   "settings": {
     "title": "Einstellungen",

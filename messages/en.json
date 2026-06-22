@@ -276,7 +276,10 @@
     "selectKey": "Select a key",
     "saveValue": "Save value",
     "deleteKey": "Delete key",
-    "confirmDeleteKey": "Delete {key}?"
+    "confirmDeleteKey": "Delete {key}?",
+    "setNull": "Set NULL",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "settings": {
     "title": "Settings",
