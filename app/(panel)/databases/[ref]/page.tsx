@@ -5,8 +5,9 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Database } from 'lucide-react';
 import { api } from '@/lib/api-client';
-import { Spinner, EmptyState, useToast } from '@/components/ui';
+import { Spinner, EmptyState, useToast, Modal } from '@/components/ui';
 import { DbTree } from '@/components/dbexplorer/DbTree';
+import { ErDiagram } from '@/components/dbexplorer/ErDiagram';
 import { DataGrid } from '@/components/dbexplorer/DataGrid';
 import { SqlConsole } from '@/components/dbexplorer/SqlConsole';
 import { RedisBrowser } from '@/components/dbexplorer/RedisBrowser';
@@ -37,6 +38,7 @@ export default function DbEditorPage() {
   const [canWrite, setCanWrite] = useState(false);
   const [selected, setSelected] = useState<Selected | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>('data');
+  const [showEr, setShowEr] = useState(false);
   const { show, ToastContainer } = useToast();
 
   useEffect(() => {
@@ -137,39 +139,56 @@ export default function DbEditorPage() {
           <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{ref}</span>
         </div>
 
-        {/* Read-only toggle */}
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-            {canWrite ? t('dbx.enableEdit') : t('dbx.readOnly')}
-          </span>
-          <div
-            role="switch"
-            aria-checked={canWrite}
-            onClick={() => setCanWrite(v => !v)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            type="button"
+            disabled={!selected}
+            onClick={() => setShowEr(true)}
+            title={!selected ? t('dbx.tablesEmpty') : t('dbx.erDiagram')}
             style={{
-              position: 'relative',
-              width: '36px',
-              height: '20px',
-              borderRadius: '10px',
-              background: canWrite ? 'var(--accent)' : 'var(--border-light)',
-              transition: 'background 0.2s',
-              cursor: 'pointer',
-              flexShrink: 0,
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: 'transparent', border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)', color: selected ? 'var(--text-secondary)' : 'var(--text-muted)',
+              fontSize: '12px', padding: '5px 12px', cursor: selected ? 'pointer' : 'not-allowed',
+              fontFamily: 'var(--font-sans)', opacity: selected ? 1 : 0.5,
             }}
           >
-            <span style={{
-              position: 'absolute',
-              top: '3px',
-              left: canWrite ? '19px' : '3px',
-              width: '14px',
-              height: '14px',
-              borderRadius: '50%',
-              background: '#fff',
-              transition: 'left 0.2s',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-            }} />
-          </div>
-        </label>
+            {t('dbx.erDiagram')}
+          </button>
+          {/* Read-only toggle */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              {canWrite ? t('dbx.enableEdit') : t('dbx.readOnly')}
+            </span>
+            <div
+              role="switch"
+              aria-checked={canWrite}
+              onClick={() => setCanWrite(v => !v)}
+              style={{
+                position: 'relative',
+                width: '36px',
+                height: '20px',
+                borderRadius: '10px',
+                background: canWrite ? 'var(--accent)' : 'var(--border-light)',
+                transition: 'background 0.2s',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: 'absolute',
+                top: '3px',
+                left: canWrite ? '19px' : '3px',
+                width: '14px',
+                height: '14px',
+                borderRadius: '50%',
+                background: '#fff',
+                transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }} />
+            </div>
+          </label>
+        </div>
       </div>
 
       {/* Main layout: tree left + content right */}
@@ -257,6 +276,13 @@ export default function DbEditorPage() {
           )}
         </div>
       </div>
+      {showEr && selected && (
+        <Modal title={`${t('dbx.erDiagram')} — ${selected.db}`} onClose={() => setShowEr(false)} width={900}>
+          <div style={{ padding: '8px 4px' }}>
+            <ErDiagram connRef={ref} db={selected.db} schema={selected.schema} />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

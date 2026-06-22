@@ -293,7 +293,10 @@
     "colPk": "PK",
     "colNullable": "NULL",
     "colNotNull": "NOT NULL",
-    "columnsCount": "{n} kolon"
+    "columnsCount": "{n} kolon",
+    "erDiagram": "ER Diyagramı",
+    "erEmpty": "Tablo yok",
+    "erNoFk": "İlişki (FK) yok"
   },
   "settings": {
     "title": "Ayarlar",

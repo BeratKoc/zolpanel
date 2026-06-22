@@ -293,7 +293,10 @@
     "colPk": "PK",
     "colNullable": "NULL",
     "colNotNull": "NOT NULL",
-    "columnsCount": "{n} Spalten"
+    "columnsCount": "{n} Spalten",
+    "erDiagram": "ER-Diagramm",
+    "erEmpty": "Keine Tabellen",
+    "erNoFk": "Keine Beziehungen (FK)"
   },
   "settings": {
     "title": "Einstellungen",

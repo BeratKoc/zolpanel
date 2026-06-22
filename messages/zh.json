@@ -293,7 +293,10 @@
     "colPk": "PK",
     "colNullable": "NULL",
     "colNotNull": "NOT NULL",
-    "columnsCount": "{n} 列"
+    "columnsCount": "{n} 列",
+    "erDiagram": "ER 图",
+    "erEmpty": "无表",
+    "erNoFk": "无关系 (FK)"
   },
   "settings": {
     "title": "设置",
