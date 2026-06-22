@@ -32,3 +32,78 @@ test('360px: login taşmıyor', async ({ page }) => {
   await page.goto('/login');
   await expectNoOverflow(page);
 });
+
+// Mobil drawer'ı açıp verilen nav linkine tıklar.
+async function mobileNav(page: import('@playwright/test').Page, label: string) {
+  await page.getByRole('button', { name: 'Menü' }).click();
+  await page.getByRole('link', { name: label }).click();
+}
+
+test('360px: docker sayfası yatay taşmıyor', async ({ page }) => {
+  await login(page);
+  await mobileNav(page, 'Docker');
+  await page.waitForURL('**/docker');
+  await expect(page.locator('h2').filter({ hasText: 'Docker' })).toBeVisible({ timeout: 10_000 });
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
+
+test('360px: databases sayfası yatay taşmıyor', async ({ page }) => {
+  await login(page);
+  await mobileNav(page, 'Veritabanları');
+  await page.waitForURL('**/databases');
+  await expect(page.locator('h2').filter({ hasText: 'Veritabanları' })).toBeVisible({ timeout: 10_000 });
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
+
+test('360px: apps sayfası yatay taşmıyor', async ({ page }) => {
+  await login(page);
+  await mobileNav(page, 'Uygulamalar');
+  await page.waitForURL('**/apps');
+  await expect(page.locator('h2').filter({ hasText: 'Uygulamalar' })).toBeVisible({ timeout: 10_000 });
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
+
+test('360px: backups sayfası yatay taşmıyor', async ({ page }) => {
+  await login(page);
+  await mobileNav(page, 'Yedekler');
+  await page.waitForURL('**/backups');
+  await expect(page.locator('h2').filter({ hasText: 'Yedekler' })).toBeVisible({ timeout: 10_000 });
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
+
+test('360px: db editörü yatay taşmıyor (bağlantı varsa)', async ({ page }) => {
+  await login(page);
+  await mobileNav(page, 'Veritabanları');
+  await page.waitForURL('**/databases');
+  await expect(page.locator('h2').filter({ hasText: 'Veritabanları' })).toBeVisible({ timeout: 10_000 });
+
+  // Bağlantı kartı veya boş durum bekleniyor.
+  const emptyState = page.getByText('Veritabanı yok', { exact: true });
+  const anyCard = page.locator('.domain-card').first();
+
+  await expect(emptyState.or(anyCard)).toBeVisible({ timeout: 15_000 });
+
+  // Bağlantı kartı yoksa → boş durum; testi geçir (CI'da DB konteyneri olmayabilir).
+  const cardCount = await page.locator('.domain-card').count();
+  if (cardCount === 0) {
+    return;
+  }
+
+  // İlk kartın "Aç" butonuna tıkla ve editörü aç.
+  const openBtn = page.locator('.domain-card').first().getByRole('button', { name: 'Aç' });
+  await expect(openBtn).toBeVisible({ timeout: 5_000 });
+  await openBtn.click();
+  await page.waitForURL('**/databases/**', { timeout: 10_000 });
+
+  // Editör başlığı görünmeli.
+  await expect(
+    page.locator('h2').filter({ hasText: 'DB Düzenleyici' }),
+  ).toBeVisible({ timeout: 10_000 });
+
+  await page.waitForLoadState('networkidle');
+  await expectNoOverflow(page);
+});
