@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import type React from 'react';
 import { X, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -262,13 +262,13 @@ interface Toast {
 export function useToast() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const show = (message: string, type: ToastType = 'info') => {
+  const show = useCallback((message: string, type: ToastType = 'info') => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3500);
-  };
+  }, []);
 
   const ToastContainer = () => (
     <div className="toast-wrap" style={{
