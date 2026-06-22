@@ -227,13 +227,11 @@ export function RedisBrowser({ connRef, canWrite }: RedisBrowserProps) {
   }
 
   return (
-    <div style={{ display: 'flex', flex: 1, gap: '12px', minHeight: 0, overflow: 'hidden' }}>
+    <div className="dbx-layout">
       <ToastContainer />
 
       {/* Left: key list */}
-      <div style={{
-        width: '240px',
-        flexShrink: 0,
+      <div className="dbx-sidebar" style={{
         display: 'flex',
         flexDirection: 'column',
         background: 'var(--bg-surface)',
@@ -345,15 +343,10 @@ export function RedisBrowser({ connRef, canWrite }: RedisBrowserProps) {
       </div>
 
       {/* Right: value panel */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
+      <div className="dbx-content" style={{
         background: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden',
-        minWidth: 0,
       }}>
         {!selectedKey ? (
           <div style={{
