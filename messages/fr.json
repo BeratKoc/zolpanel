@@ -265,6 +265,8 @@
     "rowsShown": "{n} lignes",
     "prev": "Précédent",
     "next": "Suivant",
+    "filter": "Filtre",
+    "clearFilters": "Effacer les filtres",
     "redisSoon": "Navigateur Redis bientôt disponible",
     "keys": "Clés",
     "keySearch": "Rechercher une clé (ex : user:*)",

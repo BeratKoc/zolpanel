@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { Trash2, Plus, Save, X } from 'lucide-react';
+import { Trash2, Plus, Save, X, Filter } from 'lucide-react';
 import { api } from '@/lib/api-client';
+import { parseFilterInput } from '@/lib/server/dbExplorer/types';
 import { Spinner, Btn, useToast } from '@/components/ui';
 
 interface DataGridProps {
@@ -40,6 +41,10 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
   const [data, setData] = useState<GridData | null>(null);
   const [loading, setLoading] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [sort, setSort] = useState<{ col: string; dir: 'asc' | 'desc' } | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterInputs, setFilterInputs] = useState<Record<string, string>>({});
+  const [debouncedFilters, setDebouncedFilters] = useState<Record<string, string>>({});
 
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   const [savingCell, setSavingCell] = useState(false);
@@ -52,16 +57,22 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
 
   const cellInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchRows = useCallback(async (currentOffset: number) => {
+  const fetchRows = useCallback(async (
+    currentOffset: number,
+    currentSort: { col: string; dir: 'asc' | 'desc' } | null,
+    currentFilters: Record<string, string>,
+  ) => {
     setLoading(true);
     try {
-      const result = await api.dbxRows(connRef, {
-        db,
-        schema,
-        table,
-        limit: String(LIMIT),
-        offset: String(currentOffset),
-      });
+      const q: Record<string, string | number> = {
+        db, schema, table, limit: String(LIMIT), offset: String(currentOffset),
+      };
+      if (currentSort) { q.orderBy = currentSort.col; q.orderDir = currentSort.dir; }
+      const conds = Object.entries(currentFilters)
+        .filter(([, raw]) => raw.trim() !== '')
+        .map(([col, raw]) => ({ col, ...parseFilterInput(raw) }));
+      if (conds.length) q.filters = JSON.stringify(conds);
+      const result = await api.dbxRows(connRef, q);
       setData(result as GridData);
     } catch (e: unknown) {
       show(e instanceof Error ? e.message : String(e), 'error');
@@ -70,16 +81,30 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
     }
   }, [connRef, db, schema, table, show]);
 
+  // Tablo değişince her şeyi sıfırla
   useEffect(() => {
     setOffset(0);
     setEditingCell(null);
     setAddingRow(false);
     setNewRow({});
+    setSort(null);
+    setFilterInputs({});
+    setDebouncedFilters({});
   }, [connRef, db, schema, table]);
 
+  // Filtre input'unu 350ms debounce ile uygula + sayfayı başa al
   useEffect(() => {
-    fetchRows(offset);
-  }, [fetchRows, offset]);
+    const id = setTimeout(() => {
+      setDebouncedFilters(filterInputs);
+      setOffset(0);
+    }, 350);
+    return () => clearTimeout(id);
+  }, [filterInputs]);
+
+  // Tek fetch noktası
+  useEffect(() => {
+    fetchRows(offset, sort, debouncedFilters);
+  }, [fetchRows, offset, sort, debouncedFilters]);
 
   useEffect(() => {
     if (editingCell && cellInputRef.current) {
@@ -132,6 +157,15 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
     }
   }
 
+  function toggleSort(col: string) {
+    setOffset(0);
+    setSort(prev => {
+      if (!prev || prev.col !== col) return { col, dir: 'asc' };
+      if (prev.dir === 'asc') return { col, dir: 'desc' };
+      return null;
+    });
+  }
+
   function handleCellKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -154,7 +188,7 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
       await api.dbxRowInsert(connRef, { db, schema, table, values }, canWrite);
       setAddingRow(false);
       setNewRow({});
-      await fetchRows(offset);
+      await fetchRows(offset, sort, debouncedFilters);
       show(t('dbx.save'), 'success');
     } catch (e: unknown) {
       show(e instanceof Error ? e.message : String(e), 'error');
@@ -171,7 +205,7 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
     setDeletingRowIdx(rowIdx);
     try {
       await api.dbxRowDelete(connRef, { db, schema, table, pk: pkObj }, canWrite);
-      await fetchRows(offset);
+      await fetchRows(offset, sort, debouncedFilters);
       show(t('dbx.deleteRow'), 'success');
     } catch (e: unknown) {
       show(e instanceof Error ? e.message : String(e), 'error');
@@ -238,6 +272,22 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
           {t('dbx.next')}
         </Btn>
 
+        {/* Filtre aç/kapa */}
+        <Btn
+          size="sm"
+          variant={filtersOpen ? 'primary' : 'default'}
+          onClick={() => {
+            setFiltersOpen(o => {
+              const next = !o;
+              if (!next && Object.keys(filterInputs).length) setFilterInputs({});
+              return next;
+            });
+          }}
+        >
+          <Filter size={13} strokeWidth={2} />
+          {t('dbx.filter')}
+        </Btn>
+
         {/* Add row */}
         {canWrite && !addingRow && (
           <Btn
@@ -289,6 +339,7 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
               {data.columns.map(col => (
                 <th
                   key={col}
+                  onClick={() => toggleSort(col)}
                   style={{
                     padding: '6px 10px',
                     textAlign: 'left',
@@ -299,15 +350,43 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
                     fontSize: '11px',
                     whiteSpace: 'nowrap',
                     userSelect: 'none',
+                    cursor: 'pointer',
                   }}
                 >
                   {col}
                   {data.pk.includes(col) && (
                     <span style={{ marginLeft: '4px', fontSize: '9px', opacity: 0.7, fontFamily: 'var(--font-sans)' }}>PK</span>
                   )}
+                  {sort?.col === col && (
+                    <span style={{ marginLeft: '4px', fontSize: '9px', color: 'var(--accent)' }}>
+                      {sort.dir === 'asc' ? '▲' : '▼'}
+                    </span>
+                  )}
                 </th>
               ))}
             </tr>
+            {filtersOpen && (
+              <tr>
+                {canWrite && (
+                  <th style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }} />
+                )}
+                {data.columns.map(col => (
+                  <th key={col} style={{ padding: '4px 6px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}>
+                    <input
+                      value={filterInputs[col] ?? ''}
+                      onChange={e => setFilterInputs(prev => ({ ...prev, [col]: e.target.value }))}
+                      placeholder={t('dbx.filter')}
+                      style={{
+                        width: '100%', minWidth: '70px',
+                        background: 'var(--bg-base)', border: '1px solid var(--border)',
+                        borderRadius: '3px', color: 'var(--text-primary)',
+                        fontFamily: 'var(--font-mono)', fontSize: '11px', padding: '3px 6px', outline: 'none',
+                      }}
+                    />
+                  </th>
+                ))}
+              </tr>
+            )}
           </thead>
           <tbody>
             {/* New row inputs — canWrite kapanırsa formu da gizle (salt-okunur tutarlılığı) */}

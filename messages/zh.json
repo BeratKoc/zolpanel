@@ -265,6 +265,8 @@
     "rowsShown": "{n} 行",
     "prev": "上一页",
     "next": "下一页",
+    "filter": "筛选",
+    "clearFilters": "清除筛选",
     "redisSoon": "Redis 浏览器即将推出",
     "keys": "键",
     "keySearch": "搜索键（例如：user:*）",

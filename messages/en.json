@@ -265,6 +265,8 @@
     "rowsShown": "{n} rows",
     "prev": "Previous",
     "next": "Next",
+    "filter": "Filter",
+    "clearFilters": "Clear filters",
     "redisSoon": "Redis browser coming soon",
     "keys": "Keys",
     "keySearch": "Search key (e.g. user:*)",

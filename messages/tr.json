@@ -265,6 +265,8 @@
     "rowsShown": "{n} satır",
     "prev": "Önceki",
     "next": "Sonraki",
+    "filter": "Filtre",
+    "clearFilters": "Filtreleri temizle",
     "redisSoon": "Redis tarayıcı yakında",
     "keys": "Anahtarlar",
     "keySearch": "Anahtar ara (örn: user:*)",

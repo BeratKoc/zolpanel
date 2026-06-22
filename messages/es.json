@@ -265,6 +265,8 @@
     "rowsShown": "{n} filas",
     "prev": "Anterior",
     "next": "Siguiente",
+    "filter": "Filtro",
+    "clearFilters": "Limpiar filtros",
     "redisSoon": "Navegador de Redis próximamente",
     "keys": "Claves",
     "keySearch": "Buscar clave (ej: user:*)",
