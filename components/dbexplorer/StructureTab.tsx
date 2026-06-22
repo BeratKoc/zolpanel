@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Trash2, Plus, Save, X, Pencil } from 'lucide-react';
+import { Trash2, Plus, Save, X, Pencil, Wrench } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Spinner, Btn, useToast } from '@/components/ui';
 import { ConfirmDestructive } from './ConfirmDestructive';
@@ -25,6 +25,7 @@ export function StructureTab({ connRef, db, schema, table, canWrite, engine }: P
   const [adding, setAdding] = useState(false);
   const [newCol, setNewCol] = useState({ name: '', type: '', nullable: true, default: '' });
   const [renaming, setRenaming] = useState<{ name: string; value: string } | null>(null);
+  const [editingType, setEditingType] = useState<{ name: string; type: string; nullable: boolean } | null>(null);
   const [pending, setPending] = useState<PendingDestructive | null>(null);
 
   const typeOptions = engine === 'mysql' ? MY_TYPE_OPTIONS : PG_TYPE_OPTIONS;
@@ -57,6 +58,7 @@ export function StructureTab({ connRef, db, schema, table, canWrite, engine }: P
       setAdding(false);
       setNewCol({ name: '', type: '', nullable: true, default: '' });
       setRenaming(null);
+      setEditingType(null);
       await load();
     } catch (e: unknown) {
       show(e instanceof Error ? e.message : String(e), 'error');
@@ -87,7 +89,7 @@ export function StructureTab({ connRef, db, schema, table, canWrite, engine }: P
       {/* Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginRight: 'auto' }}>
-          {cols.length} {t('dbx.columnName')}
+          {t('dbx.columnsCount', { n: cols.length })}
         </span>
         {canWrite && !adding && (
           <Btn size="sm" variant="primary" onClick={() => setAdding(true)}>
@@ -154,20 +156,61 @@ export function StructureTab({ connRef, db, schema, table, canWrite, engine }: P
                       style={inputStyle} />
                   ) : c.name}
                 </td>
-                <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>{c.type}</td>
-                <td style={{ ...tdStyle, color: 'var(--text-muted)', fontSize: '10px', fontFamily: 'var(--font-sans)' }}>{c.nullable ? t('dbx.colNullable') : t('dbx.colNotNull')}</td>
-                <td style={{ ...tdStyle, color: 'var(--text-muted)' }}>{c.default ?? ''}</td>
+                <td style={{ ...tdStyle, color: 'var(--text-secondary)' }}>
+                  {editingType?.name === c.name ? (
+                    <select
+                      autoFocus
+                      value={editingType.type}
+                      onChange={e => setEditingType(p => p ? { ...p, type: e.target.value } : p)}
+                      style={{ ...inputStyle, minWidth: '130px' }}
+                    >
+                      {typeOptions.map(ty => <option key={ty} value={ty}>{ty}</option>)}
+                    </select>
+                  ) : c.type}
+                </td>
+                <td style={{ ...tdStyle, color: 'var(--text-muted)', fontSize: '10px', fontFamily: 'var(--font-sans)' }}>
+                  {editingType?.name === c.name ? (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={editingType.nullable} onChange={e => setEditingType(p => p ? { ...p, nullable: e.target.checked } : p)} />
+                      {t('dbx.nullableLabel')}
+                    </label>
+                  ) : (c.nullable ? t('dbx.colNullable') : t('dbx.colNotNull'))}
+                </td>
+                <td style={{ ...tdStyle, color: 'var(--text-muted)' }}>{editingType?.name === c.name ? '' : (c.default ?? '')}</td>
                 {canWrite && (
                   <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
                     <div style={{ display: 'flex', gap: '4px' }}>
-                      <button type="button" aria-label={t('dbx.renameColumn')} disabled={busy}
-                        onClick={() => setRenaming({ name: c.name, value: c.name })} style={{ ...iconBtn, color: 'var(--text-muted)' }}>
-                        <Pencil size={12} strokeWidth={1.75} />
-                      </button>
-                      <button type="button" aria-label={t('dbx.dropColumn')} disabled={busy}
-                        onClick={() => runDdl({ op: 'dropColumn', name: c.name })} style={{ ...iconBtn, color: 'var(--text-muted)' }}>
-                        <Trash2 size={12} strokeWidth={1.75} />
-                      </button>
+                      {editingType?.name === c.name ? (
+                        <>
+                          <button type="button" aria-label={t('dbx.save')} disabled={busy}
+                            onClick={() => runDdl({ op: 'alterColumnType', name: editingType.name, type: editingType.type, nullable: editingType.nullable })}
+                            style={{ ...iconBtn, color: 'var(--green)' }}>
+                            {busy ? <Spinner size={12} /> : <Save size={12} strokeWidth={1.75} />}
+                          </button>
+                          <button type="button" aria-label={t('dbx.cancel')} onClick={() => setEditingType(null)} style={{ ...iconBtn, color: 'var(--text-muted)' }}>
+                            <X size={12} strokeWidth={1.75} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" aria-label={t('dbx.renameColumn')} disabled={busy}
+                            onClick={() => setRenaming({ name: c.name, value: c.name })} style={{ ...iconBtn, color: 'var(--text-muted)' }}>
+                            <Pencil size={12} strokeWidth={1.75} />
+                          </button>
+                          <button type="button" aria-label={t('dbx.changeType')} disabled={busy}
+                            onClick={() => {
+                              const currentType = typeOptions.includes(c.type) ? c.type : typeOptions[0];
+                              setEditingType({ name: c.name, type: currentType, nullable: c.nullable });
+                            }}
+                            style={{ ...iconBtn, color: 'var(--text-muted)' }}>
+                            <Wrench size={12} strokeWidth={1.75} />
+                          </button>
+                          <button type="button" aria-label={t('dbx.dropColumn')} disabled={busy}
+                            onClick={() => runDdl({ op: 'dropColumn', name: c.name })} style={{ ...iconBtn, color: 'var(--text-muted)' }}>
+                            <Trash2 size={12} strokeWidth={1.75} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 )}

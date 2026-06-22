@@ -292,7 +292,8 @@
     "structureEmpty": "无列",
     "colPk": "PK",
     "colNullable": "NULL",
-    "colNotNull": "NOT NULL"
+    "colNotNull": "NOT NULL",
+    "columnsCount": "{n} 列"
   },
   "settings": {
     "title": "设置",

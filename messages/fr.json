@@ -292,7 +292,8 @@
     "structureEmpty": "Aucune colonne",
     "colPk": "PK",
     "colNullable": "NULL",
-    "colNotNull": "NOT NULL"
+    "colNotNull": "NOT NULL",
+    "columnsCount": "{n} colonnes"
   },
   "settings": {
     "title": "Paramètres",

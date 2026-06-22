@@ -292,7 +292,8 @@
     "structureEmpty": "Sin columnas",
     "colPk": "PK",
     "colNullable": "NULL",
-    "colNotNull": "NOT NULL"
+    "colNotNull": "NOT NULL",
+    "columnsCount": "{n} columnas"
   },
   "settings": {
     "title": "Ajustes",
