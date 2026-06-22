@@ -29,7 +29,7 @@ export function LogModal({ name, onClose }: { name: string; onClose: () => void 
 
   return (
     <Modal title={t('processes.logsTitle', { name })} onClose={onClose} width={720}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('processes.last')}</span>
         {[50, 100, 200].map(n => (
           <Btn

@@ -109,6 +109,7 @@ export default function Settings() {
         {/* Sistem bilgisi */}
         <Section title={t('settings.systemInfo')}>
           {metrics ? (
+            <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <tbody>
                 {([
@@ -130,6 +131,7 @@ export default function Settings() {
                 ))}
               </tbody>
             </table>
+            </div>
           ) : <Spinner />}
         </Section>
 

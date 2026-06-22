@@ -190,7 +190,7 @@ function BackupRow({ backup, busy, onDownload, onRestore, onDelete, labelDownloa
           {formatBytes(backup.size)} · {date}
         </p>
       </div>
-      <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap' }}>
         <Btn size="sm" variant="default" onClick={onDownload} disabled={busy} aria-label={labelDownload}>
           {busy ? <Spinner size={12} /> : <Download size={13} strokeWidth={1.75} />}
           {labelDownload}
