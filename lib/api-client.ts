@@ -89,6 +89,10 @@ export const api = {
     const qs = [opts.write && 'write=1', opts.confirm && 'confirm=1'].filter(Boolean).join('&');
     return request('POST', `/dbx/${encodeURIComponent(ref)}/ddl${qs ? '?' + qs : ''}`, body);
   },
+  dbxEr: (ref: string, db: string, schema: string) => {
+    const qs = new URLSearchParams({ db, schema }).toString();
+    return request('GET', `/dbx/${encodeURIComponent(ref)}/er?${qs}`);
+  },
   dbxRedisSet: (ref: string, body: { key: string; value: string }, write?: boolean) =>
     request('POST', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
   dbxRedisDel: (ref: string, body: { key: string }, write?: boolean) =>
