@@ -172,16 +172,13 @@ export default function DbEditorPage() {
       </div>
 
       {/* Main layout: tree left + content right */}
-      <div style={{ display: 'flex', flex: 1, gap: '12px', minHeight: 0, overflow: 'hidden' }}>
+      <div className="dbx-layout">
 
         {/* Left: DB tree */}
-        <div style={{
-          width: '240px',
-          flexShrink: 0,
+        <div className="dbx-sidebar" style={{
           background: 'var(--bg-surface)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-lg)',
-          overflowY: 'auto',
           padding: '8px',
         }}>
           <DbTree
@@ -195,15 +192,10 @@ export default function DbEditorPage() {
         </div>
 
         {/* Right: content area */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: 0,
+        <div className="dbx-content" style={{
           background: 'var(--bg-surface)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
         }}>
           {!selected ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
