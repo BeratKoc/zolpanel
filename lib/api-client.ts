@@ -81,6 +81,14 @@ export const api = {
     request('PATCH', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
   dbxRowDelete: (ref: string, body: unknown, write?: boolean) =>
     request('DELETE', `/dbx/${encodeURIComponent(ref)}/row${write ? '?write=1' : ''}`, body),
+  dbxStructure: (ref: string, db: string, schema: string, table: string) => {
+    const qs = new URLSearchParams({ db, schema, table }).toString();
+    return request('GET', `/dbx/${encodeURIComponent(ref)}/ddl?${qs}`);
+  },
+  dbxDdl: (ref: string, body: unknown, opts: { write?: boolean; confirm?: boolean } = {}) => {
+    const qs = [opts.write && 'write=1', opts.confirm && 'confirm=1'].filter(Boolean).join('&');
+    return request('POST', `/dbx/${encodeURIComponent(ref)}/ddl${qs ? '?' + qs : ''}`, body);
+  },
   dbxRedisSet: (ref: string, body: { key: string; value: string }, write?: boolean) =>
     request('POST', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
   dbxRedisDel: (ref: string, body: { key: string }, write?: boolean) =>
