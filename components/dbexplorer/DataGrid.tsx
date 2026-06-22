@@ -185,11 +185,7 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
   const canDelete = canWrite && hasPk;
 
   if (loading && !data) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px' }}>
-        <Spinner size={20} />
-      </div>
-    );
+    return <GridSkeleton />;
   }
 
   if (!data) return null;
@@ -255,15 +251,19 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
         )}
       </div>
 
-      {/* Loading overlay indicator */}
-      {loading && data && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 0', fontSize: '11px', color: 'var(--text-muted)' }}>
-          <Spinner size={12} />
-        </div>
-      )}
+      {/* Refetch progress (içerik kaybolmaz) */}
+      {loading && data && <div className="progress-indeterminate" aria-hidden="true" />}
 
       {/* Table */}
-      <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto', minHeight: 0 }}>
+      <div style={{
+        flex: 1,
+        overflowX: 'auto',
+        overflowY: 'auto',
+        minHeight: 0,
+        opacity: loading && data ? 0.55 : 1,
+        pointerEvents: loading && data ? 'none' : 'auto',
+        transition: 'opacity 0.15s',
+      }}>
         <table style={{
           width: '100%',
           borderCollapse: 'collapse',
@@ -479,6 +479,16 @@ export function DataGrid({ connRef, db, schema, table, canWrite, engine }: DataG
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function GridSkeleton() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 4px' }}>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="skeleton-row" />
+      ))}
     </div>
   );
 }
