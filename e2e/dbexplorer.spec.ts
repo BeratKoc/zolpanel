@@ -51,6 +51,12 @@ test('dbexplorer: veritabanları sayfası, bağlantı varsa editör + SQL konsol
     await structureTab.click(); // Yapı sekmesi açılır — hata atmamalı
   }
 
+  // ER Diyagramı butonu — bağlantı + tablo seçiliyse görünür ve modal açar.
+  const erBtn = page.getByRole('button', { name: 'ER Diyagramı' });
+  if (await erBtn.isVisible().catch(() => false) && await erBtn.isEnabled().catch(() => false)) {
+    await erBtn.click(); // ER modalı açılır — hata atmamalı
+  }
+
   // SQL sekmesine geç — "SQL Konsolu" yazısına tıkla (tab bar içinde).
   // Tab bar butonları, nav select'lerinden farklı olarak role=button değil; type=button.
   const sqlTab = page.getByRole('button', { name: 'SQL Konsolu' }).first();
