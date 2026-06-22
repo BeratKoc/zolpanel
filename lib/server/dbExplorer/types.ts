@@ -83,6 +83,36 @@ export function parseCsv(s: string): string[][] {
   return rows;
 }
 
+// ---- Sort & filter (Grid v2) ----
+export type FilterOp = 'contains' | 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte';
+
+export interface FilterCond {
+  col: string;
+  op: FilterOp;
+  value: string;
+}
+
+export interface GetRowsOpts {
+  limit: number;
+  offset: number;
+  orderBy?: string;
+  orderDir?: 'asc' | 'desc';
+  filters?: FilterCond[];
+}
+
+// Önek sırası önemli: iki karakterli operatörler tek karakterlilerden ÖNCE.
+const OP_PREFIXES: [string, FilterOp][] = [
+  ['>=', 'gte'], ['<=', 'lte'], ['!=', 'neq'], ['>', 'gt'], ['<', 'lt'], ['=', 'eq'],
+];
+
+/** Ham filtre girdisini operatör+değere ayırır. Önek yoksa 'contains'. */
+export function parseFilterInput(raw: string): { op: FilterOp; value: string } {
+  for (const [pre, op] of OP_PREFIXES) {
+    if (raw.startsWith(pre)) return { op, value: raw.slice(pre.length) };
+  }
+  return { op: 'contains', value: raw };
+}
+
 /**
  * MySQL --batch TSV parser.
  * Split lines on \n, each line split('\t').

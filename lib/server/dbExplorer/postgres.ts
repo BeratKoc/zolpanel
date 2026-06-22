@@ -40,6 +40,41 @@ export function pgLiteral(v: string | null | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
+// Sort/filter SQL builders (exported for testing)
+// ---------------------------------------------------------------------------
+
+const PG_COMPARATORS: Record<Exclude<import('./types').FilterOp, 'contains'>, string> = {
+  eq: '=', neq: '<>', gt: '>', lt: '<', gte: '>=', lte: '<=',
+};
+
+/** ORDER BY cümlesi (baştaki boşlukla) veya geçerli kolon yoksa ''. */
+export function buildOrderBy(
+  orderBy: string | undefined,
+  orderDir: string | undefined,
+  validCols: string[],
+): string {
+  if (!orderBy || !validCols.includes(orderBy)) return '';
+  const dir = orderDir === 'desc' ? 'DESC' : 'ASC';
+  return ` ORDER BY ${pgIdent(orderBy)} ${dir}`;
+}
+
+/** WHERE cümlesi (baştaki boşlukla); geçerli koşul yoksa ''. */
+export function buildWhere(
+  filters: import('./types').FilterCond[] | undefined,
+  validCols: string[],
+): string {
+  if (!filters || filters.length === 0) return '';
+  const clauses = filters
+    .filter(f => validCols.includes(f.col) && f.value !== '')
+    .map(f =>
+      f.op === 'contains'
+        ? `${pgIdent(f.col)} ILIKE ${pgLiteral('%' + f.value + '%')}`
+        : `${pgIdent(f.col)} ${PG_COMPARATORS[f.op]} ${pgLiteral(f.value)}`,
+    );
+  return clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
+}
+
+// ---------------------------------------------------------------------------
 // SQL builder helpers (exported for testing)
 // ---------------------------------------------------------------------------
 
@@ -105,29 +140,39 @@ async function listTables(ref: string, db: string): Promise<{ schema: string; ta
   return rows.slice(1).filter(r => r.length >= 2).map(r => ({ schema: r[0], table: r[1] }));
 }
 
-/** Fetches rows from a table with pagination. */
+/** Bir tablonun kolon adlarını sıralı döner (sort/filter doğrulaması için). */
+async function columns(ref: string, db: string, schema: string, table: string): Promise<string[]> {
+  const sql = `SELECT column_name FROM information_schema.columns WHERE table_schema=${pgLiteral(schema)} AND table_name=${pgLiteral(table)} ORDER BY ordinal_position`;
+  const out = await dbExec(ref, [...(await psqlBase(ref, db)), '-tAc', sql]);
+  return out.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+}
+
+/** Fetches rows from a table with pagination, optional sort and filter. */
 async function getRows(
   ref: string,
   db: string,
   schema: string,
   table: string,
-  { limit, offset }: { limit: number; offset: number }
+  opts: import('./types').GetRowsOpts,
 ): Promise<QueryResult> {
-  // Clamp values
-  const clampedLimit = Math.max(1, Math.min(500, limit));
-  const clampedOffset = Math.max(0, offset);
+  const clampedLimit = Math.max(1, Math.min(500, opts.limit));
+  const clampedOffset = Math.max(0, opts.offset);
 
-  const sql = `SELECT * FROM ${pgIdent(schema)}.${pgIdent(table)} LIMIT ${clampedLimit} OFFSET ${clampedOffset}`;
+  let where = '';
+  let orderBy = '';
+  if ((opts.filters && opts.filters.length) || opts.orderBy) {
+    const cols = await columns(ref, db, schema, table);
+    where = buildWhere(opts.filters, cols);
+    orderBy = buildOrderBy(opts.orderBy, opts.orderDir, cols);
+  }
+
+  const sql = `SELECT * FROM ${pgIdent(schema)}.${pgIdent(table)}${where}${orderBy} LIMIT ${clampedLimit} OFFSET ${clampedOffset}`;
   const out = await dbExec(ref, [...(await psqlBase(ref, db)), '--csv', '-c', sql]);
   const rows = parseCsv(out.trim());
   if (rows.length === 0) {
     return { columns: [], rows: [], rowCount: 0 };
   }
-  return {
-    columns: rows[0],
-    rows: rows.slice(1),
-    rowCount: rows.length - 1,
-  };
+  return { columns: rows[0], rows: rows.slice(1), rowCount: rows.length - 1 };
 }
 
 /** Runs arbitrary SQL and returns results in QueryResult format. */
@@ -179,6 +224,7 @@ async function pkColumns(
 export const postgresAdapter = {
   listDatabases,
   listTables,
+  columns,
   getRows,
   runSql,
   pkColumns,

@@ -22,6 +22,41 @@ export function myLiteral(v: string | null | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
+// Sort/filter SQL builders (exported for testing)
+// ---------------------------------------------------------------------------
+
+const MY_COMPARATORS: Record<Exclude<import('./types').FilterOp, 'contains'>, string> = {
+  eq: '=', neq: '<>', gt: '>', lt: '<', gte: '>=', lte: '<=',
+};
+
+/** ORDER BY cümlesi (baştaki boşlukla) veya geçerli kolon yoksa ''. */
+export function buildOrderBy(
+  orderBy: string | undefined,
+  orderDir: string | undefined,
+  validCols: string[],
+): string {
+  if (!orderBy || !validCols.includes(orderBy)) return '';
+  const dir = orderDir === 'desc' ? 'DESC' : 'ASC';
+  return ` ORDER BY ${myIdent(orderBy)} ${dir}`;
+}
+
+/** WHERE cümlesi (baştaki boşlukla); geçerli koşul yoksa ''. */
+export function buildWhere(
+  filters: import('./types').FilterCond[] | undefined,
+  validCols: string[],
+): string {
+  if (!filters || filters.length === 0) return '';
+  const clauses = filters
+    .filter(f => validCols.includes(f.col) && f.value !== '')
+    .map(f =>
+      f.op === 'contains'
+        ? `${myIdent(f.col)} LIKE ${myLiteral('%' + f.value + '%')}`
+        : `${myIdent(f.col)} ${MY_COMPARATORS[f.op]} ${myLiteral(f.value)}`,
+    );
+  return clauses.length ? ` WHERE ${clauses.join(' AND ')}` : '';
+}
+
+// ---------------------------------------------------------------------------
 // SQL builder helpers (exported for testing)
 // ---------------------------------------------------------------------------
 
@@ -123,30 +158,41 @@ async function listTables(ref: string, db: string): Promise<{ schema: string; ta
     .map(name => ({ schema: db, table: name as string }));
 }
 
-/** Fetches rows from a table with pagination. */
+/** Bir tablonun kolon adlarını döner (sort/filter doğrulaması için). MySQL'de schema === db. */
+async function columns(ref: string, db: string, _schema: string, table: string): Promise<string[]> {
+  const rows = await query(ref, `SHOW COLUMNS FROM ${myIdent(db)}.${myIdent(table)}`);
+  if (rows.length <= 1) return [];
+  // header: Field Type Null Key Default Extra → Field = kolon 0
+  return rows.slice(1).map(r => r[0] ?? '').filter(n => typeof n === 'string' && n.length > 0) as string[];
+}
+
+/** Fetches rows from a table with pagination, optional sort and filter. */
 async function getRows(
   ref: string,
   db: string,
   _schema: string,
   table: string,
-  { limit, offset }: { limit: number; offset: number }
+  opts: import('./types').GetRowsOpts,
 ): Promise<QueryResult> {
-  const clampedLimit = Math.max(1, Math.min(500, limit));
-  const clampedOffset = Math.max(0, offset);
+  const clampedLimit = Math.max(1, Math.min(500, opts.limit));
+  const clampedOffset = Math.max(0, opts.offset);
 
-  const sql = `SELECT * FROM ${myIdent(db)}.${myIdent(table)} LIMIT ${clampedLimit} OFFSET ${clampedOffset}`;
+  let where = '';
+  let orderBy = '';
+  if ((opts.filters && opts.filters.length) || opts.orderBy) {
+    const cols = await columns(ref, db, _schema, table);
+    where = buildWhere(opts.filters, cols);
+    orderBy = buildOrderBy(opts.orderBy, opts.orderDir, cols);
+  }
+
+  const sql = `SELECT * FROM ${myIdent(db)}.${myIdent(table)}${where}${orderBy} LIMIT ${clampedLimit} OFFSET ${clampedOffset}`;
   const rows = await query(ref, sql);
   if (rows.length === 0) {
     return { columns: [], rows: [], rowCount: 0 };
   }
-  // Coerce null → '' for grid display
   const header = rows[0].map(c => c ?? '');
   const dataRows = rows.slice(1).map(r => r.map(c => c ?? ''));
-  return {
-    columns: header,
-    rows: dataRows,
-    rowCount: dataRows.length,
-  };
+  return { columns: header, rows: dataRows, rowCount: dataRows.length };
 }
 
 /** Runs arbitrary SQL and returns results in QueryResult format. */
@@ -193,6 +239,7 @@ async function pkColumns(
 export const mysqlAdapter = {
   listDatabases,
   listTables,
+  columns,
   getRows,
   runSql,
   pkColumns,
