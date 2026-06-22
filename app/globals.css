@@ -131,6 +131,12 @@ input::placeholder, textarea::placeholder {
 .log-row { display: flex; gap: 10px; align-items: baseline; }
 .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
+/* DB Explorer editor layout (desktop: tree + content side by side) */
+.dbx-layout { display: flex; flex: 1; gap: 12px; min-height: 0; overflow: hidden; }
+.dbx-sidebar { width: 240px; flex-shrink: 0; overflow-y: auto; }
+.dbx-content { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+.toolbar-wrap { display: flex; flex-wrap: wrap; }
+
 @media (max-width: 767px) {
   .sidebar {
     position: fixed; top: 0; left: 0; height: 100%; width: 240px;
@@ -164,12 +170,6 @@ input::placeholder, textarea::placeholder {
   .dbx-content { overflow: visible; }
   .grid-5, .grid-4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 }
-
-/* DB Explorer editor layout (desktop: tree + content side by side) */
-.dbx-layout { display: flex; flex: 1; gap: 12px; min-height: 0; overflow: hidden; }
-.dbx-sidebar { width: 240px; flex-shrink: 0; overflow-y: auto; }
-.dbx-content { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
-.toolbar-wrap { display: flex; flex-wrap: wrap; }
 
 .login-card { width: 360px; max-width: calc(100vw - 32px); }
 .info-row { display: flex; justify-content: space-between; gap: 12px; }
