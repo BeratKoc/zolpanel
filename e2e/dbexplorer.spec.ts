@@ -39,6 +39,12 @@ test('dbexplorer: veritabanları sayfası, bağlantı varsa editör + SQL konsol
   // Timeout yüksek tutuyoruz — bağlantı kurulumu zaman alabilir.
   await page.waitForTimeout(1500);
 
+  // Grid v2: Filtre düğmesi görünür (DB bağlantısı + tablo seçili dalda).
+  const filterBtn = page.getByRole('button', { name: 'Filtre' });
+  if (await filterBtn.isVisible().catch(() => false)) {
+    await filterBtn.click(); // filtre satırını aç — hata atmamalı
+  }
+
   // SQL sekmesine geç — "SQL Konsolu" yazısına tıkla (tab bar içinde).
   // Tab bar butonları, nav select'lerinden farklı olarak role=button değil; type=button.
   const sqlTab = page.getByRole('button', { name: 'SQL Konsolu' }).first();
