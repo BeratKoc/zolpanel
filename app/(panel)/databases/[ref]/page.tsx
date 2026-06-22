@@ -10,6 +10,7 @@ import { DbTree } from '@/components/dbexplorer/DbTree';
 import { DataGrid } from '@/components/dbexplorer/DataGrid';
 import { SqlConsole } from '@/components/dbexplorer/SqlConsole';
 import { RedisBrowser } from '@/components/dbexplorer/RedisBrowser';
+import { StructureTab } from '@/components/dbexplorer/StructureTab';
 
 interface DbxConn {
   ref: string;
@@ -24,7 +25,7 @@ interface Selected {
   table: string;
 }
 
-type ActiveTab = 'data' | 'sql';
+type ActiveTab = 'data' | 'structure' | 'sql';
 
 export default function DbEditorPage() {
   const t = useTranslations();
@@ -214,7 +215,7 @@ export default function DbEditorPage() {
                 gap: '4px',
                 flexShrink: 0,
               }}>
-                {(['data', 'sql'] as ActiveTab[]).map(tab => (
+                {(['data', 'structure', 'sql'] as ActiveTab[]).map(tab => (
                   <button
                     key={tab}
                     type="button"
@@ -234,7 +235,7 @@ export default function DbEditorPage() {
                     onMouseEnter={e => { if (activeTab !== tab) e.currentTarget.style.color = 'var(--text-secondary)'; }}
                     onMouseLeave={e => { if (activeTab !== tab) e.currentTarget.style.color = 'var(--text-muted)'; }}
                   >
-                    {tab === 'data' ? t('dbx.data') : t('dbx.sqlConsole')}
+                    {tab === 'data' ? t('dbx.data') : tab === 'structure' ? t('dbx.structure') : t('dbx.sqlConsole')}
                   </button>
                 ))}
               </div>
@@ -245,20 +246,11 @@ export default function DbEditorPage() {
                   {selected.db} / {selected.schema !== 'public' && selected.schema ? `${selected.schema}.` : ''}{selected.table}
                 </div>
                 {activeTab === 'data' ? (
-                  <DataGrid
-                    connRef={ref}
-                    db={selected.db}
-                    schema={selected.schema}
-                    table={selected.table}
-                    canWrite={canWrite}
-                    engine={conn.engine}
-                  />
+                  <DataGrid connRef={ref} db={selected.db} schema={selected.schema} table={selected.table} canWrite={canWrite} engine={conn.engine} />
+                ) : activeTab === 'structure' ? (
+                  <StructureTab connRef={ref} db={selected.db} schema={selected.schema} table={selected.table} canWrite={canWrite} engine={conn.engine} />
                 ) : (
-                  <SqlConsole
-                    connRef={ref}
-                    db={selected?.db ?? ''}
-                    canWrite={canWrite}
-                  />
+                  <SqlConsole connRef={ref} db={selected?.db ?? ''} canWrite={canWrite} />
                 )}
               </div>
             </>

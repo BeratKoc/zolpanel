@@ -279,7 +279,20 @@
     "confirmDeleteKey": "¿Eliminar {key}?",
     "setNull": "Establecer NULL",
     "copy": "Copiar",
-    "copied": "Copiado"
+    "copied": "Copiado",
+    "structure": "Estructura",
+    "addColumn": "Añadir columna",
+    "columnName": "Nombre de columna",
+    "columnType": "Tipo",
+    "nullableLabel": "Anulable (NULL)",
+    "defaultLabel": "Predeterminado (opc.)",
+    "dropColumn": "Eliminar columna",
+    "renameColumn": "Renombrar",
+    "changeType": "Cambiar tipo",
+    "structureEmpty": "Sin columnas",
+    "colPk": "PK",
+    "colNullable": "NULL",
+    "colNotNull": "NOT NULL"
   },
   "settings": {
     "title": "Ajustes",

@@ -279,7 +279,20 @@
     "confirmDeleteKey": "{key} löschen?",
     "setNull": "Auf NULL setzen",
     "copy": "Kopieren",
-    "copied": "Kopiert"
+    "copied": "Kopiert",
+    "structure": "Struktur",
+    "addColumn": "Spalte hinzufügen",
+    "columnName": "Spaltenname",
+    "columnType": "Typ",
+    "nullableLabel": "Nullable (NULL)",
+    "defaultLabel": "Standard (opt.)",
+    "dropColumn": "Spalte löschen",
+    "renameColumn": "Umbenennen",
+    "changeType": "Typ ändern",
+    "structureEmpty": "Keine Spalten",
+    "colPk": "PK",
+    "colNullable": "NULL",
+    "colNotNull": "NOT NULL"
   },
   "settings": {
     "title": "Einstellungen",

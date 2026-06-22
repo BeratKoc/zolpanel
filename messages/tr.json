@@ -279,7 +279,20 @@
     "confirmDeleteKey": "{key} silinsin mi?",
     "setNull": "NULL ata",
     "copy": "Kopyala",
-    "copied": "Kopyalandı"
+    "copied": "Kopyalandı",
+    "structure": "Yapı",
+    "addColumn": "Kolon ekle",
+    "columnName": "Kolon adı",
+    "columnType": "Tip",
+    "nullableLabel": "Boş olabilir (NULL)",
+    "defaultLabel": "Varsayılan (ops.)",
+    "dropColumn": "Kolonu sil",
+    "renameColumn": "Yeniden adlandır",
+    "changeType": "Tipi değiştir",
+    "structureEmpty": "Kolon yok",
+    "colPk": "PK",
+    "colNullable": "NULL",
+    "colNotNull": "NOT NULL"
   },
   "settings": {
     "title": "Ayarlar",

@@ -279,7 +279,20 @@
     "confirmDeleteKey": "删除 {key}？",
     "setNull": "设为 NULL",
     "copy": "复制",
-    "copied": "已复制"
+    "copied": "已复制",
+    "structure": "结构",
+    "addColumn": "添加列",
+    "columnName": "列名",
+    "columnType": "类型",
+    "nullableLabel": "可空 (NULL)",
+    "defaultLabel": "默认值（可选）",
+    "dropColumn": "删除列",
+    "renameColumn": "重命名",
+    "changeType": "更改类型",
+    "structureEmpty": "无列",
+    "colPk": "PK",
+    "colNullable": "NULL",
+    "colNotNull": "NOT NULL"
   },
   "settings": {
     "title": "设置",
