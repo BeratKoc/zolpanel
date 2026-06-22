@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { LayoutDashboard, Globe, Cpu, Container, Database, Archive, ScrollText, Settings as SettingsIcon, Menu, Rocket, type LucideIcon } from 'lucide-react';
 import AuthGate from '@/components/AuthGate';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import Logo from '@/components/Logo';
 
 interface NavItemDef {
   id: string;
@@ -63,10 +64,13 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
             padding: '18px 16px 14px',
             borderBottom: '1px solid var(--border)',
           }}>
-            <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.01em' }}>
-              Zolpanel
-            </p>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+              <Logo size={22} />
+              <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '0.01em' }}>
+                Zolpanel
+              </p>
+            </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
               {user}
             </p>
           </div>

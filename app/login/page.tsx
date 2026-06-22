@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api-client';
 import { Btn, Spinner } from '@/components/ui';
+import Logo from '@/components/Logo';
 
 export default function Login() {
   const router = useRouter();
@@ -48,14 +49,16 @@ export default function Login() {
         animation: 'fadeIn 0.3s ease',
       }}>
         <div style={{ marginBottom: '28px' }}>
-          <h1 style={{
-            fontSize: '20px',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            marginBottom: '4px',
-          }}>
-            Zolpanel
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <Logo size={40} title="Zolpanel" />
+            <h1 style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+            }}>
+              Zolpanel
+            </h1>
+          </div>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
             {t('login.subtitle')}
           </p>
