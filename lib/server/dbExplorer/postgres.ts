@@ -241,6 +241,21 @@ async function runSql(ref: string, db: string, sql: string): Promise<QueryResult
   };
 }
 
+async function erModel(ref: string, db: string, schema: string): Promise<import('./types').ErModel> {
+  const base = await psqlBase(ref, db);
+  const lit = pgLiteral(schema);
+  const colsSql = `SELECT table_name, column_name FROM information_schema.columns WHERE table_schema=${lit} ORDER BY table_name, ordinal_position`;
+  const pkSql = `SELECT tc.table_name, kcu.column_name FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON tc.constraint_name=kcu.constraint_name AND tc.table_schema=kcu.table_schema WHERE tc.constraint_type='PRIMARY KEY' AND tc.table_schema=${lit}`;
+  const fkSql = `SELECT tc.table_name AS from_t, kcu.column_name AS from_c, ccu.table_name AS to_t, ccu.column_name AS to_c FROM information_schema.table_constraints tc JOIN information_schema.key_column_usage kcu ON tc.constraint_name=kcu.constraint_name AND tc.table_schema=kcu.table_schema JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name=tc.constraint_name AND ccu.table_schema=tc.table_schema WHERE tc.constraint_type='FOREIGN KEY' AND tc.table_schema=${lit}`;
+  const [colsOut, pkOut, fkOut] = await Promise.all([
+    dbExec(ref, [...base, '--csv', '-c', colsSql]),
+    dbExec(ref, [...base, '--csv', '-c', pkSql]),
+    dbExec(ref, [...base, '--csv', '-c', fkSql]),
+  ]);
+  const { assembleErModel } = await import('./types');
+  return assembleErModel(parseCsv(colsOut.trim()), parseCsv(pkOut.trim()), parseCsv(fkOut.trim()));
+}
+
 /** Returns the primary key column names for a table. */
 async function pkColumns(
   ref: string,
@@ -280,4 +295,5 @@ export const postgresAdapter = {
   buildInsert,
   buildDelete,
   tableStructure,
+  erModel,
 };

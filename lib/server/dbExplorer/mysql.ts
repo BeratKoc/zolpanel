@@ -261,6 +261,20 @@ async function runSql(ref: string, db: string, sql: string): Promise<QueryResult
   };
 }
 
+async function erModel(ref: string, db: string, _schema: string): Promise<import('./types').ErModel> {
+  const lit = myLiteral(db);
+  const colsSql = `SELECT table_name, column_name FROM information_schema.columns WHERE table_schema=${lit} ORDER BY table_name, ordinal_position`;
+  const pkSql = `SELECT table_name, column_name FROM information_schema.key_column_usage WHERE table_schema=${lit} AND constraint_name='PRIMARY'`;
+  const fkSql = `SELECT table_name AS from_t, column_name AS from_c, referenced_table_name AS to_t, referenced_column_name AS to_c FROM information_schema.key_column_usage WHERE table_schema=${lit} AND referenced_table_name IS NOT NULL`;
+  const [colsRows, pkRows, fkRows] = await Promise.all([
+    query(ref, colsSql),
+    query(ref, pkSql),
+    query(ref, fkSql),
+  ]);
+  const { assembleErModel } = await import('./types');
+  return assembleErModel(colsRows, pkRows, fkRows);
+}
+
 /** Returns the primary key column names for a table. */
 async function pkColumns(
   ref: string,
@@ -298,4 +312,5 @@ export const mysqlAdapter = {
   buildInsert,
   buildDelete,
   tableStructure,
+  erModel,
 };

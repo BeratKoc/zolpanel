@@ -170,3 +170,85 @@ export function parseTsv(s: string): (string | null)[][] {
     })
   );
 }
+
+// ---- ER diagram (Alt-proje 3) ----
+export interface ErColumn { name: string; isPk: boolean; isFk: boolean; }
+export interface ErTable { name: string; columns: ErColumn[]; }
+export interface ErEdge { fromTable: string; fromCol: string; toTable: string; toCol: string; }
+export interface ErModel { tables: ErTable[]; edges: ErEdge[]; }
+export interface ErNode { name: string; x: number; y: number; w: number; h: number; columns: ErColumn[]; }
+export interface ErLayout { nodes: ErNode[]; width: number; height: number; }
+
+export const ER_BOX_W = 200;
+export const ER_HEADER_H = 28;
+export const ER_ROW_H = 20;
+const ER_GAP_X = 60;
+const ER_GAP_Y = 50;
+const ER_PAD = 24;
+
+/** Sorgu satırlarından (header dahil) ER modelini kurar. Saf — test edilebilir.
+ *  colRows: [table_name, column_name]; pkRows: [table_name, column_name];
+ *  fkRows: [from_table, from_col, to_table, to_col]. row[0] header'dır, atlanır. */
+export function assembleErModel(
+  colRows: (string | null)[][],
+  pkRows: (string | null)[][],
+  fkRows: (string | null)[][],
+): ErModel {
+  const SEP = ' ';
+  const pkSet = new Set<string>();
+  for (const r of pkRows.slice(1)) if (r.length >= 2) pkSet.add(`${r[0] ?? ''}${SEP}${r[1] ?? ''}`);
+
+  const fkSet = new Set<string>();
+  const edges: ErEdge[] = [];
+  for (const r of fkRows.slice(1)) if (r.length >= 4) {
+    fkSet.add(`${r[0] ?? ''}${SEP}${r[1] ?? ''}`);
+    edges.push({ fromTable: r[0] ?? '', fromCol: r[1] ?? '', toTable: r[2] ?? '', toCol: r[3] ?? '' });
+  }
+
+  const tableMap = new Map<string, ErColumn[]>();
+  for (const r of colRows.slice(1)) if (r.length >= 2) {
+    const tn = r[0] ?? '', cn = r[1] ?? '';
+    if (!tableMap.has(tn)) tableMap.set(tn, []);
+    tableMap.get(tn)!.push({ name: cn, isPk: pkSet.has(`${tn}${SEP}${cn}`), isFk: fkSet.has(`${tn}${SEP}${cn}`) });
+  }
+  const tables: ErTable[] = [...tableMap.entries()].map(([name, columns]) => ({ name, columns }));
+  return { tables, edges };
+}
+
+/** Tabloları deterministik bir grid'e yerleştirir. Saf — test edilebilir. */
+export function computeErLayout(tables: ErTable[], _edges: ErEdge[]): ErLayout {
+  const n = tables.length;
+  if (n === 0) return { nodes: [], width: 0, height: 0 };
+  const cols = Math.ceil(Math.sqrt(n));
+  const rowCount = Math.ceil(n / cols);
+  const heights = tables.map(t => ER_HEADER_H + t.columns.length * ER_ROW_H);
+
+  const rowMaxH: number[] = [];
+  for (let r = 0; r < rowCount; r++) {
+    let mh = 0;
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      if (idx < n) mh = Math.max(mh, heights[idx]);
+    }
+    rowMaxH.push(mh);
+  }
+  const rowY: number[] = [];
+  let yAcc = ER_PAD;
+  for (let r = 0; r < rowCount; r++) { rowY.push(yAcc); yAcc += rowMaxH[r] + ER_GAP_Y; }
+
+  const nodes: ErNode[] = [];
+  for (let i = 0; i < n; i++) {
+    const r = Math.floor(i / cols), c = i % cols;
+    nodes.push({
+      name: tables[i].name,
+      x: ER_PAD + c * (ER_BOX_W + ER_GAP_X),
+      y: rowY[r],
+      w: ER_BOX_W,
+      h: heights[i],
+      columns: tables[i].columns,
+    });
+  }
+  const width = ER_PAD * 2 + cols * ER_BOX_W + (cols - 1) * ER_GAP_X;
+  const height = yAcc - ER_GAP_Y + ER_PAD;
+  return { nodes, width, height };
+}
