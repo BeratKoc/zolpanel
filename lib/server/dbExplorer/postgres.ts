@@ -40,6 +40,41 @@ export function pgLiteral(v: string | null | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
+// DDL builders (exported for testing)
+// ---------------------------------------------------------------------------
+
+export function buildAddColumn(
+  schema: string,
+  table: string,
+  col: { name: string; type: string; nullable: boolean; default?: string | null },
+): string {
+  let s = `ALTER TABLE ${pgIdent(schema)}.${pgIdent(table)} ADD COLUMN ${pgIdent(col.name)} ${col.type}`;
+  if (!col.nullable) s += ' NOT NULL';
+  if (col.default !== undefined && col.default !== null && col.default !== '') {
+    s += ` DEFAULT ${pgLiteral(col.default)}`;
+  }
+  return s;
+}
+
+export function buildDropColumn(schema: string, table: string, name: string): string {
+  return `ALTER TABLE ${pgIdent(schema)}.${pgIdent(table)} DROP COLUMN ${pgIdent(name)}`;
+}
+
+// currentType pg'de kullanılmaz (RENAME COLUMN); imza uyumu için alınır.
+export function buildRenameColumn(
+  schema: string, table: string, oldName: string, newName: string, _currentType: string,
+): string {
+  return `ALTER TABLE ${pgIdent(schema)}.${pgIdent(table)} RENAME COLUMN ${pgIdent(oldName)} TO ${pgIdent(newName)}`;
+}
+
+export function buildAlterColumnType(
+  schema: string, table: string, name: string, newType: string, nullable: boolean,
+): string {
+  const nn = nullable ? 'DROP NOT NULL' : 'SET NOT NULL';
+  return `ALTER TABLE ${pgIdent(schema)}.${pgIdent(table)} ALTER COLUMN ${pgIdent(name)} TYPE ${newType}, ALTER COLUMN ${pgIdent(name)} ${nn}`;
+}
+
+// ---------------------------------------------------------------------------
 // Sort/filter SQL builders (exported for testing)
 // ---------------------------------------------------------------------------
 
@@ -147,6 +182,19 @@ async function columns(ref: string, db: string, schema: string, table: string): 
   return out.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 }
 
+async function tableStructure(
+  ref: string, db: string, schema: string, table: string,
+): Promise<import('./types').ColumnDef[]> {
+  const sql = `SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_schema=${pgLiteral(schema)} AND table_name=${pgLiteral(table)} ORDER BY ordinal_position`;
+  const out = await dbExec(ref, [...(await psqlBase(ref, db)), '--csv', '-c', sql]);
+  const rows = parseCsv(out.trim());
+  if (rows.length <= 1) return [];
+  const pks = new Set(await pkColumns(ref, db, schema, table));
+  return rows.slice(1).map(r => ({
+    name: r[0], type: r[1], nullable: r[2] === 'YES', default: r[3] || null, isPk: pks.has(r[0]),
+  }));
+}
+
 /** Fetches rows from a table with pagination, optional sort and filter. */
 async function getRows(
   ref: string,
@@ -231,4 +279,5 @@ export const postgresAdapter = {
   buildUpdate,
   buildInsert,
   buildDelete,
+  tableStructure,
 };

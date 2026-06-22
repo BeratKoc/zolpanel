@@ -22,6 +22,40 @@ export function myLiteral(v: string | null | undefined): string {
 }
 
 // ---------------------------------------------------------------------------
+// DDL builders (exported for testing)
+// ---------------------------------------------------------------------------
+
+export function buildAddColumn(
+  schema: string,
+  table: string,
+  col: { name: string; type: string; nullable: boolean; default?: string | null },
+): string {
+  let s = `ALTER TABLE ${myIdent(schema)}.${myIdent(table)} ADD COLUMN ${myIdent(col.name)} ${col.type}`;
+  if (!col.nullable) s += ' NOT NULL';
+  if (col.default !== undefined && col.default !== null && col.default !== '') {
+    s += ` DEFAULT ${myLiteral(col.default)}`;
+  }
+  return s;
+}
+
+export function buildDropColumn(schema: string, table: string, name: string): string {
+  return `ALTER TABLE ${myIdent(schema)}.${myIdent(table)} DROP COLUMN ${myIdent(name)}`;
+}
+
+// mysql CHANGE COLUMN tip gerektirir → currentType (DB'nin bildirdiği güvenli tip) kullanılır.
+export function buildRenameColumn(
+  schema: string, table: string, oldName: string, newName: string, currentType: string,
+): string {
+  return `ALTER TABLE ${myIdent(schema)}.${myIdent(table)} CHANGE COLUMN ${myIdent(oldName)} ${myIdent(newName)} ${currentType}`;
+}
+
+export function buildAlterColumnType(
+  schema: string, table: string, name: string, newType: string, nullable: boolean,
+): string {
+  return `ALTER TABLE ${myIdent(schema)}.${myIdent(table)} MODIFY COLUMN ${myIdent(name)} ${newType}${nullable ? '' : ' NOT NULL'}`;
+}
+
+// ---------------------------------------------------------------------------
 // Sort/filter SQL builders (exported for testing)
 // ---------------------------------------------------------------------------
 
@@ -166,6 +200,23 @@ async function columns(ref: string, db: string, _schema: string, table: string):
   return rows.slice(1).map(r => r[0] ?? '').filter(n => typeof n === 'string' && n.length > 0) as string[];
 }
 
+async function tableStructure(
+  ref: string, db: string, _schema: string, table: string,
+): Promise<import('./types').ColumnDef[]> {
+  const rows = await query(ref, `SHOW COLUMNS FROM ${myIdent(db)}.${myIdent(table)}`);
+  if (rows.length <= 1) return [];
+  const h = rows[0];
+  const iField = h.indexOf('Field'), iType = h.indexOf('Type'),
+        iNull = h.indexOf('Null'), iKey = h.indexOf('Key'), iDef = h.indexOf('Default');
+  return rows.slice(1).map(r => ({
+    name: (r[iField] ?? '') as string,
+    type: (r[iType] ?? '') as string,
+    nullable: (r[iNull] ?? '') === 'YES',
+    default: ((r[iDef] ?? null) || null) as string | null,
+    isPk: (r[iKey] ?? '') === 'PRI',
+  }));
+}
+
 /** Fetches rows from a table with pagination, optional sort and filter. */
 async function getRows(
   ref: string,
@@ -246,4 +297,5 @@ export const mysqlAdapter = {
   buildUpdate,
   buildInsert,
   buildDelete,
+  tableStructure,
 };

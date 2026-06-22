@@ -113,6 +113,44 @@ export function parseFilterInput(raw: string): { op: FilterOp; value: string } {
   return { op: 'contains', value: raw };
 }
 
+// ---- DDL / structure (Alt-proje 2) ----
+export interface ColumnDef {
+  name: string;
+  type: string;
+  nullable: boolean;
+  default: string | null;
+  isPk: boolean;
+}
+
+const PG_TYPES = new Set([
+  'text', 'varchar', 'char', 'character varying', 'integer', 'int', 'bigint', 'smallint',
+  'boolean', 'numeric', 'decimal', 'real', 'double precision', 'date', 'timestamp',
+  'timestamptz', 'time', 'uuid', 'json', 'jsonb', 'serial', 'bigserial',
+]);
+const MY_TYPES = new Set([
+  'text', 'varchar', 'char', 'int', 'integer', 'bigint', 'smallint', 'tinyint',
+  'boolean', 'numeric', 'decimal', 'real', 'double', 'float', 'date', 'datetime',
+  'timestamp', 'time', 'json',
+]);
+
+/** Kolon tipini allowlist'e karşı doğrular. Geçerliyse normalize tip (örn 'varchar(255)'),
+ *  değilse null. Tipler SQL'e escape edilemediğinden bu allowlist injection'ı kapatır. */
+export function validateColumnType(raw: string, engine: 'postgres' | 'mysql'): string | null {
+  const s = raw.trim().toLowerCase();
+  // temel tip ([a-z ] — çok-kelimeli tipler için) + opsiyonel (n) veya (p,s)
+  const m = s.match(/^([a-z][a-z ]*?)(\(\d+(,\d+)?\))?$/);
+  if (!m) return null;
+  const base = m[1].trim();
+  const allow = engine === 'postgres' ? PG_TYPES : MY_TYPES;
+  if (!allow.has(base)) return null;
+  return base + (m[2] ?? '');
+}
+
+/** Yeni identifier (kolon adı) güvenli mi? Harf/altçizgi başlar, alfanümerik+_; ≤63. */
+export function validateIdentifier(name: string): boolean {
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) && name.length >= 1 && name.length <= 63;
+}
+
 /**
  * MySQL --batch TSV parser.
  * Split lines on \n, each line split('\t').
