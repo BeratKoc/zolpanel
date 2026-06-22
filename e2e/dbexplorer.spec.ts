@@ -45,6 +45,12 @@ test('dbexplorer: veritabanları sayfası, bağlantı varsa editör + SQL konsol
     await filterBtn.click(); // filtre satırını aç — hata atmamalı
   }
 
+  // Yapı sekmesi (DDL) — bağlantı + tablo varsa görünür ve açılır.
+  const structureTab = page.getByRole('button', { name: 'Yapı' });
+  if (await structureTab.isVisible().catch(() => false)) {
+    await structureTab.click(); // Yapı sekmesi açılır — hata atmamalı
+  }
+
   // SQL sekmesine geç — "SQL Konsolu" yazısına tıkla (tab bar içinde).
   // Tab bar butonları, nav select'lerinden farklı olarak role=button değil; type=button.
   const sqlTab = page.getByRole('button', { name: 'SQL Konsolu' }).first();
