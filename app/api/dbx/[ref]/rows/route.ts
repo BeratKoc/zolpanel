@@ -1,6 +1,7 @@
 import { requireAuth, unauthorized } from '@/lib/auth';
 import { getConnection } from '@/lib/server/dbExplorer/discover';
 import { getAdapter, redisAdapter } from '@/lib/server/dbExplorer';
+import type { FilterCond } from '@/lib/server/dbExplorer/types';
 
 export const runtime = 'nodejs';
 
@@ -83,11 +84,33 @@ export async function GET(req: Request, { params }: { params: Promise<{ ref: str
     const limit = Math.max(1, Math.min(500, (limitParam && parseInt(limitParam, 10)) || 50));
     const offset = Math.max(0, (offsetParam && parseInt(offsetParam, 10)) || 0);
 
+    const orderBy = searchParams.get('orderBy') || undefined;
+    const orderDirRaw = searchParams.get('orderDir');
+    const orderDir: 'asc' | 'desc' | undefined =
+      orderDirRaw === 'desc' ? 'desc' : orderDirRaw === 'asc' ? 'asc' : undefined;
+
+    let filters: FilterCond[] | undefined;
+    const filtersRaw = searchParams.get('filters');
+    if (filtersRaw) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(filtersRaw);
+      } catch {
+        return Response.json({ error: 'filters JSON geçersiz' }, { status: 400 });
+      }
+      if (Array.isArray(parsed)) {
+        filters = parsed.filter(
+          (f): f is FilterCond =>
+            !!f && typeof f.col === 'string' && typeof f.op === 'string' && typeof f.value === 'string',
+        );
+      }
+    }
+
     if (!db || !table) {
       return Response.json({ error: 'db ve table parametreleri zorunlu' }, { status: 400 });
     }
 
-    const result = await adapter.getRows(ref, db, schema, table, { limit, offset });
+    const result = await adapter.getRows(ref, db, schema, table, { limit, offset, orderBy, orderDir, filters });
 
     let pk: string[] = [];
     try {
