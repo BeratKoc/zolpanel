@@ -19,6 +19,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json() as { rule: RuleInput };
     const { rule } = body;
+    if (!rule || typeof rule !== 'object') return Response.json({ error: 'rule gerekli' }, { status: 400 });
     const msg = validateRule(rule);
     if (msg) return Response.json({ error: msg }, { status: 400 });
     await ufwAdd(rule);

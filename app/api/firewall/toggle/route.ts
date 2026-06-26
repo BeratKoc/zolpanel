@@ -7,7 +7,9 @@ export async function POST(req: Request) {
   if (!(await requireAuth(req))) return unauthorized();
   try {
     const body = await req.json() as { enable: boolean };
-    if (body.enable) {
+    const { enable } = body;
+    if (typeof enable !== 'boolean') return Response.json({ error: 'enable (boolean) gerekli' }, { status: 400 });
+    if (enable) {
       await ufwEnable();
     } else {
       await ufwDisable();
