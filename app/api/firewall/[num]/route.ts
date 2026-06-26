@@ -19,9 +19,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ num: 
       return Response.json({ error: 'Kural bulunamadı' }, { status: 404 });
     }
     if (rule.action === 'ALLOW') {
-      const portMatch = rule.to.match(/^(\d+)\//);
-      const port = portMatch ? parseInt(portMatch[1], 10) : NaN;
-      if (Number.isFinite(port) && isProtectedPort(port)) {
+      // `to` may be '22/tcp' (proto belirtilmiş) veya çıplak '22' (proto: any) → ikisini de yakala.
+      const port = parseInt(rule.to.split('/')[0], 10);
+      if (Number.isInteger(port) && isProtectedPort(port)) {
         return Response.json({ error: 'Korumalı port kuralı silinemez (kilitlenme koruması)' }, { status: 400 });
       }
     }
