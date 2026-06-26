@@ -97,6 +97,10 @@ export const api = {
     request('POST', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
   dbxRedisDel: (ref: string, body: { key: string }, write?: boolean) =>
     request('DELETE', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
+  // Cron
+  cronList: () => request('GET', '/cron'),
+  cronSave: (jobs: unknown[]) => request('POST', '/cron', { jobs }),
+  cronRun: (command: string) => request('POST', '/cron/run', { command }),
   // File Manager
   fileList: (p: string) => request('GET', `/files/list?path=${encodeURIComponent(p)}`),
   fileRead: (p: string) => request('GET', `/files/read?path=${encodeURIComponent(p)}`),
