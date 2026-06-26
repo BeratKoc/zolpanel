@@ -22,7 +22,8 @@
     "settings": "Ajustes",
     "logout": "Salir",
     "apps": "Aplicaciones",
-    "terminal": "Terminal"
+    "terminal": "Terminal",
+    "files": "Archivos"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -298,6 +299,26 @@
     "erDiagram": "Diagrama ER",
     "erEmpty": "Sin tablas",
     "erNoFk": "Sin relaciones (FK)"
+  },
+  "files": {
+    "title": "Archivos",
+    "name": "Nombre",
+    "size": "Tamaño",
+    "modified": "Modificado",
+    "perms": "Permisos",
+    "upload": "Subir",
+    "newFolder": "Nueva carpeta",
+    "edit": "Editar",
+    "download": "Descargar",
+    "rename": "Renombrar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "deleteConfirm": "¿Eliminar {name}?",
+    "folderName": "Nombre de carpeta",
+    "newName": "Nuevo nombre",
+    "empty": "Carpeta vacía",
+    "tooLarge": "Archivo demasiado grande"
   },
   "terminal": {
     "title": "Terminal",

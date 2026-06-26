@@ -22,7 +22,8 @@
     "settings": "设置",
     "logout": "退出",
     "apps": "应用",
-    "terminal": "终端"
+    "terminal": "终端",
+    "files": "文件"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -298,6 +299,26 @@
     "erDiagram": "ER 图",
     "erEmpty": "无表",
     "erNoFk": "无关系 (FK)"
+  },
+  "files": {
+    "title": "文件",
+    "name": "名称",
+    "size": "大小",
+    "modified": "修改时间",
+    "perms": "权限",
+    "upload": "上传",
+    "newFolder": "新建文件夹",
+    "edit": "编辑",
+    "download": "下载",
+    "rename": "重命名",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "deleteConfirm": "删除 {name}？",
+    "folderName": "文件夹名称",
+    "newName": "新名称",
+    "empty": "空文件夹",
+    "tooLarge": "文件过大"
   },
   "terminal": {
     "title": "终端",

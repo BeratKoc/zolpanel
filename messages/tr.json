@@ -22,7 +22,8 @@
     "settings": "Ayarlar",
     "logout": "Çıkış",
     "apps": "Uygulamalar",
-    "terminal": "Terminal"
+    "terminal": "Terminal",
+    "files": "Dosyalar"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -298,6 +299,26 @@
     "erDiagram": "ER Diyagramı",
     "erEmpty": "Tablo yok",
     "erNoFk": "İlişki (FK) yok"
+  },
+  "files": {
+    "title": "Dosyalar",
+    "name": "Ad",
+    "size": "Boyut",
+    "modified": "Değişme",
+    "perms": "İzin",
+    "upload": "Yükle",
+    "newFolder": "Yeni klasör",
+    "edit": "Düzenle",
+    "download": "İndir",
+    "rename": "Yeniden adlandır",
+    "delete": "Sil",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "deleteConfirm": "{name} silinsin mi?",
+    "folderName": "Klasör adı",
+    "newName": "Yeni ad",
+    "empty": "Boş klasör",
+    "tooLarge": "Dosya çok büyük"
   },
   "terminal": {
     "title": "Terminal",

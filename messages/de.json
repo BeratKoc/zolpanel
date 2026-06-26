@@ -22,7 +22,8 @@
     "settings": "Einstellungen",
     "logout": "Abmelden",
     "apps": "Apps",
-    "terminal": "Terminal"
+    "terminal": "Terminal",
+    "files": "Dateien"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -298,6 +299,26 @@
     "erDiagram": "ER-Diagramm",
     "erEmpty": "Keine Tabellen",
     "erNoFk": "Keine Beziehungen (FK)"
+  },
+  "files": {
+    "title": "Dateien",
+    "name": "Name",
+    "size": "Größe",
+    "modified": "Geändert",
+    "perms": "Rechte",
+    "upload": "Hochladen",
+    "newFolder": "Neuer Ordner",
+    "edit": "Bearbeiten",
+    "download": "Herunterladen",
+    "rename": "Umbenennen",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "deleteConfirm": "{name} löschen?",
+    "folderName": "Ordnername",
+    "newName": "Neuer Name",
+    "empty": "Leerer Ordner",
+    "tooLarge": "Datei zu groß"
   },
   "terminal": {
     "title": "Terminal",

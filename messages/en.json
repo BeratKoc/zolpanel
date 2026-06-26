@@ -22,7 +22,8 @@
     "settings": "Settings",
     "logout": "Log out",
     "apps": "Apps",
-    "terminal": "Terminal"
+    "terminal": "Terminal",
+    "files": "Files"
   },
   "login": {
     "subtitle": "Sign in to continue",
@@ -298,6 +299,26 @@
     "erDiagram": "ER Diagram",
     "erEmpty": "No tables",
     "erNoFk": "No relations (FK)"
+  },
+  "files": {
+    "title": "Files",
+    "name": "Name",
+    "size": "Size",
+    "modified": "Modified",
+    "perms": "Perms",
+    "upload": "Upload",
+    "newFolder": "New folder",
+    "edit": "Edit",
+    "download": "Download",
+    "rename": "Rename",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "deleteConfirm": "Delete {name}?",
+    "folderName": "Folder name",
+    "newName": "New name",
+    "empty": "Empty folder",
+    "tooLarge": "File too large"
   },
   "terminal": {
     "title": "Terminal",

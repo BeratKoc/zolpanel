@@ -22,7 +22,8 @@
     "settings": "Paramètres",
     "logout": "Déconnexion",
     "apps": "Applications",
-    "terminal": "Terminal"
+    "terminal": "Terminal",
+    "files": "Fichiers"
   },
   "login": {
     "subtitle": "Connectez-vous pour continuer",
@@ -298,6 +299,26 @@
     "erDiagram": "Diagramme ER",
     "erEmpty": "Aucune table",
     "erNoFk": "Aucune relation (FK)"
+  },
+  "files": {
+    "title": "Fichiers",
+    "name": "Nom",
+    "size": "Taille",
+    "modified": "Modifié",
+    "perms": "Droits",
+    "upload": "Envoyer",
+    "newFolder": "Nouveau dossier",
+    "edit": "Modifier",
+    "download": "Télécharger",
+    "rename": "Renommer",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "deleteConfirm": "Supprimer {name} ?",
+    "folderName": "Nom du dossier",
+    "newName": "Nouveau nom",
+    "empty": "Dossier vide",
+    "tooLarge": "Fichier trop volumineux"
   },
   "terminal": {
     "title": "Terminal",
