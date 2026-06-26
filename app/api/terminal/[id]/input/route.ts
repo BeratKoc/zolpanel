@@ -9,7 +9,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   const session = terminalManager.get(id, auth.id);
   if (!session) return Response.json({ error: 'Oturum bulunamadı' }, { status: 404 });
-  const { data = '' } = await req.json() as { data?: string };
+  const { data } = await req.json() as { data?: string };
+  if (typeof data !== 'string' || data.length > 65536)
+    return Response.json({ error: 'Geçersiz veya çok büyük girdi' }, { status: 400 });
   session.pty.write(data);
   terminalManager.touch(id, Date.now());
   return Response.json({ ok: true });

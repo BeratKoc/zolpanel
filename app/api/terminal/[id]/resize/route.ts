@@ -9,8 +9,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   const session = terminalManager.get(id, auth.id);
   if (!session) return Response.json({ error: 'Oturum bulunamadı' }, { status: 404 });
-  const { cols = 80, rows = 24 } = await req.json() as { cols?: number; rows?: number };
-  session.pty.resize(Math.max(1, Math.min(500, cols)), Math.max(1, Math.min(300, rows)));
+  const { cols, rows } = await req.json() as { cols?: number; rows?: number };
+  if (!Number.isFinite(cols) || !Number.isFinite(rows))
+    return Response.json({ error: 'Geçersiz boyut' }, { status: 400 });
+  session.pty.resize(Math.max(1, Math.min(500, cols as number)), Math.max(1, Math.min(300, rows as number)));
   terminalManager.touch(id, Date.now());
   return Response.json({ ok: true });
 }
