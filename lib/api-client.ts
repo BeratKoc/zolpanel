@@ -114,4 +114,9 @@ export const api = {
   terminalResize: (id: string, cols: number, rows: number) => request('POST', `/terminal/${encodeURIComponent(id)}/resize`, { cols, rows }),
   terminalDelete: (id: string) => request('DELETE', `/terminal/${encodeURIComponent(id)}`),
   listContainers: () => request('GET', '/docker/containers'),
+  // Firewall
+  fwStatus: () => request('GET', '/firewall'),
+  fwAdd: (rule: unknown) => request('POST', '/firewall', { rule }),
+  fwDelete: (num: number) => request('DELETE', `/firewall/${num}`),
+  fwToggle: (enable: boolean) => request('POST', '/firewall/toggle', { enable }),
 };
