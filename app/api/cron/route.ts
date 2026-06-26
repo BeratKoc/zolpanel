@@ -17,6 +17,7 @@ export async function POST(req: Request) {
     if (!Array.isArray(jobs)) return Response.json({ error: 'jobs dizisi gerekli' }, { status: 400 });
     for (const j of jobs) {
       if (typeof j.command !== 'string' || !j.command.trim()) return Response.json({ error: 'Komut boş olamaz' }, { status: 400 });
+      if (/[\r\n]/.test(j.command)) return Response.json({ error: 'Komut yeni satır içeremez' }, { status: 400 });
       if (!isValidSchedule(j.schedule)) return Response.json({ error: 'Geçersiz zamanlama: ' + j.schedule }, { status: 400 });
     }
     const original = await readCrontab();
