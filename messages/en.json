@@ -24,7 +24,8 @@
     "apps": "Apps",
     "terminal": "Terminal",
     "files": "Files",
-    "cron": "Scheduled Jobs"
+    "cron": "Scheduled Jobs",
+    "firewall": "Firewall"
   },
   "login": {
     "subtitle": "Sign in to continue",
@@ -371,5 +372,29 @@
     "session": "Session",
     "loggedIn": "Logged in",
     "logout": "Log Out"
+  },
+  "firewall": {
+    "title": "Firewall",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enable": "Enable",
+    "disable": "Disable",
+    "rules": "Rules",
+    "addRule": "Add rule",
+    "action": "Action",
+    "allow": "Allow",
+    "deny": "Deny",
+    "port": "Port",
+    "protocol": "Protocol",
+    "from": "Source",
+    "anywhere": "Anywhere",
+    "num": "#",
+    "to": "Target",
+    "delete": "Delete",
+    "deleteConfirm": "Delete rule #{num}?",
+    "empty": "No rules",
+    "sshWarning": "Protected port (22/80/443) rule cannot be deleted",
+    "enableWarning": "Before enabling, SSH (22) and HTTP(S) (80/443) ports will be auto-allowed — prevents lockout."
   }
 }

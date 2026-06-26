@@ -24,7 +24,8 @@
     "apps": "应用",
     "terminal": "终端",
     "files": "文件",
-    "cron": "定时任务"
+    "cron": "定时任务",
+    "firewall": "防火墙"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -371,5 +372,29 @@
     "session": "会话",
     "loggedIn": "已登录",
     "logout": "退出登录"
+  },
+  "firewall": {
+    "title": "防火墙",
+    "status": "状态",
+    "active": "已启用",
+    "inactive": "未启用",
+    "enable": "启用",
+    "disable": "禁用",
+    "rules": "规则",
+    "addRule": "添加规则",
+    "action": "动作",
+    "allow": "允许",
+    "deny": "拒绝",
+    "port": "端口",
+    "protocol": "协议",
+    "from": "来源",
+    "anywhere": "任意地址",
+    "num": "#",
+    "to": "目标",
+    "delete": "删除",
+    "deleteConfirm": "删除规则 #{num}？",
+    "empty": "无规则",
+    "sshWarning": "受保护端口 (22/80/443) 的规则无法删除",
+    "enableWarning": "启用前，SSH (22) 和 HTTP(S) (80/443) 端口将自动放行 — 防止锁定。"
   }
 }

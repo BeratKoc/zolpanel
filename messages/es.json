@@ -24,7 +24,8 @@
     "apps": "Aplicaciones",
     "terminal": "Terminal",
     "files": "Archivos",
-    "cron": "Tareas programadas"
+    "cron": "Tareas programadas",
+    "firewall": "Cortafuegos"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -371,5 +372,29 @@
     "session": "Sesión",
     "loggedIn": "Sesión iniciada",
     "logout": "Cerrar sesión"
+  },
+  "firewall": {
+    "title": "Cortafuegos",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "rules": "Reglas",
+    "addRule": "Añadir regla",
+    "action": "Acción",
+    "allow": "Permitir",
+    "deny": "Denegar",
+    "port": "Puerto",
+    "protocol": "Protocolo",
+    "from": "Origen",
+    "anywhere": "Cualquier origen",
+    "num": "#",
+    "to": "Destino",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Eliminar regla #{num}?",
+    "empty": "Sin reglas",
+    "sshWarning": "La regla para puertos protegidos (22/80/443) no se puede eliminar",
+    "enableWarning": "Al activar, los puertos SSH (22) y HTTP(S) (80/443) se permitirán automáticamente — evita bloqueos."
   }
 }

@@ -24,7 +24,8 @@
     "apps": "Apps",
     "terminal": "Terminal",
     "files": "Dateien",
-    "cron": "Geplante Aufgaben"
+    "cron": "Geplante Aufgaben",
+    "firewall": "Firewall"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -371,5 +372,29 @@
     "session": "Sitzung",
     "loggedIn": "Angemeldet",
     "logout": "Abmelden"
+  },
+  "firewall": {
+    "title": "Firewall",
+    "status": "Status",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren",
+    "rules": "Regeln",
+    "addRule": "Regel hinzufügen",
+    "action": "Aktion",
+    "allow": "Erlauben",
+    "deny": "Verweigern",
+    "port": "Port",
+    "protocol": "Protokoll",
+    "from": "Quelle",
+    "anywhere": "Überall",
+    "num": "#",
+    "to": "Ziel",
+    "delete": "Löschen",
+    "deleteConfirm": "Regel #{num} löschen?",
+    "empty": "Keine Regeln",
+    "sshWarning": "Regel für geschützten Port (22/80/443) kann nicht gelöscht werden",
+    "enableWarning": "Beim Aktivieren werden SSH (22) und HTTP(S) (80/443) automatisch erlaubt — verhindert Aussperrung."
   }
 }

@@ -24,7 +24,8 @@
     "apps": "Uygulamalar",
     "terminal": "Terminal",
     "files": "Dosyalar",
-    "cron": "Zamanlanmış Görevler"
+    "cron": "Zamanlanmış Görevler",
+    "firewall": "Güvenlik Duvarı"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -371,5 +372,29 @@
     "session": "Oturum",
     "loggedIn": "Giriş yapıldı",
     "logout": "Çıkış Yap"
+  },
+  "firewall": {
+    "title": "Güvenlik Duvarı",
+    "status": "Durum",
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "enable": "Etkinleştir",
+    "disable": "Devre dışı bırak",
+    "rules": "Kurallar",
+    "addRule": "Kural ekle",
+    "action": "Eylem",
+    "allow": "İzin ver",
+    "deny": "Engelle",
+    "port": "Port",
+    "protocol": "Protokol",
+    "from": "Kaynak",
+    "anywhere": "Her yerden",
+    "num": "#",
+    "to": "Hedef",
+    "delete": "Sil",
+    "deleteConfirm": "{num} numaralı kural silinsin mi?",
+    "empty": "Kural yok",
+    "sshWarning": "Korumalı port (22/80/443) kuralı silinemez",
+    "enableWarning": "Etkinleştirmeden önce SSH (22) ve HTTP(S) (80/443) portları otomatik izinli olacak — kilitlenme önlenir."
   }
 }

@@ -24,7 +24,8 @@
     "apps": "Applications",
     "terminal": "Terminal",
     "files": "Fichiers",
-    "cron": "Tâches planifiées"
+    "cron": "Tâches planifiées",
+    "firewall": "Pare-feu"
   },
   "login": {
     "subtitle": "Connectez-vous pour continuer",
@@ -371,5 +372,29 @@
     "session": "Session",
     "loggedIn": "Connecté",
     "logout": "Se déconnecter"
+  },
+  "firewall": {
+    "title": "Pare-feu",
+    "status": "État",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "rules": "Règles",
+    "addRule": "Ajouter une règle",
+    "action": "Action",
+    "allow": "Autoriser",
+    "deny": "Refuser",
+    "port": "Port",
+    "protocol": "Protocole",
+    "from": "Source",
+    "anywhere": "Partout",
+    "num": "#",
+    "to": "Destination",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer la règle #{num} ?",
+    "empty": "Aucune règle",
+    "sshWarning": "La règle pour les ports protégés (22/80/443) ne peut pas être supprimée",
+    "enableWarning": "À l'activation, les ports SSH (22) et HTTP(S) (80/443) seront autorisés automatiquement — évite le verrouillage."
   }
 }
