@@ -15,4 +15,15 @@ export async function readCrontab(): Promise<string> {
 
 export function writeCrontab(text: string): Promise<string> { return run('crontab', ['-'], text); }
 
-export function runCommand(command: string): Promise<string> { return run('sh', ['-c', command]); }
+export function runCommand(command: string): Promise<string> {
+  return new Promise(resolve => {
+    execFile('sh', ['-c', command], { maxBuffer: 4 * 1024 * 1024, timeout: 60000 }, (e, out, se) => {
+      const combined = (out || '') + (se || '');
+      if (e && (e as NodeJS.ErrnoException).code === 'ETIMEDOUT') {
+        resolve(combined + '\n[timed out]');
+      } else {
+        resolve(combined || '(no output)');
+      }
+    });
+  });
+}

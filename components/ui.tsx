@@ -270,7 +270,7 @@ export function useToast() {
     }, 3500);
   }, []);
 
-  const ToastContainer = () => (
+  const ToastContainer = useCallback(() => (
     <div className="toast-wrap" style={{
       position: 'fixed', bottom: '20px', right: '20px',
       zIndex: 999, display: 'flex', flexDirection: 'column', gap: '8px',
@@ -290,7 +290,7 @@ export function useToast() {
         </div>
       ))}
     </div>
-  );
+  ), [toasts]);
 
   return { show, ToastContainer };
 }

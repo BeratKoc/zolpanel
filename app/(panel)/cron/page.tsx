@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Clock, Play, Trash2, Edit2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { api } from '@/lib/api-client';
@@ -41,6 +41,7 @@ export default function CronPage() {
   const [runLoading, setRunLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<CronJob | null>(null);
   const [saving, setSaving] = useState(false);
+  const runIdRef = useRef(0);
 
   const load = useCallback(async () => {
     try {
@@ -124,16 +125,23 @@ export default function CronPage() {
   }
 
   async function handleRun(job: CronJob) {
+    const runId = ++runIdRef.current;
     setRunOutput('');
     setModalMode('run');
     setRunLoading(true);
     try {
       const data = await api.cronRun(job.command);
-      setRunOutput(data.output ?? '(no output)');
+      if (runIdRef.current === runId) {
+        setRunOutput(data.output ?? '(no output)');
+      }
     } catch (e: unknown) {
-      setRunOutput((e as Error).message);
+      if (runIdRef.current === runId) {
+        setRunOutput((e as Error).message);
+      }
     } finally {
-      setRunLoading(false);
+      if (runIdRef.current === runId) {
+        setRunLoading(false);
+      }
     }
   }
 
@@ -266,6 +274,7 @@ export default function CronPage() {
               variant="danger"
               size="sm"
               onClick={handleDelete}
+              disabled={saving}
               style={{ background: 'var(--red)', border: '1px solid var(--red)', color: '#fff' }}
             >
               <Trash2 size={13} strokeWidth={1.75} />
