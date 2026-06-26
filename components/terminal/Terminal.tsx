@@ -19,6 +19,8 @@ export function TerminalView({ target }: { target: string }) {
     if (!hostRef.current) return;
     let aborted = false;
     let sessionId = '';
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+    let cleanupResize: (() => void) | undefined;
     const term = new XTerm({
       fontFamily: 'var(--font-mono), monospace', fontSize: 13, cursorBlink: true,
       theme: { background: '#0d0d0d', foreground: '#e8e8e8' },
@@ -41,15 +43,15 @@ export function TerminalView({ target }: { target: string }) {
           api.terminalResize(sessionId, term.cols, term.rows).catch(() => {});
         };
         window.addEventListener('resize', doResize);
+        cleanupResize = () => window.removeEventListener('resize', doResize);
         doResize();
-        (term as unknown as { __cleanupResize?: () => void }).__cleanupResize = () => window.removeEventListener('resize', doResize);
 
         // Output stream — fetch reader (Authorization header; not EventSource)
-        const stream = await fetch(`/api/dbx-noop`.replace('/api/dbx-noop', `/api/terminal/${encodeURIComponent(sessionId)}/stream`), {
+        const stream = await fetch(`/api/terminal/${encodeURIComponent(sessionId)}/stream`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!stream.body) throw new Error('stream yok');
-        const reader = stream.body.getReader();
+        reader = stream.body.getReader();
         const decoder = new TextDecoder();
         while (!aborted) {
           const { value, done } = await reader.read();
@@ -65,11 +67,12 @@ export function TerminalView({ target }: { target: string }) {
 
     return () => {
       aborted = true;
-      (term as unknown as { __cleanupResize?: () => void }).__cleanupResize?.();
+      reader?.cancel().catch(() => {});
+      cleanupResize?.();
       if (sessionId) api.terminalDelete(sessionId).catch(() => {});
       term.dispose();
     };
-  }, [target, reconnectKey, show, t]);
+  }, [target, reconnectKey, show]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
