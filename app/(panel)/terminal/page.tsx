@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
 import { api } from '@/lib/api-client';
-import { TerminalView } from '@/components/terminal/Terminal';
+
+// xterm.js tarayıcı-only (modül yüklenirken `self`'e dokunur) → SSR'da import etme.
+const TerminalView = dynamic(
+  () => import('@/components/terminal/Terminal').then(m => ({ default: m.TerminalView })),
+  { ssr: false },
+);
 
 export default function TerminalPage() {
   const t = useTranslations();

@@ -14,3 +14,12 @@ test('terminal: sayfa açılır, hedef seçici görünür', async ({ page }) => 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1);
   expect(overflow).toBeTruthy();
 });
+
+test('terminal: doğrudan URL (SSR) çökmeden açılır', async ({ page }) => {
+  // xterm tarayıcı-only; SSR'da import edilirse "self is not defined" ile sayfa çöker.
+  // Doğrudan goto SSR yolunu tetikler — başlık+seçici görünmeli (dynamic ssr:false sayesinde).
+  await login(page);
+  await page.goto('/terminal');
+  await expect(page.locator('h2').filter({ hasText: 'Terminal' })).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('.page select')).toBeVisible();
+});
