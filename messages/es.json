@@ -21,7 +21,8 @@
     "logs": "Registros",
     "settings": "Ajustes",
     "logout": "Salir",
-    "apps": "Aplicaciones"
+    "apps": "Aplicaciones",
+    "terminal": "Terminal"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -297,6 +298,16 @@
     "erDiagram": "Diagrama ER",
     "erEmpty": "Sin tablas",
     "erNoFk": "Sin relaciones (FK)"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "host": "Servidor (host)",
+    "container": "Contenedor",
+    "target": "Destino",
+    "connect": "Conectar",
+    "reconnect": "Reconectar",
+    "disconnected": "Sesión cerrada",
+    "limit": "Demasiadas sesiones de terminal abiertas"
   },
   "settings": {
     "title": "Ajustes",

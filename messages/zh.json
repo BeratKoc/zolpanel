@@ -21,7 +21,8 @@
     "logs": "日志",
     "settings": "设置",
     "logout": "退出",
-    "apps": "应用"
+    "apps": "应用",
+    "terminal": "终端"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -297,6 +298,16 @@
     "erDiagram": "ER 图",
     "erEmpty": "无表",
     "erNoFk": "无关系 (FK)"
+  },
+  "terminal": {
+    "title": "终端",
+    "host": "服务器 (host)",
+    "container": "容器",
+    "target": "目标",
+    "connect": "连接",
+    "reconnect": "重新连接",
+    "disconnected": "会话已关闭",
+    "limit": "打开的终端会话过多"
   },
   "settings": {
     "title": "设置",

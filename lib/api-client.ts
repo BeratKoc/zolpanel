@@ -97,4 +97,10 @@ export const api = {
     request('POST', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
   dbxRedisDel: (ref: string, body: { key: string }, write?: boolean) =>
     request('DELETE', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
+  // Terminal
+  terminalCreate: (target: string) => request('POST', '/terminal', { target }),
+  terminalInput: (id: string, data: string) => request('POST', `/terminal/${encodeURIComponent(id)}/input`, { data }),
+  terminalResize: (id: string, cols: number, rows: number) => request('POST', `/terminal/${encodeURIComponent(id)}/resize`, { cols, rows }),
+  terminalDelete: (id: string) => request('DELETE', `/terminal/${encodeURIComponent(id)}`),
+  listContainers: () => request('GET', '/docker/containers'),
 };

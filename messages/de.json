@@ -21,7 +21,8 @@
     "logs": "Protokolle",
     "settings": "Einstellungen",
     "logout": "Abmelden",
-    "apps": "Apps"
+    "apps": "Apps",
+    "terminal": "Terminal"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -297,6 +298,16 @@
     "erDiagram": "ER-Diagramm",
     "erEmpty": "Keine Tabellen",
     "erNoFk": "Keine Beziehungen (FK)"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "host": "Server (Host)",
+    "container": "Container",
+    "target": "Ziel",
+    "connect": "Verbinden",
+    "reconnect": "Neu verbinden",
+    "disconnected": "Sitzung geschlossen",
+    "limit": "Zu viele offene Terminal-Sitzungen"
   },
   "settings": {
     "title": "Einstellungen",

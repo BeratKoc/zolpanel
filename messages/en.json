@@ -21,7 +21,8 @@
     "logs": "Logs",
     "settings": "Settings",
     "logout": "Log out",
-    "apps": "Apps"
+    "apps": "Apps",
+    "terminal": "Terminal"
   },
   "login": {
     "subtitle": "Sign in to continue",
@@ -297,6 +298,16 @@
     "erDiagram": "ER Diagram",
     "erEmpty": "No tables",
     "erNoFk": "No relations (FK)"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "host": "Server (host)",
+    "container": "Container",
+    "target": "Target",
+    "connect": "Connect",
+    "reconnect": "Reconnect",
+    "disconnected": "Session closed",
+    "limit": "Too many open terminal sessions"
   },
   "settings": {
     "title": "Settings",

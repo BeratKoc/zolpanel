@@ -21,7 +21,8 @@
     "logs": "Loglar",
     "settings": "Ayarlar",
     "logout": "Çıkış",
-    "apps": "Uygulamalar"
+    "apps": "Uygulamalar",
+    "terminal": "Terminal"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -297,6 +298,16 @@
     "erDiagram": "ER Diyagramı",
     "erEmpty": "Tablo yok",
     "erNoFk": "İlişki (FK) yok"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "host": "Sunucu (host)",
+    "container": "Container",
+    "target": "Hedef",
+    "connect": "Bağlan",
+    "reconnect": "Yeniden bağlan",
+    "disconnected": "Oturum kapandı",
+    "limit": "Çok fazla açık terminal oturumu"
   },
   "settings": {
     "title": "Ayarlar",

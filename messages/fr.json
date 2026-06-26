@@ -21,7 +21,8 @@
     "logs": "Journaux",
     "settings": "Paramètres",
     "logout": "Déconnexion",
-    "apps": "Applications"
+    "apps": "Applications",
+    "terminal": "Terminal"
   },
   "login": {
     "subtitle": "Connectez-vous pour continuer",
@@ -297,6 +298,16 @@
     "erDiagram": "Diagramme ER",
     "erEmpty": "Aucune table",
     "erNoFk": "Aucune relation (FK)"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "host": "Serveur (hôte)",
+    "container": "Conteneur",
+    "target": "Cible",
+    "connect": "Se connecter",
+    "reconnect": "Reconnecter",
+    "disconnected": "Session fermée",
+    "limit": "Trop de sessions de terminal ouvertes"
   },
   "settings": {
     "title": "Paramètres",
