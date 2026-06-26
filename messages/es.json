@@ -23,7 +23,8 @@
     "logout": "Salir",
     "apps": "Aplicaciones",
     "terminal": "Terminal",
-    "files": "Archivos"
+    "files": "Archivos",
+    "cron": "Tareas programadas"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -319,6 +320,26 @@
     "newName": "Nuevo nombre",
     "empty": "Carpeta vacía",
     "tooLarge": "Archivo demasiado grande"
+  },
+  "cron": {
+    "title": "Tareas programadas",
+    "schedule": "Programación",
+    "command": "Comando",
+    "enabled": "Activo",
+    "add": "Añadir",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "run": "Ejecutar ahora",
+    "runOutput": "Salida de ejecución",
+    "deleteConfirm": "¿Eliminar esta tarea?",
+    "empty": "No hay tareas programadas",
+    "invalidSchedule": "Programación inválida — introduce 5 campos (min h día mes día-sem) o una palabra clave como @daily",
+    "schedulePlaceholder": "p. ej. 0 3 * * * o @daily",
+    "commandPlaceholder": "p. ej. /usr/bin/backup.sh",
+    "enable": "Activar",
+    "disable": "Desactivar"
   },
   "terminal": {
     "title": "Terminal",

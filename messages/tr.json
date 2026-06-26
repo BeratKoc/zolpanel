@@ -23,7 +23,8 @@
     "logout": "Çıkış",
     "apps": "Uygulamalar",
     "terminal": "Terminal",
-    "files": "Dosyalar"
+    "files": "Dosyalar",
+    "cron": "Zamanlanmış Görevler"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -319,6 +320,26 @@
     "newName": "Yeni ad",
     "empty": "Boş klasör",
     "tooLarge": "Dosya çok büyük"
+  },
+  "cron": {
+    "title": "Zamanlanmış Görevler",
+    "schedule": "Zamanlama",
+    "command": "Komut",
+    "enabled": "Etkin",
+    "add": "Ekle",
+    "edit": "Düzenle",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "run": "Şimdi çalıştır",
+    "runOutput": "Çalıştırma Çıktısı",
+    "deleteConfirm": "Bu görev silinsin mi?",
+    "empty": "Henüz zamanlanmış görev yok",
+    "invalidSchedule": "Geçersiz zamanlama — 5 alan (dk sa gün ay hfg) veya @daily gibi bir anahtar kelime girin",
+    "schedulePlaceholder": "örn: 0 3 * * * veya @daily",
+    "commandPlaceholder": "örn: /usr/bin/backup.sh",
+    "enable": "Etkinleştir",
+    "disable": "Devre dışı bırak"
   },
   "terminal": {
     "title": "Terminal",

@@ -23,7 +23,8 @@
     "logout": "Abmelden",
     "apps": "Apps",
     "terminal": "Terminal",
-    "files": "Dateien"
+    "files": "Dateien",
+    "cron": "Geplante Aufgaben"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -319,6 +320,26 @@
     "newName": "Neuer Name",
     "empty": "Leerer Ordner",
     "tooLarge": "Datei zu groß"
+  },
+  "cron": {
+    "title": "Geplante Aufgaben",
+    "schedule": "Zeitplan",
+    "command": "Befehl",
+    "enabled": "Aktiv",
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "run": "Jetzt ausführen",
+    "runOutput": "Ausgabe",
+    "deleteConfirm": "Diese Aufgabe löschen?",
+    "empty": "Keine geplanten Aufgaben",
+    "invalidSchedule": "Ungültiger Zeitplan — bitte 5 Felder (Min Std Tag Mon Wt) oder ein Schlüsselwort wie @daily angeben",
+    "schedulePlaceholder": "z.B. 0 3 * * * oder @daily",
+    "commandPlaceholder": "z.B. /usr/bin/backup.sh",
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren"
   },
   "terminal": {
     "title": "Terminal",

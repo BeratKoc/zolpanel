@@ -23,7 +23,8 @@
     "logout": "Log out",
     "apps": "Apps",
     "terminal": "Terminal",
-    "files": "Files"
+    "files": "Files",
+    "cron": "Scheduled Jobs"
   },
   "login": {
     "subtitle": "Sign in to continue",
@@ -319,6 +320,26 @@
     "newName": "New name",
     "empty": "Empty folder",
     "tooLarge": "File too large"
+  },
+  "cron": {
+    "title": "Scheduled Jobs",
+    "schedule": "Schedule",
+    "command": "Command",
+    "enabled": "Enabled",
+    "add": "Add",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "run": "Run now",
+    "runOutput": "Run Output",
+    "deleteConfirm": "Delete this job?",
+    "empty": "No scheduled jobs yet",
+    "invalidSchedule": "Invalid schedule — enter 5 fields (min hr dom mon dow) or a keyword like @daily",
+    "schedulePlaceholder": "e.g. 0 3 * * * or @daily",
+    "commandPlaceholder": "e.g. /usr/bin/backup.sh",
+    "enable": "Enable",
+    "disable": "Disable"
   },
   "terminal": {
     "title": "Terminal",

@@ -23,7 +23,8 @@
     "logout": "退出",
     "apps": "应用",
     "terminal": "终端",
-    "files": "文件"
+    "files": "文件",
+    "cron": "定时任务"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -319,6 +320,26 @@
     "newName": "新名称",
     "empty": "空文件夹",
     "tooLarge": "文件过大"
+  },
+  "cron": {
+    "title": "定时任务",
+    "schedule": "计划时间",
+    "command": "命令",
+    "enabled": "已启用",
+    "add": "添加",
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "run": "立即运行",
+    "runOutput": "运行输出",
+    "deleteConfirm": "删除此任务？",
+    "empty": "暂无定时任务",
+    "invalidSchedule": "无效的计划格式 — 请输入 5 个字段（分 时 日 月 周）或 @daily 等关键字",
+    "schedulePlaceholder": "例如：0 3 * * * 或 @daily",
+    "commandPlaceholder": "例如：/usr/bin/backup.sh",
+    "enable": "启用",
+    "disable": "禁用"
   },
   "terminal": {
     "title": "终端",

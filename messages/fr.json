@@ -23,7 +23,8 @@
     "logout": "Déconnexion",
     "apps": "Applications",
     "terminal": "Terminal",
-    "files": "Fichiers"
+    "files": "Fichiers",
+    "cron": "Tâches planifiées"
   },
   "login": {
     "subtitle": "Connectez-vous pour continuer",
@@ -319,6 +320,26 @@
     "newName": "Nouveau nom",
     "empty": "Dossier vide",
     "tooLarge": "Fichier trop volumineux"
+  },
+  "cron": {
+    "title": "Tâches planifiées",
+    "schedule": "Planification",
+    "command": "Commande",
+    "enabled": "Actif",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "run": "Exécuter maintenant",
+    "runOutput": "Sortie d'exécution",
+    "deleteConfirm": "Supprimer cette tâche ?",
+    "empty": "Aucune tâche planifiée",
+    "invalidSchedule": "Planification invalide — saisissez 5 champs (min h j mo js) ou un mot-clé comme @daily",
+    "schedulePlaceholder": "ex. : 0 3 * * * ou @daily",
+    "commandPlaceholder": "ex. : /usr/bin/backup.sh",
+    "enable": "Activer",
+    "disable": "Désactiver"
   },
   "terminal": {
     "title": "Terminal",
