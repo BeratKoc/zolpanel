@@ -15,10 +15,17 @@ export async function makeSpawner(target: string): Promise<SpawnFn> {
   if (target !== 'host') {
     assertSafeContainerRef(target);
     const all = await listContainers();
-    if (!all.some(c => c.name === target)) throw new Error('Container bulunamadı: ' + target);
+    if (!all.some(c => c.name === target && c.state === 'running')) throw new Error('Container çalışmıyor veya bulunamadı: ' + target);
   }
   return (): PtyLike => {
-    const opts = { name: 'xterm-color', cols: 80, rows: 24, cwd: process.env.HOME || '/root', env: process.env as Record<string, string> };
+    const safeEnv: Record<string, string> = {
+      PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+      HOME: process.env.HOME || '/root',
+      TERM: 'xterm-color',
+      LANG: process.env.LANG || 'en_US.UTF-8',
+      USER: process.env.USER || 'root',
+    };
+    const opts = { name: 'xterm-color', cols: 80, rows: 24, cwd: process.env.HOME || '/root', env: safeEnv };
     const p = target === 'host'
       ? nodePty.spawn('bash', [], opts)
       : nodePty.spawn('docker', ['exec', '-it', target, 'sh', '-c', 'exec bash 2>/dev/null || exec sh'], opts);
