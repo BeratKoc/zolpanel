@@ -97,6 +97,13 @@ export const api = {
     request('POST', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
   dbxRedisDel: (ref: string, body: { key: string }, write?: boolean) =>
     request('DELETE', `/dbx/${encodeURIComponent(ref)}/rows${write ? '?write=1' : ''}`, body),
+  // File Manager
+  fileList: (p: string) => request('GET', `/files/list?path=${encodeURIComponent(p)}`),
+  fileRead: (p: string) => request('GET', `/files/read?path=${encodeURIComponent(p)}`),
+  fileSave: (p: string, content: string) => request('POST', '/files/save', { path: p, content }),
+  fileMkdir: (p: string) => request('POST', '/files/mkdir', { path: p }),
+  fileRename: (from: string, to: string) => request('POST', '/files/rename', { from, to }),
+  fileDelete: (p: string, recursive: boolean) => request('DELETE', '/files', { path: p, recursive }),
   // Terminal
   terminalCreate: (target: string) => request('POST', '/terminal', { target }),
   terminalInput: (id: string, data: string) => request('POST', `/terminal/${encodeURIComponent(id)}/input`, { data }),
