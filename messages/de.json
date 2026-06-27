@@ -371,7 +371,13 @@
     "connect": "Verbinden",
     "reconnect": "Neu verbinden",
     "disconnected": "Sitzung geschlossen",
-    "limit": "Zu viele offene Terminal-Sitzungen"
+    "limit": "Zu viele offene Terminal-Sitzungen",
+    "connected": "Verbunden",
+    "fontIncrease": "Schriftgröße erhöhen",
+    "fontDecrease": "Schriftgröße verringern",
+    "clear": "Löschen",
+    "fullscreen": "Vollbild",
+    "exitFullscreen": "Vollbild beenden"
   },
   "settings": {
     "title": "Einstellungen",

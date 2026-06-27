@@ -371,7 +371,13 @@
     "connect": "Connect",
     "reconnect": "Reconnect",
     "disconnected": "Session closed",
-    "limit": "Too many open terminal sessions"
+    "limit": "Too many open terminal sessions",
+    "connected": "Connected",
+    "fontIncrease": "Increase font size",
+    "fontDecrease": "Decrease font size",
+    "clear": "Clear",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen"
   },
   "settings": {
     "title": "Settings",

@@ -371,7 +371,13 @@
     "connect": "Bağlan",
     "reconnect": "Yeniden bağlan",
     "disconnected": "Oturum kapandı",
-    "limit": "Çok fazla açık terminal oturumu"
+    "limit": "Çok fazla açık terminal oturumu",
+    "connected": "Bağlı",
+    "fontIncrease": "Yazı tipi büyüt",
+    "fontDecrease": "Yazı tipi küçült",
+    "clear": "Temizle",
+    "fullscreen": "Tam ekran",
+    "exitFullscreen": "Tam ekrandan çık"
   },
   "settings": {
     "title": "Ayarlar",

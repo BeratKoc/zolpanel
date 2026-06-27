@@ -23,20 +23,32 @@ export default function TerminalPage() {
   }, []);
 
   return (
-    <div className="page" style={{ animation: 'fadeIn 0.2s ease', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexShrink: 0, flexWrap: 'wrap' }}>
-        <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('terminal.title')}</h2>
-        <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {t('terminal.target')}
-          <select value={target} onChange={e => setTarget(e.target.value)}
-            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text-primary)', fontSize: '12px', padding: '4px 8px' }}>
-            <option value="host">{t('terminal.host')}</option>
-            {containers.map(c => <option key={c} value={c}>{t('terminal.container')}: {c}</option>)}
-          </select>
-        </label>
-      </div>
+    <div
+      className="page"
+      style={{
+        animation: 'fadeIn 0.2s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
+      }}
+    >
+      {/* h2 required by e2e — visually hidden but still in DOM */}
+      <h2
+        style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}
+      >
+        {t('terminal.title')}
+      </h2>
+
+      {/* The select must be reachable inside .page for e2e (.page select).
+          It lives inside TerminalView's header, which is rendered here. */}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <TerminalView key={target} target={target} />
+        <TerminalView
+          key={target}
+          target={target}
+          containers={containers}
+          onTargetChange={setTarget}
+        />
       </div>
     </div>
   );

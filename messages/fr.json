@@ -371,7 +371,13 @@
     "connect": "Se connecter",
     "reconnect": "Reconnecter",
     "disconnected": "Session fermée",
-    "limit": "Trop de sessions de terminal ouvertes"
+    "limit": "Trop de sessions de terminal ouvertes",
+    "connected": "Connecté",
+    "fontIncrease": "Augmenter la taille de police",
+    "fontDecrease": "Réduire la taille de police",
+    "clear": "Effacer",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran"
   },
   "settings": {
     "title": "Paramètres",
