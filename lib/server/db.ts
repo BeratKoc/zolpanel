@@ -190,6 +190,13 @@ function createTables(conn: DB): void {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS api_tokens (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      tokenHash TEXT NOT NULL UNIQUE,
+      createdAt TEXT NOT NULL,
+      lastUsed TEXT
+    );
   `);
 }
 
@@ -589,6 +596,43 @@ export function setSetting(key: string, value: string): void {
 }
 export function deleteSetting(key: string): void {
   getDb().prepare('DELETE FROM settings WHERE key=?').run(key);
+}
+
+// ---- api_tokens ---------------------------------------------------------
+
+export interface ApiTokenRow {
+  id: string;
+  name: string;
+  tokenHash: string;
+  createdAt: string;
+  lastUsed: string | null;
+}
+
+export function insertApiToken(t: { id: string; name: string; tokenHash: string; createdAt: string }): void {
+  getDb()
+    .prepare('INSERT INTO api_tokens (id, name, tokenHash, createdAt, lastUsed) VALUES (?, ?, ?, ?, NULL)')
+    .run(t.id, t.name, t.tokenHash, t.createdAt);
+}
+
+export function listApiTokens(): { id: string; name: string; createdAt: string; lastUsed: string | null }[] {
+  return getDb()
+    .prepare('SELECT id, name, createdAt, lastUsed FROM api_tokens ORDER BY createdAt DESC')
+    .all() as { id: string; name: string; createdAt: string; lastUsed: string | null }[];
+}
+
+export function getApiTokenByHash(hash: string): { id: string; name: string } | null {
+  const r = getDb()
+    .prepare('SELECT id, name FROM api_tokens WHERE tokenHash = ?')
+    .get(hash) as { id: string; name: string } | undefined;
+  return r ?? null;
+}
+
+export function deleteApiToken(id: string): void {
+  getDb().prepare('DELETE FROM api_tokens WHERE id = ?').run(id);
+}
+
+export function touchApiToken(id: string, iso: string): void {
+  getDb().prepare('UPDATE api_tokens SET lastUsed = ? WHERE id = ?').run(iso, id);
 }
 
 // İlk kurulumda admin oluştur — sabit şifre YOK, rastgele üret ve bir kez logla.

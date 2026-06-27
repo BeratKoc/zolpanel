@@ -18,8 +18,15 @@ async function request(method: string, path: string, body?: unknown) {
 }
 
 export const api = {
-  login: (u: string, p: string) => request('POST', '/auth/login', { username: u, password: p }),
+  login: (u: string, p: string, totp?: string) => request('POST', '/auth/login', { username: u, password: p, ...(totp ? { totp } : {}) }),
   verify: () => request('GET', '/auth/verify'),
+  twofaStatus: () => request('GET', '/auth/2fa'),
+  twofaSetup: () => request('POST', '/auth/2fa'),
+  twofaEnable: (code: string) => request('PUT', '/auth/2fa', { code }),
+  twofaDisable: () => request('DELETE', '/auth/2fa'),
+  tokensList: () => request('GET', '/auth/tokens'),
+  tokenCreate: (name: string) => request('POST', '/auth/tokens', { name }),
+  tokenDelete: (id: string) => request('DELETE', `/auth/tokens/${encodeURIComponent(id)}`),
   changePassword: (c: string, n: string) => request('POST', '/auth/change-password', { currentPassword: c, newPassword: n }),
   getDomains: () => request('GET', '/domains'),
   createDomain: (d: unknown) => request('POST', '/domains', d),
