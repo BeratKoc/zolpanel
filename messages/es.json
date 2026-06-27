@@ -25,7 +25,8 @@
     "terminal": "Terminal",
     "files": "Archivos",
     "cron": "Tareas programadas",
-    "firewall": "Cortafuegos"
+    "firewall": "Cortafuegos",
+    "dns": "DNS"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -372,6 +373,30 @@
     "session": "Sesión",
     "loggedIn": "Sesión iniciada",
     "logout": "Cerrar sesión"
+  },
+  "dns": {
+    "title": "Gestión DNS",
+    "noToken": "Se requiere un token API de Cloudflare — configúralo ahora",
+    "tokenSave": "Guardar token",
+    "tokenSaved": "Token guardado",
+    "tokenChange": "Cambiar token",
+    "tokenPlaceholder": "Token API de Cloudflare",
+    "zone": "Zona",
+    "selectZone": "No hay zonas disponibles",
+    "records": "Registros DNS",
+    "addRecord": "Añadir registro",
+    "type": "Tipo",
+    "name": "Nombre",
+    "content": "Contenido",
+    "ttl": "TTL",
+    "priority": "Prioridad",
+    "auto": "Automático",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "deleteConfirm": "¿Eliminar el registro {name}?",
+    "empty": "No hay registros en esta zona"
   },
   "firewall": {
     "title": "Cortafuegos",

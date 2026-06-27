@@ -25,7 +25,8 @@
     "terminal": "Terminal",
     "files": "Dosyalar",
     "cron": "Zamanlanmış Görevler",
-    "firewall": "Güvenlik Duvarı"
+    "firewall": "Güvenlik Duvarı",
+    "dns": "DNS"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -372,6 +373,30 @@
     "session": "Oturum",
     "loggedIn": "Giriş yapıldı",
     "logout": "Çıkış Yap"
+  },
+  "dns": {
+    "title": "DNS Yönetimi",
+    "noToken": "Cloudflare API token gerekli — ayarlayın",
+    "tokenSave": "Token kaydet",
+    "tokenSaved": "Token kaydedildi",
+    "tokenChange": "Token değiştir",
+    "tokenPlaceholder": "Cloudflare API Token",
+    "zone": "Zone",
+    "selectZone": "Seçmek için bir zone yok",
+    "records": "DNS Kayıtları",
+    "addRecord": "Kayıt ekle",
+    "type": "Tür",
+    "name": "Ad",
+    "content": "İçerik",
+    "ttl": "TTL",
+    "priority": "Öncelik",
+    "auto": "Otomatik",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "deleteConfirm": "{name} kaydı silinsin mi?",
+    "empty": "Bu zone'da kayıt yok"
   },
   "firewall": {
     "title": "Güvenlik Duvarı",

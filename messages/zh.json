@@ -25,7 +25,8 @@
     "terminal": "终端",
     "files": "文件",
     "cron": "定时任务",
-    "firewall": "防火墙"
+    "firewall": "防火墙",
+    "dns": "DNS"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -372,6 +373,30 @@
     "session": "会话",
     "loggedIn": "已登录",
     "logout": "退出登录"
+  },
+  "dns": {
+    "title": "DNS 管理",
+    "noToken": "需要 Cloudflare API Token — 请配置",
+    "tokenSave": "保存 Token",
+    "tokenSaved": "Token 已保存",
+    "tokenChange": "更换 Token",
+    "tokenPlaceholder": "Cloudflare API Token",
+    "zone": "区域",
+    "selectZone": "暂无可用区域",
+    "records": "DNS 记录",
+    "addRecord": "添加记录",
+    "type": "类型",
+    "name": "名称",
+    "content": "内容",
+    "ttl": "TTL",
+    "priority": "优先级",
+    "auto": "自动",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "deleteConfirm": "删除记录 {name}？",
+    "empty": "该区域暂无记录"
   },
   "firewall": {
     "title": "防火墙",

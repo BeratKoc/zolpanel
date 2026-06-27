@@ -25,7 +25,8 @@
     "terminal": "Terminal",
     "files": "Dateien",
     "cron": "Geplante Aufgaben",
-    "firewall": "Firewall"
+    "firewall": "Firewall",
+    "dns": "DNS"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -372,6 +373,30 @@
     "session": "Sitzung",
     "loggedIn": "Angemeldet",
     "logout": "Abmelden"
+  },
+  "dns": {
+    "title": "DNS-Verwaltung",
+    "noToken": "Cloudflare API-Token erforderlich — jetzt konfigurieren",
+    "tokenSave": "Token speichern",
+    "tokenSaved": "Token gespeichert",
+    "tokenChange": "Token ändern",
+    "tokenPlaceholder": "Cloudflare API-Token",
+    "zone": "Zone",
+    "selectZone": "Keine Zonen verfügbar",
+    "records": "DNS-Einträge",
+    "addRecord": "Eintrag hinzufügen",
+    "type": "Typ",
+    "name": "Name",
+    "content": "Inhalt",
+    "ttl": "TTL",
+    "priority": "Priorität",
+    "auto": "Automatisch",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "deleteConfirm": "Eintrag {name} löschen?",
+    "empty": "Keine Einträge in dieser Zone"
   },
   "firewall": {
     "title": "Firewall",
