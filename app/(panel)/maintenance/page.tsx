@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Wrench, RefreshCw, Package, HardDrive, Trash2, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api-client';
@@ -16,10 +16,10 @@ interface UpdatePackage {
 
 interface Filesystem {
   filesystem: string;
-  size: string;
-  used: string;
-  avail: string;
-  usePercent: string;
+  size: number;
+  used: number;
+  avail: number;
+  usePercent: number;
   mount: string;
 }
 
@@ -33,9 +33,12 @@ interface DockerUsage {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function parsePercent(s: string): number {
-  const n = parseFloat(s.replace('%', ''));
-  return isNaN(n) ? 0 : Math.min(100, Math.max(0, n));
+function formatBytes(bytes?: number): string {
+  if (bytes == null || !Number.isFinite(bytes) || bytes < 0) return '—';
+  if (bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
 }
 
 function percentColor(pct: number): string {
@@ -55,6 +58,12 @@ interface ConfirmModalProps {
 
 function ConfirmModal({ title, body, onConfirm, onCancel }: ConfirmModalProps) {
   const t = useTranslations();
+  const inFlight = useRef(false);
+  function handleConfirm() {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    onConfirm();
+  }
   return (
     <Modal title={title} onClose={onCancel} width={440}>
       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
@@ -67,7 +76,7 @@ function ConfirmModal({ title, body, onConfirm, onCancel }: ConfirmModalProps) {
         <Btn
           variant="danger"
           size="sm"
-          onClick={onConfirm}
+          onClick={handleConfirm}
           style={{ background: 'var(--red)', border: '1px solid var(--red)', color: '#fff' }}
         >
           {title}
@@ -282,7 +291,7 @@ export default function MaintenancePage() {
         <div>
           <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>{t('maintenance.title')}</h2>
         </div>
-        <Btn variant="default" onClick={loadAll} disabled={busy}>
+        <Btn variant="default" onClick={loadAll} disabled={busy || updatesLoading || diskLoading}>
           <RefreshCw size={13} strokeWidth={1.75} style={busy ? { animation: 'spin 1s linear infinite' } : undefined} />
           {t('maintenance.refresh')}
         </Btn>
@@ -302,7 +311,7 @@ export default function MaintenancePage() {
               variant="danger"
               size="sm"
               onClick={handleApplyUpdates}
-              disabled={applying || packages.length === 0 || updatesLoading}
+              disabled={busy || packages.length === 0 || updatesLoading}
             >
               {applying
                 ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> {t('maintenance.running')}</>
@@ -378,13 +387,13 @@ export default function MaintenancePage() {
                     </thead>
                     <tbody>
                       {filesystems.map(fs => {
-                        const pct = parsePercent(fs.usePercent);
+                        const pct = Math.max(0, Math.min(100, fs.usePercent));
                         const color = percentColor(pct);
                         return (
                           <tr key={fs.mount}>
                             <td style={{ ...tdStyle, fontWeight: 500 }}>{fs.mount}</td>
-                            <td style={{ ...tdStyle, color: 'var(--text-muted)' }}>{fs.used}</td>
-                            <td style={{ ...tdStyle, color: 'var(--text-muted)' }}>{fs.avail}</td>
+                            <td style={{ ...tdStyle, color: 'var(--text-muted)' }}>{formatBytes(fs.used)}</td>
+                            <td style={{ ...tdStyle, color: 'var(--text-muted)' }}>{formatBytes(fs.avail)}</td>
                             <td style={tdStyle}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <div style={{
@@ -403,7 +412,7 @@ export default function MaintenancePage() {
                                     transition: 'width 0.3s ease',
                                   }} />
                                 </div>
-                                <span style={{ color, fontSize: '11px', whiteSpace: 'nowrap' }}>{fs.usePercent}</span>
+                                <span style={{ color, fontSize: '11px', whiteSpace: 'nowrap' }}>{pct}%</span>
                               </div>
                             </td>
                           </tr>
@@ -465,7 +474,7 @@ export default function MaintenancePage() {
               variant="danger"
               size="sm"
               onClick={() => handlePrune('images', t('maintenance.pruneImages'))}
-              disabled={pruning !== null}
+              disabled={busy}
             >
               {pruning === 'images'
                 ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> {t('maintenance.running')}</>
@@ -475,7 +484,7 @@ export default function MaintenancePage() {
               variant="danger"
               size="sm"
               onClick={() => handlePrune('builder', t('maintenance.pruneBuilder'))}
-              disabled={pruning !== null}
+              disabled={busy}
             >
               {pruning === 'builder'
                 ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> {t('maintenance.running')}</>
@@ -485,7 +494,7 @@ export default function MaintenancePage() {
               variant="danger"
               size="sm"
               onClick={() => handlePrune('system', t('maintenance.pruneSystem'))}
-              disabled={pruning !== null}
+              disabled={busy}
             >
               {pruning === 'system'
                 ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> {t('maintenance.running')}</>
