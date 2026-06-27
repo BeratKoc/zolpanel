@@ -119,4 +119,13 @@ export const api = {
   fwAdd: (rule: unknown) => request('POST', '/firewall', { rule }),
   fwDelete: (num: number) => request('DELETE', `/firewall/${num}`),
   fwToggle: (enable: boolean) => request('POST', '/firewall/toggle', { enable }),
+  // DNS
+  dnsTokenStatus: () => request('GET', '/dns/token'),
+  dnsTokenSave: (token: string) => request('POST', '/dns/token', { token }),
+  dnsTokenDelete: () => request('DELETE', '/dns/token'),
+  dnsZones: () => request('GET', '/dns/zones'),
+  dnsRecords: (zoneId: string) => request('GET', `/dns/records?zoneId=${encodeURIComponent(zoneId)}`),
+  dnsRecordCreate: (zoneId: string, record: unknown) => request('POST', '/dns/records', { zoneId, record }),
+  dnsRecordUpdate: (zoneId: string, id: string, record: unknown) => request('PUT', `/dns/records/${encodeURIComponent(id)}`, { zoneId, record }),
+  dnsRecordDelete: (zoneId: string, id: string) => request('DELETE', `/dns/records/${encodeURIComponent(id)}`, { zoneId }),
 };
