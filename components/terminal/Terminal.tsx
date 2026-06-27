@@ -125,6 +125,10 @@ export function TerminalView({ target, containers, onTargetChange }: TerminalVie
     termRef.current = term;
     fitRef.current = fit;
 
+    // Hoisted to effect scope so cleanup can always remove it regardless of
+    // whether boot() succeeded or threw (fixes resize-listener leak on error).
+    let onWinResize: (() => void) | undefined;
+
     const token =
       typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
 
@@ -141,7 +145,7 @@ export function TerminalView({ target, containers, onTargetChange }: TerminalVie
           api.terminalInput(res.sessionId, d).catch(() => {});
         });
 
-        const onWinResize = () => {
+        onWinResize = () => {
           if (fitRef.current && termRef.current) {
             fitRef.current.fit();
             api
@@ -177,8 +181,6 @@ export function TerminalView({ target, containers, onTargetChange }: TerminalVie
           setConnected(false);
           setClosed(true);
         }
-
-        window.removeEventListener('resize', onWinResize);
       } catch (e: unknown) {
         if (!aborted) {
           show(e instanceof Error ? e.message : String(e), 'error');
@@ -193,6 +195,7 @@ export function TerminalView({ target, containers, onTargetChange }: TerminalVie
     return () => {
       aborted = true;
       reader?.cancel().catch(() => {});
+      if (onWinResize) window.removeEventListener('resize', onWinResize);
       const id = sessionIdRef.current;
       if (id) api.terminalDelete(id).catch(() => {});
       sessionIdRef.current = '';
@@ -283,9 +286,20 @@ export function TerminalView({ target, containers, onTargetChange }: TerminalVie
           rowGap: '4px',
         }}
       >
-        {/* left: icon + target selector */}
+        {/* left: icon + title + target selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '1 1 auto', minWidth: 0 }}>
           <SquareTerminal size={16} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+          <span
+            style={{
+              fontSize: '13px',
+              fontWeight: 500,
+              color: 'var(--text-primary)',
+              flexShrink: 0,
+              userSelect: 'none',
+            }}
+          >
+            {t('terminal.title')}
+          </span>
           <label
             style={{
               display: 'flex',
@@ -483,12 +497,7 @@ export function TerminalView({ target, containers, onTargetChange }: TerminalVie
           outline-offset: 1px;
         }
 
-        /* mobile: no horizontal overflow */
-        @media (max-width: 767px) {
-          .terminal-toolbar-wrap {
-            flex-wrap: wrap;
-          }
-        }
+        /* mobile: no horizontal overflow — handled via inline flexWrap on header */
       `}</style>
     </div>
   );
