@@ -128,6 +128,11 @@ export const api = {
   dnsRecordCreate: (zoneId: string, record: unknown) => request('POST', '/dns/records', { zoneId, record }),
   dnsRecordUpdate: (zoneId: string, id: string, record: unknown) => request('PUT', `/dns/records/${encodeURIComponent(id)}`, { zoneId, record }),
   dnsRecordDelete: (zoneId: string, id: string) => request('DELETE', `/dns/records/${encodeURIComponent(id)}`, { zoneId }),
+  // Maintenance
+  updatesList: () => request('GET', '/maintenance/updates'),
+  updatesApply: () => request('POST', '/maintenance/updates'),
+  diskInfo: () => request('GET', '/maintenance/disk'),
+  dockerPrune: (target: string) => request('POST', '/maintenance/prune', { target }),
   // S3 Backup
   s3ConfigStatus: () => request('GET', '/s3/config'),
   s3ConfigSave: (config: unknown) => request('POST', '/s3/config', { config }),
