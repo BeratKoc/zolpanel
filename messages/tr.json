@@ -35,7 +35,9 @@
     "password": "Şifre",
     "submit": "Giriş Yap",
     "errorEmpty": "Kullanıcı adı ve şifre girin",
-    "errorGeneric": "İstek başarısız"
+    "errorGeneric": "İstek başarısız",
+    "totpPrompt": "İki adımlı doğrulama kodu girin",
+    "totpCode": "6 haneli kod"
   },
   "dashboard": {
     "system": "Sistem",
@@ -439,6 +441,36 @@
     "empty": "Kural yok",
     "sshWarning": "Korumalı port (22/80/443) kuralı silinemez",
     "enableWarning": "Etkinleştirmeden önce SSH (22) ve HTTP(S) (80/443) portları otomatik izinli olacak — kilitlenme önlenir."
+  },
+  "twofa": {
+    "title": "İki Adımlı Doğrulama (2FA)",
+    "status": "Durum",
+    "enabled": "Etkin",
+    "disabled": "Devre dışı",
+    "enable": "Etkinleştir",
+    "disable": "Devre dışı bırak",
+    "setupScan": "Authenticator uygulamanızla QR kodu tarayın veya gizli anahtarı manuel olarak girin:",
+    "secret": "Gizli Anahtar",
+    "otpauth": "OTP URI",
+    "enterCode": "Doğrulama kodu",
+    "verify": "Doğrula",
+    "verified": "2FA etkinleştirildi",
+    "invalidCode": "Geçersiz kod — tekrar deneyin",
+    "disableConfirm": "2FA devre dışı bırakılsın mı?"
+  },
+  "apitokens": {
+    "title": "API Token'ları",
+    "create": "Oluştur",
+    "name": "İsim",
+    "namePlaceholder": "Token ismi (ör: CI/CD)",
+    "created": "Oluşturulma",
+    "lastUsed": "Son Kullanım",
+    "never": "Hiç kullanılmadı",
+    "revoke": "İptal Et",
+    "revokeConfirm": "Bu token iptal edilsin mi?",
+    "tokenOnce": "Token yalnızca bir kez gösterilir — kopyalayın ve güvenli yerde saklayın:",
+    "copy": "Kopyala",
+    "empty": "Henüz token yok"
   },
   "maintenance": {
     "title": "Bakım",

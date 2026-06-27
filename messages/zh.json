@@ -35,7 +35,9 @@
     "password": "密码",
     "submit": "登录",
     "errorEmpty": "请输入用户名和密码",
-    "errorGeneric": "请求失败"
+    "errorGeneric": "请求失败",
+    "totpPrompt": "请输入双因素验证码",
+    "totpCode": "6位验证码"
   },
   "dashboard": {
     "system": "系统",
@@ -439,6 +441,36 @@
     "empty": "无规则",
     "sshWarning": "受保护端口 (22/80/443) 的规则无法删除",
     "enableWarning": "启用前，SSH (22) 和 HTTP(S) (80/443) 端口将自动放行 — 防止锁定。"
+  },
+  "twofa": {
+    "title": "双因素认证（2FA）",
+    "status": "状态",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "enable": "启用",
+    "disable": "禁用",
+    "setupScan": "使用验证器应用扫描二维码或手动输入密钥：",
+    "secret": "密钥",
+    "otpauth": "OTP URI",
+    "enterCode": "验证码",
+    "verify": "验证",
+    "verified": "2FA 已启用",
+    "invalidCode": "验证码无效 — 请重试",
+    "disableConfirm": "确定禁用 2FA？"
+  },
+  "apitokens": {
+    "title": "API 令牌",
+    "create": "创建",
+    "name": "名称",
+    "namePlaceholder": "令牌名称（如 CI/CD）",
+    "created": "创建时间",
+    "lastUsed": "最后使用",
+    "never": "从未使用",
+    "revoke": "撤销",
+    "revokeConfirm": "确定撤销此令牌？",
+    "tokenOnce": "令牌仅显示一次 — 请复制并安全保存：",
+    "copy": "复制",
+    "empty": "暂无令牌"
   },
   "maintenance": {
     "title": "维护",

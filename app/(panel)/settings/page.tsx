@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Copy, Check } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import { Btn, FormField, Spinner, useToast } from '@/components/ui';
 
@@ -18,10 +18,37 @@ export default function Settings() {
   const [pwErr, setPwErr] = useState<{ next?: string; confirm?: string }>({});
   const { show, ToastContainer } = useToast();
 
+  // 2FA state
+  const [twofaEnabled, setTwofaEnabled] = useState<boolean | null>(null);
+  const [twofaLoading, setTwofaLoading] = useState(false);
+  const [twofaSetupData, setTwofaSetupData] = useState<{ secret: string; otpauth: string } | null>(null);
+  const [twofaCode, setTwofaCode] = useState('');
+  const [twofaVerifying, setTwofaVerifying] = useState(false);
+
+  // API Tokens state
+  const [tokens, setTokens] = useState<{ id: string; name: string; createdAt: string; lastUsed: string | null }[]>([]);
+  const [tokensLoading, setTokensLoading] = useState(false);
+  const [newTokenName, setNewTokenName] = useState('');
+  const [creatingToken, setCreatingToken] = useState(false);
+  const [newTokenValue, setNewTokenValue] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     setUsername(localStorage.getItem('username') || '');
     api.getCaddyConfig().then(d => setCaddyConfig(d.content)).catch(() => {});
     api.getMetrics().then(setMetrics).catch(() => {});
+    // Fetch 2FA status
+    api.twofaStatus().then((d: any) => setTwofaEnabled(d.enabled)).catch(() => {});
+    // Fetch tokens
+    fetchTokens();
+  }, []);
+
+  const fetchTokens = useCallback(() => {
+    setTokensLoading(true);
+    api.tokensList()
+      .then((d: any) => setTokens(d.tokens ?? []))
+      .catch(() => {})
+      .finally(() => setTokensLoading(false));
   }, []);
 
   function handleLogout() {
@@ -45,6 +72,89 @@ export default function Settings() {
     } finally {
       setPwLoading(false);
     }
+  }
+
+  // 2FA handlers
+  async function handleTwofaEnable() {
+    setTwofaLoading(true);
+    try {
+      const d = await api.twofaSetup() as any;
+      setTwofaSetupData({ secret: d.secret, otpauth: d.otpauth });
+      setTwofaCode('');
+    } catch (e: any) {
+      show(e.message, 'error');
+    } finally {
+      setTwofaLoading(false);
+    }
+  }
+
+  async function handleTwofaVerify(e: React.FormEvent) {
+    e.preventDefault();
+    setTwofaVerifying(true);
+    try {
+      await api.twofaEnable(twofaCode);
+      setTwofaEnabled(true);
+      setTwofaSetupData(null);
+      setTwofaCode('');
+      show(t('twofa.verified'), 'success');
+    } catch (e: any) {
+      show(t('twofa.invalidCode'), 'error');
+    } finally {
+      setTwofaVerifying(false);
+    }
+  }
+
+  async function handleTwofaDisable() {
+    if (!confirm(t('twofa.disableConfirm'))) return;
+    setTwofaLoading(true);
+    try {
+      await api.twofaDisable();
+      setTwofaEnabled(false);
+      setTwofaSetupData(null);
+    } catch (e: any) {
+      show(e.message, 'error');
+    } finally {
+      setTwofaLoading(false);
+    }
+  }
+
+  // API Token handlers
+  async function handleTokenCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newTokenName.trim()) return;
+    setCreatingToken(true);
+    try {
+      const d = await api.tokenCreate(newTokenName.trim()) as any;
+      setNewTokenValue(d.token);
+      setNewTokenName('');
+      fetchTokens();
+    } catch (e: any) {
+      show(e.message, 'error');
+    } finally {
+      setCreatingToken(false);
+    }
+  }
+
+  async function handleTokenRevoke(id: string) {
+    if (!confirm(t('apitokens.revokeConfirm'))) return;
+    try {
+      await api.tokenDelete(id);
+      fetchTokens();
+    } catch (e: any) {
+      show(e.message, 'error');
+    }
+  }
+
+  function handleCopyToken(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function formatDate(iso: string | null) {
+    if (!iso) return t('apitokens.never');
+    return new Date(iso).toLocaleDateString();
   }
 
   return (
@@ -152,6 +262,231 @@ export default function Settings() {
           }}>
             {caddyConfig || t('settings.caddyfileEmpty')}
           </pre>
+        </Section>
+
+        {/* 2FA */}
+        <Section title={t('twofa.title')}>
+          {twofaEnabled === null ? (
+            <Spinner />
+          ) : (
+            <div>
+              {/* Status badge */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('twofa.status')}:</span>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  background: twofaEnabled ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.1)',
+                  color: twofaEnabled ? 'var(--green)' : 'var(--red)',
+                }}>
+                  {twofaEnabled
+                    ? <><CheckCircle2 size={11} />{t('twofa.enabled')}</>
+                    : <><XCircle size={11} />{t('twofa.disabled')}</>
+                  }
+                </span>
+              </div>
+
+              {/* Setup flow */}
+              {!twofaEnabled && !twofaSetupData && (
+                <Btn variant="primary" onClick={handleTwofaEnable} disabled={twofaLoading}>
+                  {twofaLoading ? <Spinner size={13} /> : t('twofa.enable')}
+                </Btn>
+              )}
+
+              {!twofaEnabled && twofaSetupData && (
+                <div>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                    {t('twofa.setupScan')}
+                  </p>
+
+                  <div style={{ marginBottom: '10px' }}>
+                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {t('twofa.secret')}
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <code style={{
+                        flex: 1,
+                        background: 'var(--bg-base)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius)',
+                        padding: '6px 10px',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '13px',
+                        color: 'var(--text-primary)',
+                        wordBreak: 'break-all',
+                      }}>
+                        {twofaSetupData.secret}
+                      </code>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(twofaSetupData.secret)}
+                        title={t('apitokens.copy')}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '14px' }}>
+                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {t('twofa.otpauth')}
+                    </p>
+                    <p style={{
+                      background: 'var(--bg-base)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      padding: '6px 10px',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      color: 'var(--text-secondary)',
+                      wordBreak: 'break-all',
+                    }}>
+                      {twofaSetupData.otpauth}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleTwofaVerify}>
+                    <FormField label={t('twofa.enterCode')}>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
+                        maxLength={6}
+                        value={twofaCode}
+                        onChange={e => setTwofaCode(e.target.value.replace(/\D/g, ''))}
+                        placeholder="000000"
+                        required
+                        autoComplete="one-time-code"
+                      />
+                    </FormField>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <Btn type="submit" variant="primary" disabled={twofaVerifying || twofaCode.length !== 6}>
+                        {twofaVerifying ? <Spinner size={13} /> : t('twofa.verify')}
+                      </Btn>
+                      <Btn type="button" variant="ghost" onClick={() => { setTwofaSetupData(null); setTwofaCode(''); }}>
+                        {t('common.cancel')}
+                      </Btn>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {twofaEnabled && (
+                <Btn variant="danger" onClick={handleTwofaDisable} disabled={twofaLoading}>
+                  {twofaLoading ? <Spinner size={13} /> : t('twofa.disable')}
+                </Btn>
+              )}
+            </div>
+          )}
+        </Section>
+
+        {/* API Tokens */}
+        <Section title={t('apitokens.title')}>
+          {/* Create form */}
+          <form onSubmit={handleTokenCreate} style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              value={newTokenName}
+              onChange={e => setNewTokenName(e.target.value)}
+              placeholder={t('apitokens.namePlaceholder')}
+              style={{ flex: '1', minWidth: '140px' }}
+            />
+            <Btn type="submit" variant="primary" disabled={creatingToken || !newTokenName.trim()}>
+              {creatingToken ? <Spinner size={13} /> : t('apitokens.create')}
+            </Btn>
+          </form>
+
+          {/* Newly created token display */}
+          {newTokenValue && (
+            <div style={{
+              background: 'rgba(234,179,8,0.08)',
+              border: '1px solid rgba(234,179,8,0.3)',
+              borderRadius: 'var(--radius)',
+              padding: '12px',
+              marginBottom: '16px',
+            }}>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                {t('apitokens.tokenOnce')}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <code style={{
+                  flex: 1,
+                  background: 'var(--bg-base)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  padding: '6px 10px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '12px',
+                  color: 'var(--text-primary)',
+                  wordBreak: 'break-all',
+                  overflowWrap: 'anywhere',
+                }}>
+                  {newTokenValue}
+                </code>
+                <button
+                  onClick={() => handleCopyToken(newTokenValue)}
+                  title={t('apitokens.copy')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: copied ? 'var(--green)' : 'var(--text-muted)', padding: '4px', flexShrink: 0 }}
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                </button>
+              </div>
+              <button
+                onClick={() => setNewTokenValue(null)}
+                style={{ marginTop: '8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', color: 'var(--text-muted)', padding: 0 }}
+              >
+                {t('common.close')}
+              </button>
+            </div>
+          )}
+
+          {/* Tokens table */}
+          {tokensLoading ? (
+            <Spinner />
+          ) : tokens.length === 0 ? (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{t('apitokens.empty')}</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr>
+                    {[t('apitokens.name'), t('apitokens.created'), t('apitokens.lastUsed'), ''].map((h, i) => (
+                      <th key={i} style={{
+                        textAlign: 'left',
+                        padding: '4px 0 8px',
+                        fontSize: '11px',
+                        color: 'var(--text-muted)',
+                        fontWeight: 400,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        borderBottom: '1px solid var(--border)',
+                        paddingRight: i < 3 ? '12px' : 0,
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tokens.map(tok => (
+                    <tr key={tok.id}>
+                      <td style={{ padding: '8px 12px 8px 0', color: 'var(--text-primary)' }}>{tok.name}</td>
+                      <td style={{ padding: '8px 12px 8px 0', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{formatDate(tok.createdAt)}</td>
+                      <td style={{ padding: '8px 12px 8px 0', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{formatDate(tok.lastUsed)}</td>
+                      <td style={{ padding: '8px 0', textAlign: 'right' }}>
+                        <Btn variant="danger" onClick={() => handleTokenRevoke(tok.id)} style={{ padding: '3px 8px', fontSize: '11px' }}>
+                          {t('apitokens.revoke')}
+                        </Btn>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Section>
 
         {/* Oturum */}

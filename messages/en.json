@@ -35,7 +35,9 @@
     "password": "Password",
     "submit": "Sign in",
     "errorEmpty": "Enter username and password",
-    "errorGeneric": "Request failed"
+    "errorGeneric": "Request failed",
+    "totpPrompt": "Enter your two-factor authentication code",
+    "totpCode": "6-digit code"
   },
   "dashboard": {
     "system": "System",
@@ -439,6 +441,36 @@
     "empty": "No rules",
     "sshWarning": "Protected port (22/80/443) rule cannot be deleted",
     "enableWarning": "Before enabling, SSH (22) and HTTP(S) (80/443) ports will be auto-allowed — prevents lockout."
+  },
+  "twofa": {
+    "title": "Two-Factor Authentication (2FA)",
+    "status": "Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enable": "Enable",
+    "disable": "Disable",
+    "setupScan": "Scan the QR code with your authenticator app or enter the secret key manually:",
+    "secret": "Secret Key",
+    "otpauth": "OTP URI",
+    "enterCode": "Verification code",
+    "verify": "Verify",
+    "verified": "2FA enabled",
+    "invalidCode": "Invalid code — try again",
+    "disableConfirm": "Disable 2FA?"
+  },
+  "apitokens": {
+    "title": "API Tokens",
+    "create": "Create",
+    "name": "Name",
+    "namePlaceholder": "Token name (e.g. CI/CD)",
+    "created": "Created",
+    "lastUsed": "Last used",
+    "never": "Never used",
+    "revoke": "Revoke",
+    "revokeConfirm": "Revoke this token?",
+    "tokenOnce": "The token is shown only once — copy it and store it safely:",
+    "copy": "Copy",
+    "empty": "No tokens yet"
   },
   "maintenance": {
     "title": "Maintenance",

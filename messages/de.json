@@ -35,7 +35,9 @@
     "password": "Passwort",
     "submit": "Anmelden",
     "errorEmpty": "Benutzername und Passwort eingeben",
-    "errorGeneric": "Anfrage fehlgeschlagen"
+    "errorGeneric": "Anfrage fehlgeschlagen",
+    "totpPrompt": "Geben Sie Ihren Zwei-Faktor-Authentifizierungscode ein",
+    "totpCode": "6-stelliger Code"
   },
   "dashboard": {
     "system": "System",
@@ -439,6 +441,36 @@
     "empty": "Keine Regeln",
     "sshWarning": "Regel für geschützten Port (22/80/443) kann nicht gelöscht werden",
     "enableWarning": "Beim Aktivieren werden SSH (22) und HTTP(S) (80/443) automatisch erlaubt — verhindert Aussperrung."
+  },
+  "twofa": {
+    "title": "Zwei-Faktor-Authentifizierung (2FA)",
+    "status": "Status",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren",
+    "setupScan": "Scannen Sie den QR-Code mit Ihrer Authentifizierungs-App oder geben Sie den geheimen Schlüssel manuell ein:",
+    "secret": "Geheimer Schlüssel",
+    "otpauth": "OTP-URI",
+    "enterCode": "Verifizierungscode",
+    "verify": "Verifizieren",
+    "verified": "2FA aktiviert",
+    "invalidCode": "Ungültiger Code — erneut versuchen",
+    "disableConfirm": "2FA deaktivieren?"
+  },
+  "apitokens": {
+    "title": "API-Token",
+    "create": "Erstellen",
+    "name": "Name",
+    "namePlaceholder": "Token-Name (z. B. CI/CD)",
+    "created": "Erstellt",
+    "lastUsed": "Zuletzt verwendet",
+    "never": "Nie verwendet",
+    "revoke": "Widerrufen",
+    "revokeConfirm": "Diesen Token widerrufen?",
+    "tokenOnce": "Der Token wird nur einmal angezeigt — kopieren und sicher aufbewahren:",
+    "copy": "Kopieren",
+    "empty": "Noch keine Token"
   },
   "maintenance": {
     "title": "Wartung",

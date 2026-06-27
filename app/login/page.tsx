@@ -15,13 +15,44 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 2FA step state
+  const [totpStep, setTotpStep] = useState(false);
+  const [totpCode, setTotpCode] = useState('');
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (totpStep) {
+      // Second step: submit with TOTP code
+      setError('');
+      setLoading(true);
+      try {
+        const data = await api.login(username, password, totpCode) as any;
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        router.push('/');
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t('login.errorGeneric'));
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // First step: normal login
     if (!username || !password) return setError(t('login.errorEmpty'));
     setError('');
     setLoading(true);
     try {
-      const data = await api.login(username, password);
+      const data = await api.login(username, password) as any;
+      if (data.twoFactorRequired === true) {
+        // Switch to TOTP step — do NOT clear username/password
+        setTotpStep(true);
+        setTotpCode('');
+        setLoading(false);
+        return;
+      }
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username);
       router.push('/');
@@ -60,28 +91,46 @@ export default function Login() {
             </h1>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            {t('login.subtitle')}
+            {totpStep ? t('login.totpPrompt') : t('login.subtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '12px' }}>
-            <input
-              type="text"
-              placeholder={t('login.username')}
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              autoFocus
-            />
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <input
-              type="password"
-              placeholder={t('login.password')}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-          </div>
+          {!totpStep ? (
+            <>
+              <div style={{ marginBottom: '12px' }}>
+                <input
+                  type="text"
+                  placeholder={t('login.username')}
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  type="password"
+                  placeholder={t('login.password')}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+              </div>
+            </>
+          ) : (
+            <div style={{ marginBottom: '20px' }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                placeholder={t('login.totpCode')}
+                value={totpCode}
+                onChange={e => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+                autoComplete="one-time-code"
+              />
+            </div>
+          )}
 
           {error && (
             <p style={{
@@ -100,11 +149,31 @@ export default function Login() {
           <Btn
             type="submit"
             variant="primary"
-            disabled={loading}
+            disabled={loading || (totpStep && totpCode.length !== 6)}
             style={{ width: '100%', justifyContent: 'center', padding: '9px' }}
           >
             {loading ? <Spinner size={14} /> : t('login.submit')}
           </Btn>
+
+          {totpStep && (
+            <button
+              type="button"
+              onClick={() => { setTotpStep(false); setTotpCode(''); setError(''); }}
+              style={{
+                display: 'block',
+                width: '100%',
+                marginTop: '10px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                textAlign: 'center',
+              }}
+            >
+              {t('common.cancel')}
+            </button>
+          )}
         </form>
       </div>
     </div>
