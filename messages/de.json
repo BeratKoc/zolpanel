@@ -26,7 +26,8 @@
     "files": "Dateien",
     "cron": "Geplante Aufgaben",
     "firewall": "Firewall",
-    "dns": "DNS"
+    "dns": "DNS",
+    "maintenance": "Wartung"
   },
   "login": {
     "subtitle": "Zum Fortfahren anmelden",
@@ -438,5 +439,34 @@
     "empty": "Keine Regeln",
     "sshWarning": "Regel für geschützten Port (22/80/443) kann nicht gelöscht werden",
     "enableWarning": "Beim Aktivieren werden SSH (22) und HTTP(S) (80/443) automatisch erlaubt — verhindert Aussperrung."
+  },
+  "maintenance": {
+    "title": "Wartung",
+    "updates": "Updates",
+    "upToDate": "System ist aktuell — keine ausstehenden Updates",
+    "upgradable": "Aktualisierbar",
+    "package": "Paket",
+    "current": "Aktuell",
+    "candidate": "Kandidat",
+    "applyUpdates": "Updates anwenden",
+    "applyConfirm": "Dies kann eine Weile dauern und Systemdienste neu starten. Fortfahren?",
+    "applyOutput": "Update-Ausgabe",
+    "disk": "Festplatte",
+    "filesystem": "Dateisystem",
+    "used": "Belegt",
+    "available": "Verfügbar",
+    "usePercent": "Nutzung %",
+    "mount": "Einhängepunkt",
+    "dockerUsage": "Docker-Festplattennutzung",
+    "type": "Typ",
+    "size": "Größe",
+    "reclaimable": "Rückgewinnbar",
+    "pruneImages": "Images bereinigen",
+    "pruneBuilder": "Build-Cache bereinigen",
+    "pruneSystem": "System bereinigen",
+    "pruneConfirm": "Diese Aktion ist nicht rückgängig zu machen. Ungenutzte Docker-Objekte werden gelöscht. Fortfahren?",
+    "refresh": "Aktualisieren",
+    "running": "Wird ausgeführt…",
+    "output": "Ausgabe"
   }
 }

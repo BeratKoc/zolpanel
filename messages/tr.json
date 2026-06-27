@@ -26,7 +26,8 @@
     "files": "Dosyalar",
     "cron": "Zamanlanmış Görevler",
     "firewall": "Güvenlik Duvarı",
-    "dns": "DNS"
+    "dns": "DNS",
+    "maintenance": "Bakım"
   },
   "login": {
     "subtitle": "Devam etmek için giriş yapın",
@@ -438,5 +439,34 @@
     "empty": "Kural yok",
     "sshWarning": "Korumalı port (22/80/443) kuralı silinemez",
     "enableWarning": "Etkinleştirmeden önce SSH (22) ve HTTP(S) (80/443) portları otomatik izinli olacak — kilitlenme önlenir."
+  },
+  "maintenance": {
+    "title": "Bakım",
+    "updates": "Güncellemeler",
+    "upToDate": "Sistem güncel — bekleyen güncelleme yok",
+    "upgradable": "Güncellenebilir",
+    "package": "Paket",
+    "current": "Mevcut",
+    "candidate": "Aday",
+    "applyUpdates": "Güncellemeleri uygula",
+    "applyConfirm": "Bu işlem uzun sürebilir ve sistem servislerini yeniden başlatabilir. Devam edilsin mi?",
+    "applyOutput": "Güncelleme çıktısı",
+    "disk": "Disk",
+    "filesystem": "Dosya sistemi",
+    "used": "Kullanılan",
+    "available": "Boş",
+    "usePercent": "Kullanım %",
+    "mount": "Bağlama noktası",
+    "dockerUsage": "Docker disk kullanımı",
+    "type": "Tür",
+    "size": "Boyut",
+    "reclaimable": "Geri kazanılabilir",
+    "pruneImages": "Image'leri temizle",
+    "pruneBuilder": "Build cache temizle",
+    "pruneSystem": "Sistem temizle",
+    "pruneConfirm": "Bu işlem geri alınamaz. Kullanılmayan Docker nesneleri silinecek. Devam edilsin mi?",
+    "refresh": "Yenile",
+    "running": "Çalışıyor…",
+    "output": "Çıktı"
   }
 }

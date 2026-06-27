@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, Globe, Globe2, Cpu, Container, Database, Archive, ScrollText, Settings as SettingsIcon, Menu, Rocket, SquareTerminal, FolderOpen, Clock, Shield, type LucideIcon } from 'lucide-react';
+import { LayoutDashboard, Globe, Globe2, Cpu, Container, Database, Archive, ScrollText, Settings as SettingsIcon, Menu, Rocket, SquareTerminal, FolderOpen, Clock, Shield, Wrench, type LucideIcon } from 'lucide-react';
 import AuthGate from '@/components/AuthGate';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Logo from '@/components/Logo';
@@ -28,6 +28,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { id: 'cron', icon: Clock, href: '/cron' },
   { id: 'firewall', icon: Shield, href: '/firewall' },
   { id: 'dns', icon: Globe2, href: '/dns' },
+  { id: 'maintenance', icon: Wrench, href: '/maintenance' },
   { id: 'logs', icon: ScrollText, href: '/logs' },
   { id: 'settings', icon: SettingsIcon, href: '/settings' },
 ];

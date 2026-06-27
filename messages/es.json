@@ -26,7 +26,8 @@
     "files": "Archivos",
     "cron": "Tareas programadas",
     "firewall": "Cortafuegos",
-    "dns": "DNS"
+    "dns": "DNS",
+    "maintenance": "Mantenimiento"
   },
   "login": {
     "subtitle": "Inicia sesión para continuar",
@@ -438,5 +439,34 @@
     "empty": "Sin reglas",
     "sshWarning": "La regla para puertos protegidos (22/80/443) no se puede eliminar",
     "enableWarning": "Al activar, los puertos SSH (22) y HTTP(S) (80/443) se permitirán automáticamente — evita bloqueos."
+  },
+  "maintenance": {
+    "title": "Mantenimiento",
+    "updates": "Actualizaciones",
+    "upToDate": "El sistema está actualizado — no hay actualizaciones pendientes",
+    "upgradable": "Actualizables",
+    "package": "Paquete",
+    "current": "Actual",
+    "candidate": "Candidato",
+    "applyUpdates": "Aplicar actualizaciones",
+    "applyConfirm": "Esto puede tardar y podría reiniciar servicios del sistema. ¿Continuar?",
+    "applyOutput": "Salida de actualización",
+    "disk": "Disco",
+    "filesystem": "Sistema de archivos",
+    "used": "Usado",
+    "available": "Disponible",
+    "usePercent": "Uso %",
+    "mount": "Punto de montaje",
+    "dockerUsage": "Uso de disco de Docker",
+    "type": "Tipo",
+    "size": "Tamaño",
+    "reclaimable": "Recuperable",
+    "pruneImages": "Limpiar imágenes",
+    "pruneBuilder": "Limpiar caché de build",
+    "pruneSystem": "Limpiar sistema",
+    "pruneConfirm": "Esta acción es irreversible. Los objetos Docker sin uso serán eliminados. ¿Continuar?",
+    "refresh": "Actualizar",
+    "running": "Ejecutando…",
+    "output": "Salida"
   }
 }

@@ -26,7 +26,8 @@
     "files": "Files",
     "cron": "Scheduled Jobs",
     "firewall": "Firewall",
-    "dns": "DNS"
+    "dns": "DNS",
+    "maintenance": "Maintenance"
   },
   "login": {
     "subtitle": "Sign in to continue",
@@ -438,5 +439,34 @@
     "empty": "No rules",
     "sshWarning": "Protected port (22/80/443) rule cannot be deleted",
     "enableWarning": "Before enabling, SSH (22) and HTTP(S) (80/443) ports will be auto-allowed — prevents lockout."
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "updates": "Updates",
+    "upToDate": "System is up to date — no pending updates",
+    "upgradable": "Upgradable",
+    "package": "Package",
+    "current": "Current",
+    "candidate": "Candidate",
+    "applyUpdates": "Apply updates",
+    "applyConfirm": "This may take a while and could restart system services. Proceed?",
+    "applyOutput": "Update output",
+    "disk": "Disk",
+    "filesystem": "Filesystem",
+    "used": "Used",
+    "available": "Available",
+    "usePercent": "Use %",
+    "mount": "Mount",
+    "dockerUsage": "Docker disk usage",
+    "type": "Type",
+    "size": "Size",
+    "reclaimable": "Reclaimable",
+    "pruneImages": "Clean images",
+    "pruneBuilder": "Clean build cache",
+    "pruneSystem": "Clean system",
+    "pruneConfirm": "This is irreversible. Unused Docker objects will be deleted. Proceed?",
+    "refresh": "Refresh",
+    "running": "Running…",
+    "output": "Output"
   }
 }

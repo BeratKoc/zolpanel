@@ -26,7 +26,8 @@
     "files": "文件",
     "cron": "定时任务",
     "firewall": "防火墙",
-    "dns": "DNS"
+    "dns": "DNS",
+    "maintenance": "维护"
   },
   "login": {
     "subtitle": "登录以继续",
@@ -438,5 +439,34 @@
     "empty": "无规则",
     "sshWarning": "受保护端口 (22/80/443) 的规则无法删除",
     "enableWarning": "启用前，SSH (22) 和 HTTP(S) (80/443) 端口将自动放行 — 防止锁定。"
+  },
+  "maintenance": {
+    "title": "维护",
+    "updates": "更新",
+    "upToDate": "系统已是最新 — 无待处理的更新",
+    "upgradable": "可升级",
+    "package": "软件包",
+    "current": "当前版本",
+    "candidate": "候选版本",
+    "applyUpdates": "应用更新",
+    "applyConfirm": "此操作可能需要较长时间并可能重启系统服务。是否继续？",
+    "applyOutput": "更新输出",
+    "disk": "磁盘",
+    "filesystem": "文件系统",
+    "used": "已用",
+    "available": "可用",
+    "usePercent": "使用率 %",
+    "mount": "挂载点",
+    "dockerUsage": "Docker 磁盘使用",
+    "type": "类型",
+    "size": "大小",
+    "reclaimable": "可回收",
+    "pruneImages": "清理镜像",
+    "pruneBuilder": "清理构建缓存",
+    "pruneSystem": "清理系统",
+    "pruneConfirm": "此操作不可逆。未使用的 Docker 对象将被删除。是否继续？",
+    "refresh": "刷新",
+    "running": "运行中…",
+    "output": "输出"
   }
 }

@@ -26,7 +26,8 @@
     "files": "Fichiers",
     "cron": "Tâches planifiées",
     "firewall": "Pare-feu",
-    "dns": "DNS"
+    "dns": "DNS",
+    "maintenance": "Maintenance"
   },
   "login": {
     "subtitle": "Connectez-vous pour continuer",
@@ -438,5 +439,34 @@
     "empty": "Aucune règle",
     "sshWarning": "La règle pour les ports protégés (22/80/443) ne peut pas être supprimée",
     "enableWarning": "À l'activation, les ports SSH (22) et HTTP(S) (80/443) seront autorisés automatiquement — évite le verrouillage."
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "updates": "Mises à jour",
+    "upToDate": "Le système est à jour — aucune mise à jour en attente",
+    "upgradable": "Mises à jour disponibles",
+    "package": "Paquet",
+    "current": "Version actuelle",
+    "candidate": "Candidat",
+    "applyUpdates": "Appliquer les mises à jour",
+    "applyConfirm": "Cela peut prendre du temps et redémarrer des services système. Continuer ?",
+    "applyOutput": "Sortie de mise à jour",
+    "disk": "Disque",
+    "filesystem": "Système de fichiers",
+    "used": "Utilisé",
+    "available": "Disponible",
+    "usePercent": "Utilisation %",
+    "mount": "Point de montage",
+    "dockerUsage": "Utilisation disque Docker",
+    "type": "Type",
+    "size": "Taille",
+    "reclaimable": "Récupérable",
+    "pruneImages": "Nettoyer les images",
+    "pruneBuilder": "Nettoyer le cache de build",
+    "pruneSystem": "Nettoyer le système",
+    "pruneConfirm": "Cette action est irréversible. Les objets Docker inutilisés seront supprimés. Continuer ?",
+    "refresh": "Actualiser",
+    "running": "En cours…",
+    "output": "Sortie"
   }
 }
