@@ -33,6 +33,14 @@ export default function Settings() {
   const [newTokenValue, setNewTokenValue] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const fetchTokens = useCallback(() => {
+    setTokensLoading(true);
+    api.tokensList()
+      .then((d: any) => setTokens(d.tokens ?? []))
+      .catch(() => {})
+      .finally(() => setTokensLoading(false));
+  }, []);
+
   useEffect(() => {
     setUsername(localStorage.getItem('username') || '');
     api.getCaddyConfig().then(d => setCaddyConfig(d.content)).catch(() => {});
@@ -41,15 +49,7 @@ export default function Settings() {
     api.twofaStatus().then((d: any) => setTwofaEnabled(d.enabled)).catch(() => {});
     // Fetch tokens
     fetchTokens();
-  }, []);
-
-  const fetchTokens = useCallback(() => {
-    setTokensLoading(true);
-    api.tokensList()
-      .then((d: any) => setTokens(d.tokens ?? []))
-      .catch(() => {})
-      .finally(() => setTokensLoading(false));
-  }, []);
+  }, [fetchTokens]);
 
   function handleLogout() {
     localStorage.removeItem('token');

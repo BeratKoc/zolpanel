@@ -18,7 +18,24 @@ export function signToken(user: UserDoc): string {
   );
 }
 
+// JWT-only guard: yalnızca gerçek JWT oturumlarını kabul eder, API token'ları reddeder.
+// Kimlik doğrulama yönetim rotaları (2FA, token CRUD, şifre değiştirme) bu fonksiyonu kullanmalıdır.
+export async function requireSession(req: Request): Promise<TokenPayload | null> {
+  const header = req.headers.get('authorization');
+  const token = header && header.split(' ')[1];
+  if (!token) return null;
+  try {
+    const payload = jwt.verify(token, JWT_SECRET as string) as TokenPayload;
+    const user = getUserByName(payload.username);
+    if (!user || (user.tokenVersion ?? 0) !== payload.tv) return null; // şifre değişti → eski token geçersiz
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 // Route handler'larda kullanılır. Başarılıysa payload döner, değilse null.
+// Hem JWT oturumlarını hem de zpat_ API token'larını kabul eder.
 export async function requireAuth(req: Request): Promise<TokenPayload | null> {
   const header = req.headers.get('authorization');
   const token = header && header.split(' ')[1];
@@ -30,15 +47,8 @@ export async function requireAuth(req: Request): Promise<TokenPayload | null> {
     touchApiToken(rec.id, new Date().toISOString());
     return { id: 'apitoken:' + rec.id, username: 'api:' + rec.name, tv: 0 };
   }
-  // Mevcut JWT akışı (değişmez).
-  try {
-    const payload = jwt.verify(token, JWT_SECRET as string) as TokenPayload;
-    const user = getUserByName(payload.username);
-    if (!user || (user.tokenVersion ?? 0) !== payload.tv) return null; // şifre değişti → eski token geçersiz
-    return payload;
-  } catch {
-    return null;
-  }
+  // JWT akışı: requireSession'a delege edilir.
+  return requireSession(req);
 }
 
 export function unauthorized(message = 'Yetkisiz') {

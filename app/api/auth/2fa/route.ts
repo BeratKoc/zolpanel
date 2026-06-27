@@ -1,4 +1,4 @@
-import { requireAuth, unauthorized } from '@/lib/auth';
+import { requireSession, unauthorized } from '@/lib/auth';
 import { is2faEnabled, set2faSecret, get2faSecret, enable2fa, disable2fa } from '@/lib/server/auth/twofactor';
 import { randomBase32Secret, otpauthUri, verifyTotp } from '@/lib/server/auth/totp';
 
@@ -6,14 +6,14 @@ export const runtime = 'nodejs';
 
 // GET /api/auth/2fa → { enabled: boolean }
 export async function GET(req: Request) {
-  const auth = await requireAuth(req);
+  const auth = await requireSession(req);
   if (!auth) return unauthorized();
   return Response.json({ enabled: is2faEnabled(auth.username) });
 }
 
 // POST /api/auth/2fa → setup: { secret, otpauth } (enabled değil henüz)
 export async function POST(req: Request) {
-  const auth = await requireAuth(req);
+  const auth = await requireSession(req);
   if (!auth) return unauthorized();
   const secret = randomBase32Secret();
   set2faSecret(auth.username, secret);
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
 // PUT /api/auth/2fa { code } → verify & enable: { ok: true } ya da 400
 export async function PUT(req: Request) {
-  const auth = await requireAuth(req);
+  const auth = await requireSession(req);
   if (!auth) return unauthorized();
   const body = await req.json().catch(() => ({})) as { code?: string };
   const code = body.code;
@@ -38,7 +38,7 @@ export async function PUT(req: Request) {
 
 // DELETE /api/auth/2fa → disable: { ok: true }
 export async function DELETE(req: Request) {
-  const auth = await requireAuth(req);
+  const auth = await requireSession(req);
   if (!auth) return unauthorized();
   disable2fa(auth.username);
   return Response.json({ ok: true });

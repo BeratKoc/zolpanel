@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
 import { getUserByName, setUserPassword, addLog } from '@/lib/server/db';
-import { requireAuth, unauthorized } from '@/lib/auth';
+import { requireSession, unauthorized } from '@/lib/auth';
 import { changePasswordSchema } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
-  const auth = await requireAuth(req);
+  const auth = await requireSession(req);
   if (!auth) return unauthorized();
   const parsed = changePasswordSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: parsed.error.issues[0].message }, { status: 400 });
