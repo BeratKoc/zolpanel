@@ -128,4 +128,11 @@ export const api = {
   dnsRecordCreate: (zoneId: string, record: unknown) => request('POST', '/dns/records', { zoneId, record }),
   dnsRecordUpdate: (zoneId: string, id: string, record: unknown) => request('PUT', `/dns/records/${encodeURIComponent(id)}`, { zoneId, record }),
   dnsRecordDelete: (zoneId: string, id: string) => request('DELETE', `/dns/records/${encodeURIComponent(id)}`, { zoneId }),
+  // S3 Backup
+  s3ConfigStatus: () => request('GET', '/s3/config'),
+  s3ConfigSave: (config: unknown) => request('POST', '/s3/config', { config }),
+  s3ConfigDelete: () => request('DELETE', '/s3/config'),
+  s3Test: () => request('POST', '/s3/test'),
+  s3Upload: (name: string) => request('POST', '/s3/upload', { name }),
+  s3List: () => request('GET', '/s3/list'),
 };
