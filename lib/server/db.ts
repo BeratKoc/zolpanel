@@ -186,6 +186,10 @@ function createTables(conn: DB): void {
       lastDeployedAt TEXT,
       createdAt TEXT
     );
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
 }
 
@@ -572,6 +576,19 @@ export function updateApp(id: string, patch: Partial<AppDoc>): void {
 
 export function removeApp(id: string): void {
   getDb().prepare('DELETE FROM apps WHERE id = ?').run(id);
+}
+
+// ---- settings (encrypted kv store) -------------------------------------
+
+export function getSetting(key: string): string | null {
+  const row = getDb().prepare('SELECT value FROM settings WHERE key=?').get(key) as { value: string } | undefined;
+  return row ? row.value : null;
+}
+export function setSetting(key: string, value: string): void {
+  getDb().prepare('INSERT INTO settings (key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(key, value);
+}
+export function deleteSetting(key: string): void {
+  getDb().prepare('DELETE FROM settings WHERE key=?').run(key);
 }
 
 // İlk kurulumda admin oluştur — sabit şifre YOK, rastgele üret ve bir kez logla.
