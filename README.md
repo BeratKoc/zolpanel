@@ -1,16 +1,16 @@
 # Zolpanel
 
-Caddy + PM2 tabanlı VDS yönetim paneli. **Next.js (App Router) + TypeScript** tek uygulama: API route handler'ları + React arayüzü aynı projede.
+Kendi sunucumu daha rahat yönetebilmek için yaptığım, Caddy + PM2 üzerine kurulu bir VDS yönetim paneli. Tek bir **Next.js (App Router) + TypeScript** uygulaması — API ve arayüz aynı projede, ekstra bir backend uğraşı yok.
 
 ## Hızlı Kurulum (tek komut)
 
-Temiz bir **Debian/Ubuntu** sunucuda Node 22 + Caddy + PM2 + panel'i tek komutla kurar (`set -euo pipefail`, idempotent):
+Temiz bir **Debian/Ubuntu** sunucun varsa tek satırla her şeyi hallediyor: Node 22, Caddy, PM2 ve panelin kendisi kuruluyor. Komutu istediğin kadar tekrar çalıştırabilirsin, mevcut kurulumu bozmaz (idempotent):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh | sudo bash
 ```
 
-Otomatik HTTPS ile (panel için alan adı verirsen Caddy bloğu + Let's Encrypt sertifikası otomatik kurulur — `-E` env'i korur):
+Bir alan adın varsa onu da verebilirsin; Caddy gerisini halleder, Let's Encrypt sertifikasıyla otomatik HTTPS gelir (`-E` ile verdiğin değişkenleri koruyoruz):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh -o install.sh
@@ -19,7 +19,7 @@ PANEL_DOMAIN=panel.ornek.com sudo -E bash install.sh
 
 ### Güncelleme
 
-`install.sh` yalnız ilk kurulum içindir. Kurulu paneli güncellemek için repodaki **`deploy.sh`** kullanılır (local kaynak → sunucu rsync + `npm install` + build + `pm2 restart`; `.env` ve `db/` korunur):
+`install.sh`'ı yalnızca ilk kurulum için kullanıyorum. Sonrasında paneli güncellemek için repodaki **`deploy.sh`** yeterli — local'deki kodu sunucuya gönderiyor, `npm install` + build yapıp PM2'yi yeniden başlatıyor. `.env` ve `db/` verilerine dokunmuyor:
 
 ```bash
 bash deploy.sh
