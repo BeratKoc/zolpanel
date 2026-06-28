@@ -69,6 +69,19 @@ detect_os() {
   log "İşletim sistemi: ${PRETTY_NAME:-${os_id}}"
 }
 
+# ── Önkoşul paketleri ─────────────────────────────────────────────────────────
+# git/gpg/openssl: script'in kendisi kullanır (clone, Caddy anahtarı, JWT secret).
+# build-essential + python3: native npm modülleri (node-pty, better-sqlite3)
+# temiz sunucuda buradan derlenir — yoksa 'npm install' başarısız olur.
+ensure_prereqs() {
+  log "Önkoşul paketleri kuruluyor (git, curl, gpg, openssl, build-essential, python3)…"
+  apt-get update
+  apt-get install -y \
+    git curl ca-certificates gnupg openssl \
+    build-essential python3
+  log "Önkoşullar hazır"
+}
+
 # ── Node.js ───────────────────────────────────────────────────────────────────
 ensure_node() {
   if command -v node >/dev/null 2>&1; then
@@ -294,6 +307,7 @@ main() {
 
   need_root
   detect_os
+  ensure_prereqs
   ensure_node
   ensure_caddy
   ensure_pm2
