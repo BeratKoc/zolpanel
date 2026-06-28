@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Zolpanel — Tek-Komut Kurucu
+# Zolpanel — Tek-Komut Kurucu (yalnız ilk kurulum)
 # Kullanım:
-#   sudo bash install.sh                      # tam kurulum
-#   sudo bash install.sh --check              # preflight (yan-etki yok)
-#   sudo bash install.sh --update             # kodu çek, build et, pm2 restart
-#   sudo bash install.sh --update --check     # güncelleme önizleme (yan-etki yok)
-#   sudo bash install.sh --uninstall          # kaldır (pm2 + Caddy bloğu; veri korunur)
-#   sudo bash install.sh --uninstall --purge  # kaldır + INSTALL_DIR'i (veri dahil) sil
-#   herhangi bir mod + --check                # yan-etkisiz önizleme
+#   sudo bash install.sh
+#   curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh | sudo bash
+#
+# Güncelleme: deploy.sh (local→sunucu rsync) kullanın — bu script güncelleme yapmaz.
 #
 # Ortam değişkenleri (isteğe bağlı, varsayılanlar aşağıda):
 #   INSTALL_DIR     — kurulum dizini (varsayılan: /opt/zolpanel)
-#   ZOLPANEL_PORT   — uygulama portu (varsayılan: 3999; ecosystem.config.cjs'de sabit)
+#   ZOLPANEL_PORT   — Caddy hedef portu / özet URL (varsayılan: 3999; uygulama 3999'da sabit)
 #   ZOLPANEL_REPO   — git deposu (varsayılan: https://github.com/BeratKoc/zolpanel.git)
 #   ZOLPANEL_BRANCH — git dalı (varsayılan: main)
 #   PANEL_DOMAIN    — Caddy HTTPS için alan adı (varsayılan: boş → HTTP)
@@ -30,7 +27,6 @@ RESET='\033[0m'
 log()  { echo -e "${GREEN}[ZP]${RESET} $*"; }
 warn() { echo -e "${YELLOW}[ZP UYARI]${RESET} $*"; }
 err()  { echo -e "${RED}[ZP HATA]${RESET} $*" >&2; exit 1; }
-info() { echo -e "${CYAN}[ZP INFO]${RESET} $*"; }
 
 # ── Varsayılanlar ─────────────────────────────────────────────────────────────
 : "${INSTALL_DIR:=/opt/zolpanel}"
@@ -39,30 +35,19 @@ info() { echo -e "${CYAN}[ZP INFO]${RESET} $*"; }
 : "${ZOLPANEL_BRANCH:=main}"
 : "${PANEL_DOMAIN:=}"
 
-# ── Argüman parse ─────────────────────────────────────────────────────────────
-CHECK_ONLY=0
-MODE="install"
-PURGE=0
-for arg in "$@"; do
-  case "$arg" in
-    --check)     CHECK_ONLY=1 ;;
-    --update)    MODE="update" ;;
-    --uninstall) MODE="uninstall" ;;
-    --purge)     PURGE=1 ;;
-    *) err "Bilinmeyen argüman: ${arg}" ;;
-  esac
-done
+# Bu sürüm yalnız tam kurulum yapar — argüman kabul etmez.
+if [ "$#" -gt 0 ]; then
+  err "Bu script argüman almaz. Güncelleme için: deploy.sh. Verilen: $*"
+fi
 
-# ── Step 1: Root kontrolü ─────────────────────────────────────────────────────
+# ── Root kontrolü ─────────────────────────────────────────────────────────────
 need_root() {
   [ "$(id -u)" = "0" ] || err "root gerekli (sudo bash install.sh)"
 }
 
-# ── Step 2: OS tespiti ────────────────────────────────────────────────────────
+# ── OS tespiti ────────────────────────────────────────────────────────────────
 detect_os() {
-  if [ ! -f /etc/os-release ]; then
-    err "'/etc/os-release' bulunamadı — Yalnız Debian/Ubuntu (apt) destekleniyor"
-  fi
+  [ -f /etc/os-release ] || err "'/etc/os-release' bulunamadı — Yalnız Debian/Ubuntu (apt) destekleniyor"
 
   # shellcheck source=/dev/null
   . /etc/os-release
@@ -84,32 +69,18 @@ detect_os() {
   log "İşletim sistemi: ${PRETTY_NAME:-${os_id}}"
 }
 
-# ── Step 3: Node.js ───────────────────────────────────────────────────────────
+# ── Node.js ───────────────────────────────────────────────────────────────────
 ensure_node() {
   if command -v node >/dev/null 2>&1; then
-    local node_version
+    local node_version major
     node_version="$(node -v)"
-    local major
     major="$(echo "$node_version" | sed 's/v\([0-9]*\).*/\1/')"
-    # Guard: default to 0 if extraction returned empty or non-numeric
     major="${major:-0}"
-    if ! echo "$major" | grep -qE '^[0-9]+$'; then
-      if [ "$CHECK_ONLY" = "1" ]; then
-        info "[DRY-RUN] Node sürümü belirlenemedi → kurulacak (NodeSource 22.x)"
-        return
-      fi
-      warn "Node sürümü belirlenemedi ('$node_version') — yeniden kurulacak"
-    elif [ "$major" -ge 20 ]; then
+    if echo "$major" | grep -qE '^[0-9]+$' && [ "$major" -ge 20 ]; then
       log "Node mevcut: $node_version — atlanıyor"
       return
-    else
-      warn "Node sürümü $node_version eski (≥20 gerekli) — güncellenecek"
     fi
-  fi
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] Node.js 22.x kurulacak (NodeSource)"
-    return
+    warn "Node sürümü '$node_version' uygun değil (≥20 gerekli) — kurulacak"
   fi
 
   log "Node.js 22.x kuruluyor (NodeSource)…"
@@ -118,15 +89,10 @@ ensure_node() {
   log "Node kuruldu: $(node -v)"
 }
 
-# ── Step 4: Caddy ─────────────────────────────────────────────────────────────
+# ── Caddy ─────────────────────────────────────────────────────────────────────
 ensure_caddy() {
   if command -v caddy >/dev/null 2>&1; then
-    log "Caddy mevcut: $(caddy version 2>/dev/null || caddy --version 2>/dev/null | head -1) — atlanıyor"
-    return
-  fi
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] Caddy resmi apt deposu eklenip kurulacak"
+    log "Caddy mevcut: $(caddy version 2>/dev/null | head -1) — atlanıyor"
     return
   fi
 
@@ -141,15 +107,10 @@ ensure_caddy() {
   log "Caddy kuruldu: $(caddy version 2>/dev/null | head -1)"
 }
 
-# ── Step 5: PM2 ───────────────────────────────────────────────────────────────
+# ── PM2 ───────────────────────────────────────────────────────────────────────
 ensure_pm2() {
   if command -v pm2 >/dev/null 2>&1; then
     log "pm2 mevcut: $(pm2 --version) — atlanıyor"
-    return
-  fi
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] pm2 global olarak kurulacak (npm install -g pm2)"
     return
   fi
 
@@ -158,50 +119,22 @@ ensure_pm2() {
   log "pm2 kuruldu: $(pm2 --version)"
 }
 
-# ── Step 6: Kaynak kod ────────────────────────────────────────────────────────
+# ── Kaynak kod ────────────────────────────────────────────────────────────────
 fetch_code() {
   if [ -d "${INSTALL_DIR}/.git" ]; then
-    # Branch 1: Already a git repo — fast-forward pull
-    if [ "$CHECK_ONLY" = "1" ]; then
-      info "[DRY-RUN] Mevcut repo güncellecek: git -C \"${INSTALL_DIR}\" pull --ff-only"
-      return
-    fi
     log "Mevcut repo güncelleniyor: ${INSTALL_DIR}"
     git -C "${INSTALL_DIR}" pull --ff-only
-  elif [ -d "${INSTALL_DIR}" ] && [ -n "$(ls -A "${INSTALL_DIR}" 2>/dev/null)" ]; then
-    # Branch 2: Dir exists, non-empty, but no .git — adopt as git repo
-    # checkout -f overwrites only tracked files; untracked .env / db/ / node_modules/ survive
-    if [ "$CHECK_ONLY" = "1" ]; then
-      info "[DRY-RUN] Mevcut dizin git deposuna dönüştürülecek (.env/db korunur): ${INSTALL_DIR}"
-      return
-    fi
-    log "Mevcut dizin git deposuna dönüştürülüyor (.env/db korunur): ${INSTALL_DIR}"
-    git -C "${INSTALL_DIR}" init -q
-    git -C "${INSTALL_DIR}" remote add origin "${ZOLPANEL_REPO}" 2>/dev/null \
-      || git -C "${INSTALL_DIR}" remote set-url origin "${ZOLPANEL_REPO}"
-    git -C "${INSTALL_DIR}" fetch -q origin "${ZOLPANEL_BRANCH}"
-    git -C "${INSTALL_DIR}" checkout -f -B "${ZOLPANEL_BRANCH}" "origin/${ZOLPANEL_BRANCH}"
   else
-    # Branch 3: Dir absent or empty — fresh clone
-    if [ "$CHECK_ONLY" = "1" ]; then
-      info "[DRY-RUN] Repo klonlanacak: ${ZOLPANEL_REPO} (dal: ${ZOLPANEL_BRANCH}) → ${INSTALL_DIR}"
-      return
-    fi
     log "Repo klonlanıyor → ${INSTALL_DIR}…"
     git clone --branch "${ZOLPANEL_BRANCH}" "${ZOLPANEL_REPO}" "${INSTALL_DIR}"
   fi
   log "Kaynak kod hazır: ${INSTALL_DIR}"
 }
 
-# ── Step 7: .env dosyası ──────────────────────────────────────────────────────
+# ── .env dosyası ──────────────────────────────────────────────────────────────
 ensure_env() {
   if [ -f "${INSTALL_DIR}/.env" ]; then
     log "Mevcut .env korundu — dokunulmadı"
-    return
-  fi
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] .env yok → yeni .env oluşturulacak (JWT_SECRET, PORT, vb.)"
     return
   fi
 
@@ -223,13 +156,8 @@ EOF
   log ".env oluşturuldu ve izinleri ayarlandı (chmod 600)"
 }
 
-# ── Step 8: Uygulama derleme ──────────────────────────────────────────────────
+# ── Uygulama derleme ──────────────────────────────────────────────────────────
 build_app() {
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] Build yapılacak: cd \"${INSTALL_DIR}\" && npm install && npm run build"
-    return
-  fi
-
   log "Bağımlılıklar yükleniyor ve uygulama derleniyor…"
   cd "${INSTALL_DIR}"
   npm install
@@ -237,7 +165,7 @@ build_app() {
   log "Uygulama derlendi"
 }
 
-# ── Step 9: Caddy yapılandırması ──────────────────────────────────────────────
+# ── Caddy yapılandırması ──────────────────────────────────────────────────────
 configure_caddy() {
   if [ -z "${PANEL_DOMAIN}" ]; then
     local _ip
@@ -247,15 +175,12 @@ configure_caddy() {
   fi
 
   local caddyfile="/etc/caddy/Caddyfile"
+  # Domain'deki '.' gibi regex meta-karakterlerini kaçır (yanlış eşleşmeyi önle)
+  local domain_re="${PANEL_DOMAIN//./\\.}"
 
-  # Alan adı zaten ekli mi kontrol et
-  if [ -f "${caddyfile}" ] && _caddy_block_exists "${PANEL_DOMAIN}" "${caddyfile}"; then
+  # Zaten ekliyse atla (idempotent): "domain {" bloğu başlığı var mı?
+  if [ -f "${caddyfile}" ] && grep -qE "^[[:space:]]*${domain_re}[[:space:]]*\{" "${caddyfile}"; then
     log "Caddy: '${PANEL_DOMAIN}' zaten Caddyfile'da mevcut — atlanıyor"
-    return
-  fi
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] Caddyfile'a '${PANEL_DOMAIN}' bloğu eklenecek (reverse_proxy 127.0.0.1:${ZOLPANEL_PORT})"
     return
   fi
 
@@ -282,13 +207,8 @@ EOF
   log "Caddy yapılandırması güncellendi ve yeniden yüklendi"
 }
 
-# ── Step 10: PM2 başlatma ─────────────────────────────────────────────────────
+# ── PM2 başlatma ──────────────────────────────────────────────────────────────
 start_pm2() {
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] pm2 başlatılacak/yeniden başlatılacak, pm2 save + pm2 startup çalıştırılacak"
-    return
-  fi
-
   cd "${INSTALL_DIR}"
 
   if pm2 describe zolpanel >/dev/null 2>&1; then
@@ -305,13 +225,8 @@ start_pm2() {
   log "pm2 hazır"
 }
 
-# ── Step 10b: Sağlık kontrolü ─────────────────────────────────────────────────
+# ── Sağlık kontrolü ───────────────────────────────────────────────────────────
 wait_for_health() {
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] Kurulum sonrası sağlık kontrolü yapılacak (http://127.0.0.1:3999/api/health)"
-    return 0
-  fi
-
   local max_attempts=20
   local attempt=1
   local wait_seconds=2
@@ -337,12 +252,11 @@ wait_for_health() {
   return 0
 }
 
-# ── Step 11: Özet ─────────────────────────────────────────────────────────────
+# ── Özet ──────────────────────────────────────────────────────────────────────
 print_summary() {
-  local server_ip
+  local server_ip panel_url
   server_ip="$(hostname -I | awk '{print $1}')"
 
-  local panel_url
   if [ -n "${PANEL_DOMAIN}" ]; then
     panel_url="https://${PANEL_DOMAIN}"
   else
@@ -372,200 +286,24 @@ print_summary() {
   echo ""
 }
 
-# ── Yardımcı: Caddyfile'da "domain {" bloğu var mı? ──────────────────────────
-# index() ile tam literal eşleşme — domain'deki regex meta-karakterleri (. gibi)
-# yanlış eşleşmeye yol açmaz. Kaldırma awk'ıyla aynı eşleşme mantığı.
-_caddy_block_exists() {
-  # $1 = domain, $2 = caddyfile
-  awk -v d="$1" 'index($0,d)==1 && substr($0,length(d)+1) ~ /^[[:space:]]*\{/ {found=1; exit} END{exit !found}' "$2"
-}
+# ── Ana akış ──────────────────────────────────────────────────────────────────
+main() {
+  echo ""
+  log "Zolpanel kurucusu başlatılıyor…"
+  echo ""
 
-# ── Uninstall: Caddy bloğunu brace-farkında awk ile temizle ──────────────────
-remove_caddy_block() {
-  local domain="$1"
-  local CADDYFILE="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
-
-  # Dosya yoksa veya blok yoksa atla
-  if [ ! -f "$CADDYFILE" ]; then
-    log "Caddyfile bulunamadı: ${CADDYFILE} — atlanıyor"
-    return 0
-  fi
-
-  if ! _caddy_block_exists "$domain" "$CADDYFILE"; then
-    log "Caddy bloğu yok (${domain}), atlanıyor"
-    return 0
-  fi
-
-  # --check modunda sadece raporla
-  if [ "$CHECK_ONLY" = "1" ]; then
-    info "[DRY-RUN] Caddy panel bloğu kaldırılacak: ${domain}"
-    return 0
-  fi
-
-  # Yedek al
-  local bak="${CADDYFILE}.zolpanel-uninstall.bak"
-  log "Caddyfile yedekleniyor: ${bak}"
-  cp "$CADDYFILE" "$bak"
-
-  # Brace-farkında awk ile yalnız hedef bloğu çıkar
-  # index() ile tam literal eşleşme — regex meta-karakterleri (. gibi) güvenli
-  awk -v d="$domain" '
-    BEGIN{skip=0; depth=0}
-    skip==0 && index($0,d)==1 && substr($0,length(d)+1) ~ /^[[:space:]]*\{/ {
-      depth = gsub(/\{/,"{") - gsub(/\}/,"}"); skip=(depth>0); next }
-    skip==1 { depth += gsub(/\{/,"{") - gsub(/\}/,"}"); if(depth<=0) skip=0; next }
-    {print}
-  ' "$CADDYFILE" > "${CADDYFILE}.zolpanel.tmp" && mv "${CADDYFILE}.zolpanel.tmp" "$CADDYFILE"
-
-  # Doğrula
-  log "Caddy yapılandırması doğrulanıyor…"
-  if ! caddy validate --config "$CADDYFILE" --adapter caddyfile; then
-    warn "Caddy doğrulama başarısız — yedekten geri yükleniyor"
-    cp "$bak" "$CADDYFILE"
-    err "Caddy doğrulama başarısız, geri alındı"
-  fi
-
-  log "Caddy yeniden yükleniyor…"
-  systemctl reload caddy || warn "Caddy yeniden yüklenemedi (manuel kontrol edin)"
-  log "Caddy bloğu kaldırıldı: ${domain}"
-}
-
-# ── Uninstall: pm2 sil, Caddy bloğunu kaldır, (opsiyonel) dizini sil ─────────
-do_uninstall() {
   need_root
-
-  echo ""
-  log "Zolpanel kaldırılıyor…"
-  if [ "$CHECK_ONLY" = "1" ]; then
-    warn "PREFLIGHT modu: değişiklik yapılmayacak"
-  fi
-  echo ""
-
-  # Panel domain bilgisini belirle:
-  #   1. PANEL_DOMAIN ortam değişkeni (override)
-  #   2. Caddyfile'dan otomatik tespit (panel portuna reverse_proxy yapan blok)
-  local dom
-  dom="${PANEL_DOMAIN:-}"
-  if [ -z "${dom}" ]; then
-    local _cf="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
-    if [ -f "${_cf}" ]; then
-      dom="$(awk -v port="${ZOLPANEL_PORT}" '
-        /^[^[:space:]#].*\{[[:space:]]*$/ { hdr=$0; sub(/[[:space:]]*\{.*/,"",hdr) }
-        $0 ~ ("reverse_proxy[[:space:]]+127\\.0\\.0\\.1:" port "([^0-9]|$)") { print hdr; exit }
-      ' "${_cf}" | awk '{print $1}' | tr -d ',')" || dom=""
-    fi
-  fi
-
-  # PM2 uygulamasını kaldır
-  if pm2 describe zolpanel >/dev/null 2>&1; then
-    if [ "$CHECK_ONLY" = "1" ]; then
-      info "[DRY-RUN] pm2 uygulaması silinecek: zolpanel"
-    else
-      log "pm2 uygulaması siliniyor: zolpanel"
-      pm2 delete zolpanel
-      pm2 save
-    fi
-  else
-    log "pm2 app yok (zolpanel) — atlanıyor"
-  fi
-
-  # Caddy bloğunu kaldır
-  if [ -n "$dom" ]; then
-    remove_caddy_block "$dom"
-  else
-    log "panel domaini yok (HTTP kurulum) → Caddy'ye dokunulmuyor"
-  fi
-
-  # Kurulum dizini
-  if [ "$PURGE" = "1" ]; then
-    if [ "$CHECK_ONLY" = "1" ]; then
-      info "[DRY-RUN] Kurulum dizini silinecek: ${INSTALL_DIR}"
-    else
-      rm -rf "${INSTALL_DIR}"
-      log "dizin silindi: ${INSTALL_DIR}"
-    fi
-  else
-    if [ "$CHECK_ONLY" = "1" ]; then
-      info "[DRY-RUN] Kurulum dizini korunacak: ${INSTALL_DIR} (silmek için --purge)"
-    else
-      log "veri korundu: ${INSTALL_DIR} (silmek için --purge)"
-    fi
-  fi
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    echo ""
-    log "DRY-RUN: değişiklik yapılmadı"
-    exit 0
-  fi
-
-  log "Kaldırma tamam."
-}
-
-# ── Update: kodu tazele, build et, pm2 restart ────────────────────────────────
-do_update() {
-  need_root
-  [ -d "${INSTALL_DIR}" ] || err "kurulum yok: ${INSTALL_DIR}"
-
-  echo ""
-  log "Zolpanel güncelleniyor…"
-  if [ "$CHECK_ONLY" = "1" ]; then
-    warn "PREFLIGHT modu: değişiklik yapılmayacak"
-  fi
-  echo ""
-
+  detect_os
+  ensure_node
+  ensure_caddy
+  ensure_pm2
   fetch_code
   ensure_env
   build_app
+  configure_caddy
   start_pm2
   wait_for_health
-
-  if [ "$CHECK_ONLY" = "1" ]; then
-    echo ""
-    log "DRY-RUN: değişiklik yapılmadı"
-    exit 0
-  fi
-
-  log "Güncelleme tamam."
-}
-
-# ── Step 12: Ana fonksiyon ────────────────────────────────────────────────────
-main() {
-  case "$MODE" in
-    install)
-      echo ""
-      log "Zolpanel kurucusu başlatılıyor…"
-      if [ "$CHECK_ONLY" = "1" ]; then
-        warn "PREFLIGHT modu: değişiklik yapılmayacak"
-      fi
-      echo ""
-
-      need_root
-      detect_os
-      ensure_node
-      ensure_caddy
-      ensure_pm2
-      fetch_code
-      ensure_env
-      build_app
-      configure_caddy
-      start_pm2
-      wait_for_health
-
-      if [ "$CHECK_ONLY" = "1" ]; then
-        echo ""
-        log "DRY-RUN: değişiklik yapılmadı"
-        exit 0
-      fi
-
-      print_summary
-      ;;
-    update)
-      do_update
-      ;;
-    uninstall)
-      do_uninstall
-      ;;
-  esac
+  print_summary
 }
 
 main "$@"
