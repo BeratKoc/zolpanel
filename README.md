@@ -17,53 +17,13 @@ curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh -
 PANEL_DOMAIN=panel.ornek.com sudo -E bash install.sh
 ```
 
-Hiçbir şey değiştirmeden ne yapılacağını **önizle** (salt-okunur, kurulu sunucuda da güvenli):
-
-```bash
-sudo bash install.sh --check
-```
-
 ### Güncelleme
 
-Kurulu paneli en son sürüme günceller (git pull + npm install + build + pm2 restart). `.env` ve `db/` verileri korunur:
+`install.sh` yalnız ilk kurulum içindir. Kurulu paneli güncellemek için repodaki **`deploy.sh`** kullanılır (local kaynak → sunucu rsync + `npm install` + build + `pm2 restart`; `.env` ve `db/` korunur):
 
 ```bash
-sudo bash install.sh --update
+bash deploy.sh
 ```
-
-Önce ne yapılacağını **önizle** (yan-etki yok, güvenli):
-
-```bash
-sudo bash install.sh --update --check
-```
-
-Curl ile doğrudan (local `install.sh` dosyası gerekmez):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/BeratKoc/zolpanel/main/install.sh | sudo bash -s -- --update
-```
-
-### Kaldırma
-
-Paneli kaldırır (pm2 uygulaması durdurulur ve silinir, Caddy panel bloğu güvenli şekilde kaldırılır). **Kurulum dizini ve veriler korunur:**
-
-```bash
-sudo bash install.sh --uninstall
-```
-
-Kurulum dizinini de dahil olmak üzere **her şeyi sil** (`/opt/zolpanel` ve tüm veriler):
-
-```bash
-sudo bash install.sh --uninstall --purge
-```
-
-Hiçbir şeyi silmeden ne yapılacağını **önizle** (yan-etki kesinlikle yok — pm2 ve Caddy'ye dokunulmaz):
-
-```bash
-sudo bash install.sh --uninstall --check
-```
-
-> Caddy bloğu kaldırma işlemi backup → validate → rollback güvencesiyle çalışır: doğrulama başarısız olursa Caddyfile otomatik geri yüklenir.
 
 **Ortam değişkenleri (hepsi opsiyonel, makul varsayılanlar):**
 
