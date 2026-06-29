@@ -8,6 +8,20 @@ export interface PtyLike {
 
 export type SpawnFn = () => PtyLike;
 
+// Container kabuğu: bash varsa onu, yoksa sh başlat.
+// ÖNEMLİ — `exec bash 2>/dev/null || exec sh` KULLANMA: POSIX sh'te (dash/busybox)
+// exec başarısızlığı ölümcüldür; bash yoksa kabuk ANINDA 127 ile ölür ve `|| exec sh`
+// fallback'ine HİÇ ulaşılmaz (`2>/dev/null` yalnız mesajı gizler). Sonuç: bash'siz
+// container'larda "terminal bağlanmıyor". Önce `command -v bash` ile kontrol et.
+export const CONTAINER_SHELL_CMD =
+  'if command -v bash >/dev/null 2>&1; then exec bash; else exec sh; fi';
+
+// `docker exec` argümanları (saf, test edilebilir). target çağrı öncesi doğrulanmalı
+// (assertSafeContainerRef) — buradaki dizi shell-enjeksiyonuna açık değildir (argv).
+export function dockerExecArgs(target: string): string[] {
+  return ['exec', '-it', target, 'sh', '-c', CONTAINER_SHELL_CMD];
+}
+
 export interface TermSession {
   id: string;
   userId: string;

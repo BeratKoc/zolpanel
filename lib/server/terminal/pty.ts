@@ -1,7 +1,7 @@
 import * as nodePty from 'node-pty';
 import { randomUUID } from 'node:crypto';
 import { listContainers, assertSafeContainerRef } from '../docker';
-import { TerminalManager, type PtyLike, type SpawnFn } from './session';
+import { TerminalManager, dockerExecArgs, type PtyLike, type SpawnFn } from './session';
 
 // HMR/çoklu-import'ta tek instance (better-sqlite3 singleton kalıbı gibi).
 const g = globalThis as unknown as { __zolTerminal?: TerminalManager; __zolTermReaper?: ReturnType<typeof setInterval> };
@@ -28,7 +28,7 @@ export async function makeSpawner(target: string): Promise<SpawnFn> {
     const opts = { name: 'xterm-color', cols: 80, rows: 24, cwd: process.env.HOME || '/root', env: safeEnv };
     const p = target === 'host'
       ? nodePty.spawn('bash', [], opts)
-      : nodePty.spawn('docker', ['exec', '-it', target, 'sh', '-c', 'exec bash 2>/dev/null || exec sh'], opts);
+      : nodePty.spawn('docker', dockerExecArgs(target), opts);
     return {
       onData: (cb) => { p.onData(cb); },
       onExit: (cb) => { p.onExit(() => cb()); },

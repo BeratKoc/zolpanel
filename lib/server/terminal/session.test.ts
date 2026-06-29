@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { TerminalManager, TerminalLimitError, MAX_SESSIONS, type PtyLike } from './session';
+import { TerminalManager, TerminalLimitError, MAX_SESSIONS, dockerExecArgs, CONTAINER_SHELL_CMD, type PtyLike } from './session';
 
 function fakePty(): PtyLike & { written: string[]; resized: [number, number][]; killed: boolean } {
   return {
@@ -53,6 +53,16 @@ test('kill pty.kill çağırır + Map\'ten siler', () => {
   assert.strictEqual(p.killed, true);
   assert.strictEqual(m.count(), 0);
   assert.strictEqual(m.get(s.id, 'u1'), null);
+});
+
+test('dockerExecArgs: bash\'i `command -v` ile guard eder (exec-fail fatal regresyonu)', () => {
+  const args = dockerExecArgs('myctr');
+  assert.deepStrictEqual(args.slice(0, 5), ['exec', '-it', 'myctr', 'sh', '-c']);
+  // KIRIK kalıp olmamalı: `exec bash ... ||` POSIX sh'te ölümcül → bash'siz container'da 127
+  assert.ok(!/exec\s+bash[^|]*\|\|/.test(CONTAINER_SHELL_CMD), 'fatal `exec bash || exec sh` kalıbı kullanılmamalı');
+  // bash'i çalıştırmadan ÖNCE varlığını kontrol etmeli, ve her iki kabuğa da yol olmalı
+  assert.ok(/command -v bash/.test(CONTAINER_SHELL_CMD));
+  assert.ok(/exec bash/.test(CONTAINER_SHELL_CMD) && /exec sh/.test(CONTAINER_SHELL_CMD));
 });
 
 test('reapIdle yalnız idle olanları öldürür', () => {
